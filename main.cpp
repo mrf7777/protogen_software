@@ -11,7 +11,13 @@
 
 #include <httplib.h>
 
-class ProtogenHeadState final {
+class IToString {
+public:
+	~IToString() = default;
+	virtual std::string toString() const = 0;
+};
+
+class ProtogenHeadState final : public IToString {
 public:
 	enum class Emotion {
 		Normal,
@@ -33,6 +39,19 @@ public:
 			return Emotion::Normal;
 	}
 
+	static std::string emotionToString(Emotion e) {
+		switch(e) {
+		case Emotion::Normal:
+			return "normal";
+		case Emotion::Angry:
+			return "angry";
+		case Emotion::Happy:
+			return "happy";
+		case Emotion::Sad:
+			return "sad";
+		}
+	}
+
 	ProtogenHeadState() : m_emotion(Emotion::Normal) {}
 	Emotion emotion() const {
 		return m_emotion;
@@ -41,15 +60,23 @@ public:
 		m_emotion = emotion;
 	}
 
+	virtual std::string toString() const override {
+		return "ProtogenHeadState{emotion: " + emotionToString(emotion()) + "}";
+	}
+
 private:
 	Emotion m_emotion;
 };
 
-class AppState final {
+class AppState final : public IToString {
 public:
 	AppState() {}
 	ProtogenHeadState& protogenHeadState() {
 		return m_protogenHeadState;
+	}
+
+	virtual std::string toString() const override {
+		return "AppState{protogenHeadState: " + m_protogenHeadState.toString() + "}";
 	}
 private:
 	ProtogenHeadState m_protogenHeadState;
@@ -77,7 +104,7 @@ int main() {
 	httplib::Server srv;
 
 	srv.set_logger([=](const auto& req, const auto& res){
-		std::cout << "Got request: " << req.body << std::endl;
+		std::cout << "New app state: " << app_state->toString() << std::endl;
 	});
 
 	srv.Get("/", [](const httplib::Request & req, httplib::Response & res){
