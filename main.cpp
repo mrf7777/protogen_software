@@ -20,6 +20,19 @@ public:
 		Sad,
 	};
 
+	static Emotion emotionFromString(const std::string& s) {
+		if(s == "normal")
+			return Emotion::Normal;
+		else if(s == "angry")
+			return Emotion::Angry;
+		else if(s == "happy")
+			return Emotion::Happy;
+		else if(s == "sad")
+			return Emotion::Sad;
+		else
+			return Emotion::Normal;
+	}
+
 	ProtogenHeadState() : m_emotion(Emotion::Normal) {}
 	Emotion emotion() const {
 		return m_emotion;
@@ -72,13 +85,7 @@ int main() {
 	});
 
 	srv.Put("/protogen/head/emotion", [app_state](const auto& req, auto& res){
-			ProtogenHeadState::Emotion emotion;
-			if(req.body == "normal")
-				emotion = ProtogenHeadState::Emotion::Normal;
-			else if(req.body == "angry")
-				emotion = ProtogenHeadState::Emotion::Angry;
-			else
-				emotion = ProtogenHeadState::Emotion::Normal;
+			const auto emotion = ProtogenHeadState::emotionFromString(req.body);
 			app_state->protogenHeadState().setEmotion(emotion);
 	});
 	
