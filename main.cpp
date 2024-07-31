@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <cstdint>
 
 #include <graphics.h>
 #include <canvas.h>
@@ -15,6 +16,36 @@ class IToString {
 public:
 	~IToString() = default;
 	virtual std::string toString() const = 0;
+};
+
+class RGBColor : public IToString {
+public:
+	RGBColor(uint8_t r, uint8_t g, uint8_t b) : m_r(r), m_g(g), m_b(b) {}
+	RGBColor(std::string hex) {
+		if(hex.at(0) == '#') {
+			hex.erase(0, 1);
+		}
+		while(hex.length() != 6) {
+			hex += "0";
+		}
+		std::cout << hex << std::endl;
+		uint8_t r, g, b;
+		sscanf(hex.data(), "%02hhx%02hhx%02hhx", &r, &g, &b);
+		m_r = r;
+		m_g = g;
+		m_b = b;
+	}
+	uint8_t r() const { return m_r; }
+	uint8_t g() const { return m_g; }
+	uint8_t b() const { return m_b; }
+
+	virtual std::string toString() const override {
+		return "RGBColor{r: " + std::to_string(m_r) + ", g: " + std::to_string(m_g) + ", b: " + std::to_string(m_b) + "}";
+	}
+private:
+	uint8_t m_r;
+	uint8_t m_g;
+	uint8_t m_b;
 };
 
 class ProtogenHeadState final : public IToString {
@@ -52,20 +83,33 @@ public:
 		}
 	}
 
-	ProtogenHeadState() : m_emotion(Emotion::Normal) {}
+	ProtogenHeadState()
+		: m_emotion(Emotion::Normal),
+		m_mouthColor(RGBColor(0, 255, 0)),
+	        m_eyeColor(RGBColor(0, 255, 0))	
+	{}
+
 	Emotion emotion() const {
 		return m_emotion;
 	}
 	void setEmotion(Emotion emotion) {
 		m_emotion = emotion;
 	}
+	void setMouthColor(const RGBColor& color) {
+		m_mouthColor = color;
+	}
+	void setEyeColor(const RGBColor& color) {
+		m_eyeColor = color;
+	}
 
 	virtual std::string toString() const override {
-		return "ProtogenHeadState{emotion: " + emotionToString(emotion()) + "}";
+		return "ProtogenHeadState{emotion: " + emotionToString(emotion()) + ", eyeColor: " + m_eyeColor.toString() + ", mouthColor: " + m_mouthColor.toString() + "}";
 	}
 
 private:
 	Emotion m_emotion;
+	RGBColor m_mouthColor;
+	RGBColor m_eyeColor;
 };
 
 class AppState final : public IToString {
@@ -114,6 +158,12 @@ int main() {
 	srv.Put("/protogen/head/emotion", [app_state](const auto& req, auto& res){
 			const auto emotion = ProtogenHeadState::emotionFromString(req.body);
 			app_state->protogenHeadState().setEmotion(emotion);
+	});
+	srv.Put("/protogen/head/mouth/color", [app_state](const auto& req, auto& res){
+			app_state->protogenHeadState().setMouthColor(req.body);
+	});
+	srv.Put("/protogen/head/eye/color", [app_state](const auto& req, auto& res){
+			app_state->protogenHeadState().setEyeColor(req.body);
 	});
 	
 	auto ret = srv.set_mount_point("/static", "./static");

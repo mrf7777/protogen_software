@@ -8,6 +8,10 @@
 			button {
 				padding: 1em;
 			}
+			input[type=color] {
+				min-width: 6em;
+				min-height: 6em;
+			}
 		</style>
 	</head>
 	<body>
@@ -19,6 +23,17 @@
 			<button value="angry" id="angry-button">Angry</button>
 			<button value="happy" id="happy-button">Happy</button>
 			<button value="sad" id="sad-button">Sad</button>
+		</div>
+		<hr>
+		<div style="display: flex; flex-direction: column; gap: 1em;">
+			<div>
+				<input type="color" id="eye-color" name="eye-color" value="#ff0000">
+				<label for="eye-color">Eye Color</label>
+			</div>
+			<div>
+				<input type="color" id="mouth-color" name="mouth-color" value="#ff0000">
+				<label for="mouth-color">Mouth Color</label>
+			</div>
 		</div>
 
 		<script src="/static/main.js"></script>
