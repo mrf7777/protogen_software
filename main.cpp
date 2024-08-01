@@ -4,6 +4,8 @@
 #include <fstream>
 #include <sstream>
 #include <cstdint>
+#include <thread>
+#include <chrono>
 
 #include <graphics.h>
 #include <canvas.h>
@@ -11,6 +13,13 @@
 #include <pixel-mapper.h>
 
 #include <httplib.h>
+
+template<typename Data>
+class IViewData {
+public:
+	virtual ~IViewData() = default;
+	virtual void viewData(const Data& data) = 0;
+};
 
 class IToString {
 public:
@@ -28,7 +37,6 @@ public:
 		while(hex.length() != 6) {
 			hex += "0";
 		}
-		std::cout << hex << std::endl;
 		uint8_t r, g, b;
 		sscanf(hex.data(), "%02hhx%02hhx%02hhx", &r, &g, &b);
 		m_r = r;
@@ -95,6 +103,9 @@ public:
 	void setEmotion(Emotion emotion) {
 		m_emotion = emotion;
 	}
+	RGBColor mouthColor() const {
+		return m_mouthColor;
+	}
 	void setMouthColor(const RGBColor& color) {
 		m_mouthColor = color;
 	}
@@ -118,12 +129,50 @@ public:
 	ProtogenHeadState& protogenHeadState() {
 		return m_protogenHeadState;
 	}
+	const ProtogenHeadState& protogenHeadState() const {
+		return m_protogenHeadState;
+	}
 
 	virtual std::string toString() const override {
 		return "AppState{protogenHeadState: " + m_protogenHeadState.toString() + "}";
 	}
 private:
 	ProtogenHeadState m_protogenHeadState;
+};
+
+class ProtogenHeadMatrices final : public IViewData<AppState> {
+public:
+	ProtogenHeadMatrices(int argc, char *argv[]) {
+		rgb_matrix::RGBMatrix::Options options;
+		options.rows = 32;
+		options.cols = 64;
+		options.chain_length = 2;
+		options.brightness = 100;
+		options.hardware_mapping = "adafruit-hat";
+
+		rgb_matrix::RuntimeOptions runtime_opts;
+		runtime_opts.drop_privileges = -1;
+
+		m_matrix = std::unique_ptr<rgb_matrix::RGBMatrix>(
+			rgb_matrix::RGBMatrix::CreateFromOptions(
+				options, runtime_opts
+			)
+		);
+		m_matrix->Clear();
+	};
+	~ProtogenHeadMatrices() {
+		m_matrix->Clear();
+	}
+	virtual void viewData(const AppState& data) override {
+		m_matrix->Clear();
+		m_matrix->SetPixel(0, 0, 255, 255, 255);
+		m_matrix->SetPixel(127, 0, 255, 255, 255);
+		m_matrix->SetPixel(127, 63, 255, 255, 255);
+		m_matrix->SetPixel(0, 63, 255, 255, 255);
+		m_matrix->SetPixel(data.protogenHeadState().mouthColor().r()/2, 31, 255, 255, 255);
+	}
+private:
+	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
 };
 
 std::string read_file_to_str(const std::string& filename) {
@@ -133,22 +182,22 @@ std::string read_file_to_str(const std::string& filename) {
 	return buffer.str();
 }
 
-int main() {
-	std::cout << "Hello, World!" << std::endl;
+void data_viewer_thread_function(std::shared_ptr<AppState> app_state, std::unique_ptr<IViewData<AppState>> data_viewer) {
+	static const int FPS = 30;
+	while(true) {
+		data_viewer->viewData(*app_state);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000/FPS));
+	}
+}
 
+int main(int argc, char *argv[]) {
 	auto app_state = std::shared_ptr<AppState>(new AppState());
 
-	const auto options = rgb_matrix::RGBMatrix::Options();
-	const auto runtime_options = rgb_matrix::RuntimeOptions();
-	auto matrix = std::unique_ptr<rgb_matrix::RGBMatrix>(rgb_matrix::RGBMatrix::CreateFromOptions(
-		options,
-		runtime_options
-	));
+	auto data_viewer = std::unique_ptr<IViewData<AppState>>(new ProtogenHeadMatrices(argc, argv));
 
 	httplib::Server srv;
 
 	srv.set_logger([=](const auto& req, const auto& res){
-		std::cout << "New app state: " << app_state->toString() << std::endl;
 	});
 
 	srv.Get("/", [](const httplib::Request & req, httplib::Response & res){
@@ -158,7 +207,7 @@ int main() {
 	srv.Put("/protogen/head/emotion", [app_state](const auto& req, auto& res){
 			const auto emotion = ProtogenHeadState::emotionFromString(req.body);
 			app_state->protogenHeadState().setEmotion(emotion);
-	});
+	});	
 	srv.Put("/protogen/head/mouth/color", [app_state](const auto& req, auto& res){
 			app_state->protogenHeadState().setMouthColor(req.body);
 	});
@@ -170,6 +219,9 @@ int main() {
 	if(!ret) {
 		std::cerr << "Could not mount static directory to web server." << std::endl;
 	}
+
+	// start threads
+	std::thread data_viewer_thread(data_viewer_thread_function, app_state, std::move(data_viewer));
 
 	srv.listen("0.0.0.0", 8080);
 }
