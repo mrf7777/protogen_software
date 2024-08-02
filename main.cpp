@@ -83,7 +83,7 @@ public:
 	enum class Emotion {
 		Normal,
 		Angry,
-		Happy,
+		Flustered,
 		Sad,
 	};
 
@@ -92,8 +92,8 @@ public:
 			return Emotion::Normal;
 		else if(s == "angry")
 			return Emotion::Angry;
-		else if(s == "happy")
-			return Emotion::Happy;
+		else if(s == "flustered")
+			return Emotion::Flustered;
 		else if(s == "sad")
 			return Emotion::Sad;
 		else
@@ -106,8 +106,8 @@ public:
 			return "normal";
 		case Emotion::Angry:
 			return "angry";
-		case Emotion::Happy:
-			return "happy";
+		case Emotion::Flustered:
+			return "flustered";
 		case Emotion::Sad:
 			return "sad";
 		}
@@ -169,11 +169,48 @@ private:
 	ProtogenHeadState m_protogenHeadState;
 };
 
+class EmotionDrawer final {
+public:
+	EmotionDrawer(const std::string& emotion_images_path = "./protogen_images/eyes") {
+		std::vector<std::filesystem::path> files_in_directory;
+		for(const auto& file : std::filesystem::directory_iterator(emotion_images_path)) {
+			files_in_directory.push_back(file.path());
+		}
+		// bind image files to the corresponding emotions
+		std::vector<ProtogenHeadState::Emotion> emotions{
+			ProtogenHeadState::Emotion::Normal,
+			ProtogenHeadState::Emotion::Sad,
+			ProtogenHeadState::Emotion::Angry,
+			ProtogenHeadState::Emotion::Flustered,
+		};
+		for(const auto& emotion : emotions) {
+			auto file_for_emotion = std::find_if(files_in_directory.begin(), files_in_directory.end(), [emotion](std::filesystem::path& p){
+				if(p.filename().string().find(ProtogenHeadState::emotionToString(emotion)) != std::string::npos) {
+					// found image file for the emotion
+					return true;
+				}
+				else
+					return false;
+			});
+			auto image_for_emotion = image::loadImage(file_for_emotion->string());
+			if(image_for_emotion.has_value()) {
+				m_emotionToImage.insert({emotion, image_for_emotion.value()});
+			}
+		}
+	}
+	void drawToCanvas(rgb_matrix::Canvas& canvas, ProtogenHeadState::Emotion emotion) {
+		writeImageToCanvas(m_emotionToImage.at(emotion), &canvas);
+	}
+private:
+	std::map<ProtogenHeadState::Emotion, Magick::Image> m_emotionToImage;
+};
+
 class ProtogenHeadMatrices final : public IViewData<AppState> {
 public:
 	ProtogenHeadMatrices(int argc, char *argv[], std::unique_ptr<audio::IAudioProvider> audio_provider)
-       		: m_headImages("./protogen_images/face", image::Spectrum(0.0, 255.0, 3)),
-		m_audioProvider(std::move(audio_provider))
+       		: m_headImages("./protogen_images/mouth", 0.0, 255.0),
+		m_audioProvider(std::move(audio_provider)),
+		m_emotionDrawer()
 	{
 		rgb_matrix::RGBMatrix::Options options;
 		options.rows = 32;
@@ -204,10 +241,12 @@ public:
 		//m_matrix->SetPixel(data.protogenHeadState().mouthColor().r()/2, 31, 255, 255, 255);
 		const auto audio_level = m_audioProvider->audioLevel();
 		writeImageToCanvas(m_headImages.imageForValue(audio_level), m_matrix.get());
+		m_emotionDrawer.drawToCanvas(*m_matrix, data.protogenHeadState().emotion());
 	}
 private:
 	std::unique_ptr<audio::IAudioProvider> m_audioProvider;
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
+	EmotionDrawer m_emotionDrawer;
 	image::ImageSpectrum m_headImages;
 	mutable std::mutex m_mutex;
 };

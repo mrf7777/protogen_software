@@ -24,6 +24,7 @@ static std::optional<Magick::Image> loadImage(const std::string& filename) {
 
 class Spectrum {
 public:
+	Spectrum() : Spectrum(0.0, 100.0, 10) {}
 	Spectrum(double min, double max, unsigned int buckets, double tolerance = 0.1) {
 		if(min > max) {
 			std::swap(min, max);
@@ -79,11 +80,12 @@ public:
 	 * This class uses a Spectrum to assist in choosing an image
 	 * based on some continuous number.
 	 */
-	ImageSpectrum(const std::string& images_directory, Spectrum spectrum) : m_spectrum(spectrum) {
+	ImageSpectrum(const std::string& images_directory, double min, double max) {
 		std::vector<std::filesystem::path> files_in_directory;
 		for(const auto& file : std::filesystem::directory_iterator(images_directory)) {
 			files_in_directory.push_back(file.path());
 		}
+		m_spectrum = Spectrum(min, max, files_in_directory.size());
 		std::sort(files_in_directory.begin(), files_in_directory.end(), [](std::filesystem::path a, std::filesystem::path b){
 			const auto a_number = a.filename().string().substr(0, a.filename().string().size()-4);
 			const auto b_number = b.filename().string().substr(0, b.filename().string().size()-4);
