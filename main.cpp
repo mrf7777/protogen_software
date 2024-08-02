@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <thread>
 #include <chrono>
+#include <mutex>
 
 #include <graphics.h>
 #include <canvas.h>
@@ -13,6 +14,26 @@
 #include <pixel-mapper.h>
 
 #include <httplib.h>
+
+#include <Magick++.h>
+
+#include "Images.h"
+
+static void writeImagetoCanvas(const Magick::Image &img, rgb_matrix::Canvas* canvas) {
+	for(std::size_t y = 0; y < img.rows(); ++y) {
+		for(std::size_t x = 0; x < img.columns(); ++x) {
+			const Magick::Color& c = img.pixelColor(x, y);
+			if(c.alphaQuantum() < 255) {
+				canvas->SetPixel(
+					x, y,
+					ScaleQuantumToChar(c.redQuantum()),
+					ScaleQuantumToChar(c.greenQuantum()),
+					ScaleQuantumToChar(c.blueQuantum())
+				);
+			}
+		}
+	}
+}
 
 template<typename Data>
 class IViewData {
@@ -98,29 +119,36 @@ public:
 	{}
 
 	Emotion emotion() const {
+		std::lock_guard<std::mutex> lock(m_mutex);
 		return m_emotion;
 	}
 	void setEmotion(Emotion emotion) {
+		std::lock_guard<std::mutex> lock(m_mutex);
 		m_emotion = emotion;
 	}
 	RGBColor mouthColor() const {
+		std::lock_guard<std::mutex> lock(m_mutex);
 		return m_mouthColor;
 	}
 	void setMouthColor(const RGBColor& color) {
+		std::lock_guard<std::mutex> lock(m_mutex);
 		m_mouthColor = color;
 	}
 	void setEyeColor(const RGBColor& color) {
+		std::lock_guard<std::mutex> lock(m_mutex);
 		m_eyeColor = color;
 	}
 
 	virtual std::string toString() const override {
-		return "ProtogenHeadState{emotion: " + emotionToString(emotion()) + ", eyeColor: " + m_eyeColor.toString() + ", mouthColor: " + m_mouthColor.toString() + "}";
+		std::lock_guard<std::mutex> lock(m_mutex);
+		return "ProtogenHeadState{emotion: " + emotionToString(m_emotion) + ", eyeColor: " + m_eyeColor.toString() + ", mouthColor: " + m_mouthColor.toString() + "}";
 	}
 
 private:
 	Emotion m_emotion;
 	RGBColor m_mouthColor;
 	RGBColor m_eyeColor;
+	mutable std::mutex m_mutex;
 };
 
 class AppState final : public IToString {
@@ -164,6 +192,7 @@ public:
 		m_matrix->Clear();
 	}
 	virtual void viewData(const AppState& data) override {
+		std::cout << data.toString() << std::endl;
 		m_matrix->Clear();
 		m_matrix->SetPixel(0, 0, 255, 255, 255);
 		m_matrix->SetPixel(127, 0, 255, 255, 255);
@@ -185,12 +214,15 @@ std::string read_file_to_str(const std::string& filename) {
 void data_viewer_thread_function(std::shared_ptr<AppState> app_state, std::unique_ptr<IViewData<AppState>> data_viewer) {
 	static const int FPS = 30;
 	while(true) {
+		std::cout << "Draw!" << std::endl;
 		data_viewer->viewData(*app_state);
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000/FPS));
 	}
 }
 
 int main(int argc, char *argv[]) {
+	Magick::InitializeMagick(*argv);
+	
 	auto app_state = std::shared_ptr<AppState>(new AppState());
 
 	auto data_viewer = std::unique_ptr<IViewData<AppState>>(new ProtogenHeadMatrices(argc, argv));
