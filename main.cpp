@@ -18,6 +18,7 @@
 #include <Magick++.h>
 
 #include "Images.h"
+#include "Audio.h"
 
 static void writeImageToCanvas(const Magick::Image &img, rgb_matrix::Canvas* canvas) {
 	for(std::size_t y = 0; y < img.rows(); ++y) {
@@ -170,8 +171,9 @@ private:
 
 class ProtogenHeadMatrices final : public IViewData<AppState> {
 public:
-	ProtogenHeadMatrices(int argc, char *argv[])
-       		: m_headImages("./protogen_images/face", image::Spectrum(0.0, 255.0, 3))
+	ProtogenHeadMatrices(int argc, char *argv[], std::unique_ptr<audio::IAudioProvider> audio_provider)
+       		: m_headImages("./protogen_images/face", image::Spectrum(0.0, 255.0, 3)),
+		m_audioProvider(std::move(audio_provider))
 	{
 		rgb_matrix::RGBMatrix::Options options;
 		options.rows = 32;
@@ -200,10 +202,11 @@ public:
 		m_matrix->Clear();
 		//m_matrix->SetPixel(0, 0, 255, 255, 255);
 		//m_matrix->SetPixel(data.protogenHeadState().mouthColor().r()/2, 31, 255, 255, 255);
-		const auto red = data.protogenHeadState().mouthColor().r();
-		writeImageToCanvas(m_headImages.imageForValue(red), m_matrix.get());
+		const auto audio_level = m_audioProvider->audioLevel();
+		writeImageToCanvas(m_headImages.imageForValue(audio_level), m_matrix.get());
 	}
 private:
+	std::unique_ptr<audio::IAudioProvider> m_audioProvider;
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
 	image::ImageSpectrum m_headImages;
 	mutable std::mutex m_mutex;
@@ -229,8 +232,6 @@ int main(int argc, char *argv[]) {
 	
 	auto app_state = std::shared_ptr<AppState>(new AppState());
 
-	auto data_viewer = std::unique_ptr<IViewData<AppState>>(new ProtogenHeadMatrices(argc, argv));
-
 	httplib::Server srv;
 
 	srv.set_logger([=](const auto& req, const auto& res){
@@ -250,7 +251,12 @@ int main(int argc, char *argv[]) {
 	srv.Put("/protogen/head/eye/color", [app_state](const auto& req, auto& res){
 			app_state->protogenHeadState().setEyeColor(req.body);
 	});
-	
+
+	// use phone as a microphone/audio provider
+	auto web_audio_provider = std::unique_ptr<audio::WebsiteAudioProvider>(new audio::WebsiteAudioProvider(srv, "/protogen/head/audio-loudness"));
+
+	auto data_viewer = std::unique_ptr<IViewData<AppState>>(new ProtogenHeadMatrices(argc, argv, std::move(web_audio_provider)));
+
 	auto ret = srv.set_mount_point("/static", "./static");
 	if(!ret) {
 		std::cerr << "Could not mount static directory to web server." << std::endl;

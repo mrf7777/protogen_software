@@ -32,3 +32,13 @@ let eye_color_input = document.getElementById("eye-color")
 eye_color_input.addEventListener("input", (e) => {
 	setEyeColor(e.target.value)
 })
+
+// audio levels
+function setAudioLevel(level) {
+	fetch(`${origin}/protogen/head/audio-loudness`, {method: "put", body: level})
+}
+
+let audio_level_input = document.getElementById("audio-level")
+audio_level_input.addEventListener("input", (e) => {
+	setAudioLevel(e.target.value)
+})
