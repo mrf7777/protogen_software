@@ -9,6 +9,8 @@
 #include <Magick++.h>
 #include <magick/image.h>
 
+#include "utils.h"
+
 namespace image {
 
 static std::optional<Magick::Image> loadImage(const std::string& filename) {
@@ -107,6 +109,21 @@ public:
 private:
 	std::vector<Magick::Image> m_images;
 	Spectrum m_spectrum;
+};
+
+class StaticImageDrawer final {
+public:
+	StaticImageDrawer(const std::string& image_path) {
+		auto image_result = image::loadImage(image_path);
+		if(image_result.has_value()) {
+			m_image = image_result.value();
+		}
+	}
+	void drawToCanvas(rgb_matrix::Canvas& canvas) {
+		writeImageToCanvas(m_image, &canvas);
+	}
+private:
+	Magick::Image m_image;
 };
 
 }
