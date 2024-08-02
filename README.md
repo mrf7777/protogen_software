@@ -16,3 +16,5 @@ Script someone made that does all of these steps: https://github.com/MrStashley/
 
 The repo where that script lives: https://github.com/MrStashley/Android-RasPi-WifiP2P-Communication?tab=readme-ov-file
 
+How to use a small MEMS mic and I2C sound sensor module to measure loudness:
+https://pcbartists.com/product-documentation/accurate-raspberry-pi-decibel-meter/
