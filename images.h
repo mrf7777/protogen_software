@@ -111,6 +111,35 @@ private:
 	Spectrum m_spectrum;
 };
 
+class ImagesDirectoryResource final {
+public:
+	/**
+	 * Expects a directory path with PNG images.
+	 * Creates a map between filename and images. Filename
+	 * used for the key does not include directory names
+	 * or file extentions.
+	 */
+	ImagesDirectoryResource (const std::string& images_directory) {
+		std::vector<std::filesystem::path> files_in_directory;
+		for(const auto& file : std::filesystem::directory_iterator(images_directory)) {
+			auto result_image = loadImage(file.path().string());
+			if(result_image.has_value()) {
+				const auto key = file.path().filename().replace_extension().string();
+				m_images.insert({key, result_image.value()});
+			}
+		}
+	}
+	std::optional<Magick::Image> getImage(const std::string& key) const {
+		try {
+			return {m_images.at(key)};
+		} catch(std::out_of_range) {
+			return {};
+		}
+	}
+private:
+	std::map<std::string, Magick::Image> m_images;
+};
+
 class StaticImageDrawer final {
 public:
 	StaticImageDrawer(const std::string& image_path) {

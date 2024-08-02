@@ -112,43 +112,21 @@ private:
 	ProtogenHeadState m_protogenHeadState;
 };
 
-
 class EmotionDrawer final {
 public:
-	EmotionDrawer(const std::string& emotion_images_path = "./protogen_images/eyes") {
-		std::vector<std::filesystem::path> files_in_directory;
-		for(const auto& file : std::filesystem::directory_iterator(emotion_images_path)) {
-			files_in_directory.push_back(file.path());
-		}
-		// bind image files to the corresponding emotions
-		std::vector<ProtogenHeadState::Emotion> emotions{
-			ProtogenHeadState::Emotion::Normal,
-			ProtogenHeadState::Emotion::Sad,
-			ProtogenHeadState::Emotion::Angry,
-			ProtogenHeadState::Emotion::Flustered,
-		};
-		for(const auto& emotion : emotions) {
-			auto file_for_emotion = std::find_if(files_in_directory.begin(), files_in_directory.end(), [emotion](std::filesystem::path& p){
-				if(p.filename().string().find(ProtogenHeadState::emotionToString(emotion)) != std::string::npos) {
-					// found image file for the emotion
-					return true;
-				}
-				else
-					return false;
-			});
-			auto image_for_emotion = image::loadImage(file_for_emotion->string());
-			if(image_for_emotion.has_value()) {
-				m_emotionToImage.insert({emotion, image_for_emotion.value()});
-			}
-		}
+	EmotionDrawer(const std::string& emotions_directory = "./protogen_images/eyes")
+		: m_images(emotions_directory)	
+	{
 	}
 	void drawToCanvas(rgb_matrix::Canvas& canvas, ProtogenHeadState::Emotion emotion) {
-		writeImageToCanvas(m_emotionToImage.at(emotion), &canvas);
+		auto image = m_images.getImage(ProtogenHeadState::emotionToString(emotion));
+		if(image.has_value()) {
+			writeImageToCanvas(image.value(), &canvas);
+		}
 	}
 private:
-	std::map<ProtogenHeadState::Emotion, Magick::Image> m_emotionToImage;
+	image::ImagesDirectoryResource m_images;
 };
-
 
 class ProtogenHeadMatrices final : public IViewData<AppState> {
 public:
@@ -168,6 +146,7 @@ public:
 
 		rgb_matrix::RuntimeOptions runtime_opts;
 		runtime_opts.drop_privileges = -1;
+		runtime_opts.gpio_slowdown = 2;
 
 		m_matrix = std::unique_ptr<rgb_matrix::RGBMatrix>(
 			rgb_matrix::RGBMatrix::CreateFromOptions(
