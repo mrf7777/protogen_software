@@ -205,12 +205,28 @@ private:
 	std::map<ProtogenHeadState::Emotion, Magick::Image> m_emotionToImage;
 };
 
+class StaticImageDrawer final {
+public:
+	StaticImageDrawer(const std::string& image_path) {
+		auto image_result = image::loadImage(image_path);
+		if(image_result.has_value()) {
+			m_image = image_result.value();
+		}
+	}
+	void drawToCanvas(rgb_matrix::Canvas& canvas) {
+		writeImageToCanvas(m_image, &canvas);
+	}
+private:
+	Magick::Image m_image;
+};
+
 class ProtogenHeadMatrices final : public IViewData<AppState> {
 public:
 	ProtogenHeadMatrices(int argc, char *argv[], std::unique_ptr<audio::IAudioProvider> audio_provider)
        		: m_headImages("./protogen_images/mouth", 0.0, 255.0),
 		m_audioProvider(std::move(audio_provider)),
-		m_emotionDrawer()
+		m_emotionDrawer(),
+		m_staticImageDrawer("./protogen_images/static/nose.png")
 	{
 		rgb_matrix::RGBMatrix::Options options;
 		options.rows = 32;
@@ -242,12 +258,14 @@ public:
 		const auto audio_level = m_audioProvider->audioLevel();
 		writeImageToCanvas(m_headImages.imageForValue(audio_level), m_matrix.get());
 		m_emotionDrawer.drawToCanvas(*m_matrix, data.protogenHeadState().emotion());
+		m_staticImageDrawer.drawToCanvas(*m_matrix);
 	}
 private:
 	std::unique_ptr<audio::IAudioProvider> m_audioProvider;
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
 	EmotionDrawer m_emotionDrawer;
 	image::ImageSpectrum m_headImages;
+	StaticImageDrawer m_staticImageDrawer;
 	mutable std::mutex m_mutex;
 };
 
