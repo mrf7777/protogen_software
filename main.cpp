@@ -195,6 +195,7 @@ public:
 		m_matrix->Clear();
 	}
 	virtual void viewData(const AppState& data) override {
+		std::lock_guard<std::mutex> lock(m_mutex);
 		std::cout << data.toString() << std::endl;
 		m_matrix->Clear();
 		//m_matrix->SetPixel(0, 0, 255, 255, 255);
@@ -205,6 +206,7 @@ public:
 private:
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
 	image::ImageSpectrum m_headImages;
+	mutable std::mutex m_mutex;
 };
 
 std::string read_file_to_str(const std::string& filename) {
