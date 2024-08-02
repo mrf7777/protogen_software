@@ -19,7 +19,7 @@
 
 #include "Images.h"
 
-static void writeImagetoCanvas(const Magick::Image &img, rgb_matrix::Canvas* canvas) {
+static void writeImageToCanvas(const Magick::Image &img, rgb_matrix::Canvas* canvas) {
 	for(std::size_t y = 0; y < img.rows(); ++y) {
 		for(std::size_t x = 0; x < img.columns(); ++x) {
 			const Magick::Color& c = img.pixelColor(x, y);
@@ -170,13 +170,16 @@ private:
 
 class ProtogenHeadMatrices final : public IViewData<AppState> {
 public:
-	ProtogenHeadMatrices(int argc, char *argv[]) {
+	ProtogenHeadMatrices(int argc, char *argv[])
+       		: m_headImages("./protogen_images/face", image::Spectrum(0.0, 255.0, 3))
+	{
 		rgb_matrix::RGBMatrix::Options options;
 		options.rows = 32;
 		options.cols = 64;
 		options.chain_length = 2;
 		options.brightness = 100;
 		options.hardware_mapping = "adafruit-hat";
+		options.led_rgb_sequence = "RBG";
 
 		rgb_matrix::RuntimeOptions runtime_opts;
 		runtime_opts.drop_privileges = -1;
@@ -194,14 +197,14 @@ public:
 	virtual void viewData(const AppState& data) override {
 		std::cout << data.toString() << std::endl;
 		m_matrix->Clear();
-		m_matrix->SetPixel(0, 0, 255, 255, 255);
-		m_matrix->SetPixel(127, 0, 255, 255, 255);
-		m_matrix->SetPixel(127, 63, 255, 255, 255);
-		m_matrix->SetPixel(0, 63, 255, 255, 255);
-		m_matrix->SetPixel(data.protogenHeadState().mouthColor().r()/2, 31, 255, 255, 255);
+		//m_matrix->SetPixel(0, 0, 255, 255, 255);
+		//m_matrix->SetPixel(data.protogenHeadState().mouthColor().r()/2, 31, 255, 255, 255);
+		const auto red = data.protogenHeadState().mouthColor().r();
+		writeImageToCanvas(m_headImages.imageForValue(red), m_matrix.get());
 	}
 private:
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
+	image::ImageSpectrum m_headImages;
 };
 
 std::string read_file_to_str(const std::string& filename) {
@@ -214,7 +217,6 @@ std::string read_file_to_str(const std::string& filename) {
 void data_viewer_thread_function(std::shared_ptr<AppState> app_state, std::unique_ptr<IViewData<AppState>> data_viewer) {
 	static const int FPS = 30;
 	while(true) {
-		std::cout << "Draw!" << std::endl;
 		data_viewer->viewData(*app_state);
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000/FPS));
 	}

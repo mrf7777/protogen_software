@@ -24,7 +24,7 @@ static std::optional<Magick::Image> loadImage(const std::string& filename) {
 
 class Spectrum {
 public:
-	Spectrum(double min, double max, unsigned int buckets) {
+	Spectrum(double min, double max, unsigned int buckets, double tolerance = 0.1) {
 		if(min > max) {
 			std::swap(min, max);
 		}
@@ -37,14 +37,17 @@ public:
 
 		const auto interval_distance = m_max - m_min;
 		const auto bucket_distance = interval_distance / m_buckets;
-		double current_start = m_min;
+		std::cout << "whole interval distance" << interval_distance << std::endl;
+		std::cout << "bucket_distance" << bucket_distance << std::endl;
 		int buckets_created = 0;
 		while(buckets_created != m_buckets) {
 			double bucket_start = m_min + (buckets_created * bucket_distance);
-			double bucket_end = bucket_start + bucket_distance;
+			double bucket_end = bucket_start + bucket_distance + tolerance;
 			m_computed_buckets.push_back(std::make_pair(bucket_start, bucket_end));
 			buckets_created++;
+			std::cout << "start: " << bucket_start << " end: " << bucket_end << std::endl;
 		}
+		std::cout << "Buckets created: " << buckets_created << std::endl;
 	}
 	std::size_t bucket(double value) const {
 		value = std::clamp(value, m_min, m_max);
@@ -88,7 +91,7 @@ public:
 		});
 
 		for(const auto& file : files_in_directory) {
-			const auto image = loadImage(file.filename().string());
+			const auto image = loadImage(file.string());
 			if(!image.has_value()) {
 				continue;
 			}
