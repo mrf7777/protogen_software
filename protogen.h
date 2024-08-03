@@ -221,6 +221,9 @@ public:
 		auto frame = m_frameProvider->getFrame(emotion, mouth_frame_index);
 		m_matrix->SwapOnVSync(frame);
 	}
+	void clear() {
+		m_matrix->Clear();
+	}
 private:
 	std::unique_ptr<ProtogenHeadFrameProvider> m_frameProvider;
 	std::unique_ptr<audio::IAudioProvider> m_audioProvider;
