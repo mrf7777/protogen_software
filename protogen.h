@@ -193,7 +193,6 @@ public:
 
 		rgb_matrix::RuntimeOptions runtime_opts;
 		runtime_opts.drop_privileges = -1;
-		runtime_opts.gpio_slowdown = 2;
 
 		m_matrix = std::unique_ptr<rgb_matrix::RGBMatrix>(
 			rgb_matrix::RGBMatrix::CreateFromOptions(
