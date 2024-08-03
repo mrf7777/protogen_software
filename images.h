@@ -106,6 +106,12 @@ public:
 		const auto bucket = m_spectrum.bucket(value);
 		return m_images.at(bucket);
 	}
+	std::vector<Magick::Image> images() const {
+		return m_images;
+	}
+	Spectrum& spectrum() {
+		return m_spectrum;
+	}
 private:
 	std::vector<Magick::Image> m_images;
 	Spectrum m_spectrum;

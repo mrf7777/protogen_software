@@ -30,6 +30,10 @@ public:
 		Sad,
 	};
 
+	static std::vector<Emotion> allEmotions() {
+		return {Emotion::Normal, Emotion::Angry, Emotion::Flustered, Emotion::Sad};
+	}
+
 	static Emotion emotionFromString(const std::string& s) {
 		if(s == "normal")
 			return Emotion::Normal;
@@ -128,6 +132,49 @@ private:
 	image::ImagesDirectoryResource m_images;
 };
 
+class ProtogenHeadFrameProvider final {
+public:
+	ProtogenHeadFrameProvider(rgb_matrix::RGBMatrix* rgb_matrix, std::size_t mouth_states, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer) {
+		const auto emotions = ProtogenHeadState::allEmotions();
+		// pre-render all of the face images per emotion and per mouth state
+		for(const auto& emotion : emotions) {
+			const auto emotion_number = static_cast<int>(emotion);
+			m_frameCanvases.push_back(std::vector<rgb_matrix::FrameCanvas*>());
+			for(std::size_t mouth_state = 0; mouth_state < mouth_states; mouth_state++) {
+				auto frame = rgb_matrix->CreateFrameCanvas();
+				m_frameCanvases.at(emotion_number).push_back(frame);
+				renderFrame(frame, emotion, mouth_state, emotion_drawer, mouth_images, static_drawer);
+			}
+		}
+	}
+	rgb_matrix::FrameCanvas* getFrame(ProtogenHeadState::Emotion emotion, std::size_t mouth_state)  {
+		return m_frameCanvases.at(static_cast<int>(emotion)).at(mouth_state);
+	}
+private:
+	void renderFrame(rgb_matrix::FrameCanvas* frame, ProtogenHeadState::Emotion emotion, std::size_t mouth_state, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer) {
+		frame->Clear();
+		// mouth
+		writeImageToCanvas(mouth_images.images().at(mouth_state), frame);
+		// emotion
+		emotion_drawer.drawToCanvas(*frame, emotion);
+		// static
+		static_drawer.drawToCanvas(*frame);
+	}
+
+	// Stores pre-computed frames.
+	// `m_frameCanvas[e][m]` returns a pre-rendered frame for:
+	// emotion `e` and mouth position `m`. `e` is the integer version
+	// of the emotion.
+	std::vector<std::vector<rgb_matrix::FrameCanvas*>> m_frameCanvases;
+};
+
+std::string read_file_to_str(const std::string& filename) {
+	std::ifstream file(filename);
+	std::stringstream buffer;
+	buffer << file.rdbuf();
+	return buffer.str();
+}
+
 class ProtogenHeadMatrices final : public IViewData<AppState> {
 public:
 	ProtogenHeadMatrices(int argc, char *argv[], std::unique_ptr<audio::IAudioProvider> audio_provider)
@@ -154,6 +201,14 @@ public:
 			)
 		);
 		m_matrix->Clear();
+
+		m_frameProvider = std::unique_ptr<ProtogenHeadFrameProvider>(new ProtogenHeadFrameProvider(
+			m_matrix.get(),
+			m_headImages.images().size(),
+			m_emotionDrawer,
+			m_headImages,
+			m_staticImageDrawer
+		));
 	};
 	~ProtogenHeadMatrices() {
 		m_matrix->Clear();
@@ -161,15 +216,14 @@ public:
 	virtual void viewData(const AppState& data) override {
 		std::lock_guard<std::mutex> lock(m_mutex);
 		std::cout << data.toString() << std::endl;
-		m_matrix->Clear();
-		//m_matrix->SetPixel(0, 0, 255, 255, 255);
-		//m_matrix->SetPixel(data.protogenHeadState().mouthColor().r()/2, 31, 255, 255, 255);
 		const auto audio_level = m_audioProvider->audioLevel();
-		writeImageToCanvas(m_headImages.imageForValue(audio_level), m_matrix.get());
-		m_emotionDrawer.drawToCanvas(*m_matrix, data.protogenHeadState().emotion());
-		m_staticImageDrawer.drawToCanvas(*m_matrix);
+		const auto mouth_frame_index = m_headImages.spectrum().bucket(audio_level);
+		const auto emotion = data.protogenHeadState().emotion();
+		auto frame = m_frameProvider->getFrame(emotion, mouth_frame_index);
+		m_matrix->SwapOnVSync(frame);
 	}
 private:
+	std::unique_ptr<ProtogenHeadFrameProvider> m_frameProvider;
 	std::unique_ptr<audio::IAudioProvider> m_audioProvider;
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
 	EmotionDrawer m_emotionDrawer;
@@ -178,11 +232,6 @@ private:
 	mutable std::mutex m_mutex;
 };
 
-std::string read_file_to_str(const std::string& filename) {
-	std::ifstream file(filename);
-	std::stringstream buffer;
-	buffer << file.rdbuf();
-	return buffer.str();
-}
+
 
 #endif
