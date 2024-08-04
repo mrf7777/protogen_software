@@ -10,6 +10,7 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
+#include <cstdlib>
 
 #include <graphics.h>
 #include <canvas.h>
@@ -28,10 +29,13 @@ public:
 		Angry,
 		Flustered,
 		Sad,
+		Disappointed,
+		Flirty,
+		Scared,
 	};
 
 	static std::vector<Emotion> allEmotions() {
-		return {Emotion::Normal, Emotion::Angry, Emotion::Flustered, Emotion::Sad};
+		return {Emotion::Normal, Emotion::Angry, Emotion::Flustered, Emotion::Sad, Emotion::Disappointed, Emotion::Flirty, Emotion::Scared};
 	}
 
 	static Emotion emotionFromString(const std::string& s) {
@@ -43,6 +47,12 @@ public:
 			return Emotion::Flustered;
 		else if(s == "sad")
 			return Emotion::Sad;
+		else if(s == "disappointed")
+			return Emotion::Disappointed;
+		else if(s == "flirty")
+			return Emotion::Flirty;
+		else if(s == "scared")
+			return Emotion::Scared;
 		else
 			return Emotion::Normal;
 	}
@@ -57,6 +67,12 @@ public:
 			return "flustered";
 		case Emotion::Sad:
 			return "sad";
+		case Emotion::Disappointed:
+			return "disappointed";
+		case Emotion::Flirty:
+			return "flirty";
+		case Emotion::Scared:
+			return "scared";
 		}
 	}
 
@@ -142,6 +158,10 @@ public:
 			m_frameCanvases.push_back(std::vector<rgb_matrix::FrameCanvas*>());
 			for(std::size_t mouth_state = 0; mouth_state < mouth_states; mouth_state++) {
 				auto frame = rgb_matrix->CreateFrameCanvas();
+				if(frame == nullptr) {
+					std::cerr << "Could not allocate a frame canvas during pre-rendering protogen head." << std::endl;
+					abort();
+				}
 				m_frameCanvases.at(emotion_number).push_back(frame);
 				renderFrame(frame, emotion, mouth_state, emotion_drawer, mouth_images, static_drawer);
 			}
