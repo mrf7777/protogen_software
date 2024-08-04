@@ -32,10 +32,22 @@ public:
 		Disappointed,
 		Flirty,
 		Scared,
+		Owo,
+		Uwu,
 	};
 
 	static std::vector<Emotion> allEmotions() {
-		return {Emotion::Normal, Emotion::Angry, Emotion::Flustered, Emotion::Sad, Emotion::Disappointed, Emotion::Flirty, Emotion::Scared};
+		return {
+			Emotion::Normal,
+			Emotion::Angry,
+			Emotion::Flustered,
+			Emotion::Sad,
+			Emotion::Disappointed,
+			Emotion::Flirty,
+			Emotion::Scared,
+			Emotion::Owo,
+			Emotion::Uwu,
+		};
 	}
 
 	static Emotion emotionFromString(const std::string& s) {
@@ -53,6 +65,10 @@ public:
 			return Emotion::Flirty;
 		else if(s == "scared")
 			return Emotion::Scared;
+		else if(s == "owo")
+			return Emotion::Owo;
+		else if(s == "uwu")
+			return Emotion::Uwu;
 		else
 			return Emotion::Normal;
 	}
@@ -73,6 +89,10 @@ public:
 			return "flirty";
 		case Emotion::Scared:
 			return "scared";
+		case Emotion::Owo:
+			return "owo";
+		case Emotion::Uwu:
+			return "uwu";
 		}
 	}
 
