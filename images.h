@@ -5,6 +5,7 @@
 #include <utility>
 #include <algorithm>
 #include <filesystem>
+#include <cstdlib>
 
 #include <Magick++.h>
 #include <magick/image.h>
@@ -84,7 +85,8 @@ public:
 	 */
 	ImageSpectrum(const std::string& images_directory, double min, double max) {
 		std::vector<std::filesystem::path> files_in_directory;
-		for(const auto& file : std::filesystem::directory_iterator(images_directory)) {
+		for(auto& file : std::filesystem::directory_iterator(images_directory)) {
+			std::cout << "ImageSpectrum found file in dir: " << file.path().filename().string() << std::endl;
 			files_in_directory.push_back(file.path());
 		}
 		m_spectrum = Spectrum(min, max, files_in_directory.size());
@@ -94,10 +96,11 @@ public:
 			return a_number < b_number;
 		});
 
-		for(const auto& file : files_in_directory) {
+		for(auto& file : files_in_directory) {
 			const auto image = loadImage(file.string());
 			if(!image.has_value()) {
-				continue;
+				std::cerr << "ImageSpectrum could not load image with filename: " << file.filename().string() << std::endl;
+				abort();
 			}
 			m_images.push_back(image.value());
 		}

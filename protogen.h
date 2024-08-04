@@ -172,9 +172,11 @@ public:
 	}
 private:
 	void renderFrame(rgb_matrix::FrameCanvas* frame, ProtogenHeadState::Emotion emotion, std::size_t mouth_state, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer) {
+		// std::cout << "Rendering frame. Emotion: " << ProtogenHeadState::emotionToString(emotion) << " mouth_state: " << mouth_state << " number of mouths: " << mouth_images.images().size() << std::endl;
 		frame->Clear();
 		// mouth
-		writeImageToCanvas(mouth_images.images().at(mouth_state), frame);
+		auto mouth_image = mouth_images.images().at(mouth_state);
+		writeImageToCanvas(mouth_image, frame);
 		// emotion
 		emotion_drawer.drawToCanvas(*frame, emotion);
 		// static
@@ -253,7 +255,5 @@ private:
 	image::StaticImageDrawer m_staticImageDrawer;
 	mutable std::mutex m_mutex;
 };
-
-
 
 #endif
