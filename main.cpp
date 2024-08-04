@@ -62,7 +62,10 @@ int main(int argc, char *argv[]) {
 	// use phone as a microphone/audio provider
 	auto web_audio_provider = std::unique_ptr<audio::WebsiteAudioProvider>(new audio::WebsiteAudioProvider(*srv, "/protogen/head/audio-loudness"));
 
-	auto data_viewer = std::unique_ptr<ProtogenHeadMatrices>(new ProtogenHeadMatrices(argc, argv, std::move(web_audio_provider)));
+	auto emotion_drawer = EmotionDrawer();
+	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");
+
+	auto data_viewer = std::unique_ptr<ProtogenHeadMatrices>(new ProtogenHeadMatrices(argc, argv, std::move(web_audio_provider), emotion_drawer));
 
 	auto ret = srv->set_mount_point("/static", "./static");
 	if(!ret) {

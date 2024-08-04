@@ -27,6 +27,12 @@ getPossibleEmotions().then(possible_emotions => {
 			setEmotion(emotion)
 		});
 		button.appendChild(document.createTextNode(emotion))
+
+		let button_image = document.createElement("img")
+		button_image.setAttribute("src", `${origin}/protogen/head/emotion/images/${emotion}.png`)
+		button_image.setAttribute("alt", emotion)
+		button.appendChild(button_image)
+
 		emotion_options_container.appendChild(button)
 	}
 });

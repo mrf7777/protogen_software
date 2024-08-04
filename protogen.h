@@ -19,6 +19,8 @@
 
 #include <Magick++.h>
 
+#include <httplib.h>
+
 #include "utils.h"
 #include "images.h"
 
@@ -163,7 +165,8 @@ private:
 class EmotionDrawer final {
 public:
 	EmotionDrawer(const std::string& emotions_directory = "./protogen_images/eyes")
-		: m_images(emotions_directory)	
+		: m_images(emotions_directory),
+		m_emotionsDirectory(emotions_directory)
 	{
 	}
 	void drawToCanvas(rgb_matrix::Canvas& canvas, ProtogenHeadState::Emotion emotion) {
@@ -172,8 +175,14 @@ public:
 			writeImageToCanvas(image.value(), &canvas);
 		}
 	}
+	void configWebServerToHostEmotionImages(
+			httplib::Server& srv,
+			const std::string& base_url_path) {
+		srv.set_mount_point(base_url_path, m_emotionsDirectory);
+	}
 private:
 	image::ImagesDirectoryResource m_images;
+	std::string m_emotionsDirectory;
 };
 
 class ProtogenHeadFrameProvider final {
@@ -227,10 +236,10 @@ std::string read_file_to_str(const std::string& filename) {
 
 class ProtogenHeadMatrices final : public IViewData<AppState> {
 public:
-	ProtogenHeadMatrices(int argc, char *argv[], std::unique_ptr<audio::IAudioProvider> audio_provider)
+	ProtogenHeadMatrices(int argc, char *argv[], std::unique_ptr<audio::IAudioProvider> audio_provider, EmotionDrawer emotion_drawer)
        		: m_headImages("./protogen_images/mouth", 0.0, 255.0),
 		m_audioProvider(std::move(audio_provider)),
-		m_emotionDrawer(),
+		m_emotionDrawer(emotion_drawer),
 		m_staticImageDrawer("./protogen_images/static/nose.png")
 	{
 		rgb_matrix::RGBMatrix::Options options;
