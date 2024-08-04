@@ -45,7 +45,9 @@ int main(int argc, char *argv[]) {
 	srv->Get("/", [](const httplib::Request & req, httplib::Response & res){
 			res.set_content(read_file_to_str("./index.html"), "text/html");
 	});
-
+	srv->Get("/protogen/head/emotion/all", [app_state](const auto& req, auto& res){
+			res.set_content(ProtogenHeadState::emotionsSeperatedByNewline(), "text/plain");
+	});
 	srv->Put("/protogen/head/emotion", [app_state](const auto& req, auto& res){
 			const auto emotion = ProtogenHeadState::emotionFromString(req.body);
 			app_state->protogenHeadState().setEmotion(emotion);

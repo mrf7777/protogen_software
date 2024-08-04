@@ -1,4 +1,3 @@
-console.log("Hello, World!")
 
 const origin = window.location.origin
 
@@ -6,13 +5,32 @@ const origin = window.location.origin
 function setEmotion(emotion) {
 	fetch(`${origin}/protogen/head/emotion`, {method: "put", body: emotion})
 }
+function getPossibleEmotions() {
+	return fetch(`${origin}/protogen/head/emotion/all`, {method: "get"})
+		.then(response => response.text())
+		.then(text => {
+			console.log(text)
+			const emotions = text.split(/\r?\n/).filter(emotion => emotion !== "")
+			console.log(emotions)
+			return emotions
+		})
+		.catch(error => console.log(error))
+}
 
 let emotion_options_container = document.getElementById("emotion-options-container")
-for(const option of emotion_options_container.children){
-	option.addEventListener("click", (e) => {
-		setEmotion(option.value)
-	})
-}
+getPossibleEmotions().then(possible_emotions => {
+	for(let emotion of possible_emotions) {
+		let button = document.createElement("button")
+		button.id = `${emotion}-button`
+		button.value = emotion
+		button.addEventListener("click", (e) => {
+			setEmotion(emotion)
+		});
+		button.appendChild(document.createTextNode(emotion))
+		emotion_options_container.appendChild(button)
+	}
+});
+
 
 // colors
 function setMouthColor(color) {

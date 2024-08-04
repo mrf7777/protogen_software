@@ -96,6 +96,14 @@ public:
 		}
 	}
 
+	static std::string emotionsSeperatedByNewline() {
+		std::string emotions;
+		for(const auto emotion : allEmotions()) {
+			emotions += emotionToString(emotion) + "\n";
+		}
+		return emotions;
+	}
+
 	ProtogenHeadState()
 		: m_emotion(Emotion::Normal),
 		m_mouthColor(RGBColor(0, 255, 0)),
