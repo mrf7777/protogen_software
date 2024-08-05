@@ -6,12 +6,26 @@
 
 		<style>
 			body {
-				margin: 0px 1em;
+				margin: 0px 2em;
 				margin-bottom: 2em;
 			}
+
 			button {
 				padding: 0.25em;
 			}
+
+			button img {
+				width: 100%;
+			}
+
+			hr {
+				margin: 1.25em 0px;
+			}
+
+			body h3:first-of-type {
+				text-align: center;
+			}
+
 			input[type=color] {
 				min-width: 6em;
 				min-height: 6em;
@@ -20,6 +34,7 @@
 			#emotion-options-container {
 				display: grid;
 				grid-template-columns: auto auto;
+				gap: 1em;
 			}
 
 			#emotion-options-container button {
@@ -27,13 +42,12 @@
 				flex-direction: column;
 				justify-content: center;
 				align-items: center;
-				margin: 0.5em;
 			}
 
 		</style>
 	</head>
 	<body>
-		<h1>Protogen Controller</h1>
+		<h3>Protogen Controller</h3>
 		<div id="emotion-options-container">
 		</div>
 		<hr>
