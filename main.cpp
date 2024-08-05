@@ -52,12 +52,6 @@ int main(int argc, char *argv[]) {
 			const auto emotion = ProtogenHeadState::emotionFromString(req.body);
 			app_state->protogenHeadState().setEmotion(emotion);
 	});	
-	srv->Put("/protogen/head/mouth/color", [app_state](const auto& req, auto& res){
-			app_state->protogenHeadState().setMouthColor(req.body);
-	});
-	srv->Put("/protogen/head/eye/color", [app_state](const auto& req, auto& res){
-			app_state->protogenHeadState().setEyeColor(req.body);
-	});
 
 	// use phone as a microphone/audio provider
 	auto web_audio_provider = std::unique_ptr<audio::WebsiteAudioProvider>(new audio::WebsiteAudioProvider(*srv, "/protogen/head/audio-loudness"));

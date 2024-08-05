@@ -107,9 +107,7 @@ public:
 	}
 
 	ProtogenHeadState()
-		: m_emotion(Emotion::Normal),
-		m_mouthColor(RGBColor(0, 255, 0)),
-	        m_eyeColor(RGBColor(0, 255, 0))	
+		: m_emotion(Emotion::Normal)
 	{}
 
 	Emotion emotion() const {
@@ -120,28 +118,13 @@ public:
 		std::lock_guard<std::mutex> lock(m_mutex);
 		m_emotion = emotion;
 	}
-	RGBColor mouthColor() const {
-		std::lock_guard<std::mutex> lock(m_mutex);
-		return m_mouthColor;
-	}
-	void setMouthColor(const RGBColor& color) {
-		std::lock_guard<std::mutex> lock(m_mutex);
-		m_mouthColor = color;
-	}
-	void setEyeColor(const RGBColor& color) {
-		std::lock_guard<std::mutex> lock(m_mutex);
-		m_eyeColor = color;
-	}
-
 	virtual std::string toString() const override {
 		std::lock_guard<std::mutex> lock(m_mutex);
-		return "ProtogenHeadState{emotion: " + emotionToString(m_emotion) + ", eyeColor: " + m_eyeColor.toString() + ", mouthColor: " + m_mouthColor.toString() + "}";
+		return "ProtogenHeadState{emotion: " + emotionToString(m_emotion) + "}";
 	}
 
 private:
 	Emotion m_emotion;
-	RGBColor m_mouthColor;
-	RGBColor m_eyeColor;
 	mutable std::mutex m_mutex;
 };
 

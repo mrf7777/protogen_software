@@ -37,26 +37,6 @@ getPossibleEmotions().then(possible_emotions => {
 	}
 });
 
-
-// colors
-function setMouthColor(color) {
-	fetch(`${origin}/protogen/head/mouth/color`, {method: "put", body: color})
-}
-
-function setEyeColor(color) {
-	fetch(`${origin}/protogen/head/eye/color`, {method: "put", body: color})
-}
-
-let mouth_color_input = document.getElementById("mouth-color")
-mouth_color_input.addEventListener("input", (e) => {
-	setMouthColor(e.target.value)
-})
-
-let eye_color_input = document.getElementById("eye-color")
-eye_color_input.addEventListener("input", (e) => {
-	setEyeColor(e.target.value)
-})
-
 // audio levels
 function setAudioLevel(level) {
 	fetch(`${origin}/protogen/head/audio-loudness`, {method: "put", body: level})
