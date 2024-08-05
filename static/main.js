@@ -4,6 +4,12 @@ const origin = window.location.origin
 // emotions
 function setEmotion(emotion) {
 	fetch(`${origin}/protogen/head/emotion`, {method: "put", body: emotion})
+	renderEmotionAsCurrentEmotion(emotion)
+}
+function getCurrentEmotion(callback) {
+	fetch(`${origin}/protogen/head/emotion`, {method: "get"})
+		.then(response => response.text())
+		.then(emotion_text => callback(emotion_text))
 }
 function getPossibleEmotions() {
 	return fetch(`${origin}/protogen/head/emotion/all`, {method: "get"})
@@ -36,6 +42,26 @@ getPossibleEmotions().then(possible_emotions => {
 		emotion_options_container.appendChild(button)
 	}
 });
+
+function renderEmotionAsCurrentEmotion(emotion) {
+	const current_emotion_style_class = "current-emotion"
+	// first, unstyle any button that may represent the current emotion
+	let buttons_representing_current_emotion = document.querySelectorAll(`button[class=${current_emotion_style_class}]`)
+	buttons_representing_current_emotion.forEach(button => {
+		button.classList = ""
+	})
+	// find and style button that represent the current emotion
+	let button_matching_current_emotion = document.querySelector(`button[value=${emotion}]`)
+	button_matching_current_emotion.classList = "current-emotion"
+}
+
+function updateCurrentEmotion() {
+	getCurrentEmotion((emotion) => {
+		renderEmotionAsCurrentEmotion(emotion)
+	})
+}
+
+const update_current_emotion_interval = setInterval(updateCurrentEmotion, 1000)
 
 // audio levels
 function setAudioLevel(level) {

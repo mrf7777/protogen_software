@@ -48,6 +48,11 @@ int main(int argc, char *argv[]) {
 	srv->Get("/protogen/head/emotion/all", [app_state](const auto& req, auto& res){
 			res.set_content(ProtogenHeadState::emotionsSeperatedByNewline(), "text/plain");
 	});
+	srv->Get("/protogen/head/emotion", [app_state](const auto& req, auto& res){
+			const auto emotion = app_state->protogenHeadState().emotion();
+			const auto emotion_string = ProtogenHeadState::emotionToString(emotion);
+			res.set_content(emotion_string, "text/plain");
+	});
 	srv->Put("/protogen/head/emotion", [app_state](const auto& req, auto& res){
 			const auto emotion = ProtogenHeadState::emotionFromString(req.body);
 			app_state->protogenHeadState().setEmotion(emotion);
