@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
 	// start threads
 	std::thread web_server_thread(web_server_thread_function, srv);
 	
-	static const int FPS = 1000;
+	static const int FPS = 60;
 	while(!interrupt_received) {
 		data_viewer->viewData(*app_state);
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000/FPS));
