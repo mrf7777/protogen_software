@@ -6,19 +6,33 @@
 
 		<style>
 			button {
-				padding: 1em;
+				padding: 0.5em;
 			}
 			input[type=color] {
 				min-width: 6em;
 				min-height: 6em;
 			}
+			
+			#emotion-options-container {
+				display: grid;
+				grid-template-columns: auto auto;
+			}
+
+			#emotion-options-container button {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				margin: 0.5em;
+			}
+
 		</style>
 	</head>
 	<body>
 		<h1>Protogen Controller</h1>
 		<p>What would you like to do today?</p>
 		<hr>
-		<div id="emotion-options-container" style="display: flex; flex-direction: column; gap: 1em;">
+		<div id="emotion-options-container">
 		</div>
 		<hr>
 		<div style="display: flex; flex-direction: column; gap: 1em;">
