@@ -107,7 +107,8 @@ public:
 	}
 
 	ProtogenHeadState()
-		: m_emotion(Emotion::Normal)
+		: m_emotion(Emotion::Normal),
+		  m_forceBlink(false)
 	{}
 
 	Emotion emotion() const {
@@ -118,6 +119,22 @@ public:
 		std::lock_guard<std::mutex> lock(m_mutex);
 		m_emotion = emotion;
 	}
+	bool forceBlink() const {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		return m_forceBlink;
+	}
+	void setForceBlink(bool forceBlink) {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		m_forceBlink = forceBlink;
+	}
+	Emotion getEmotionConsideringForceBlink() const {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		if(m_forceBlink) {
+			return FORCE_BLINK_EMOTION;
+		} else {
+			return m_emotion;
+		}
+	}
 	virtual std::string toString() const override {
 		std::lock_guard<std::mutex> lock(m_mutex);
 		return "ProtogenHeadState{emotion: " + emotionToString(m_emotion) + "}";
@@ -125,7 +142,10 @@ public:
 
 private:
 	Emotion m_emotion;
+	bool m_forceBlink;
 	mutable std::mutex m_mutex;
+
+	static const Emotion FORCE_BLINK_EMOTION = Emotion::Uwu;
 };
 
 class AppState final : public IToString {
@@ -258,7 +278,7 @@ public:
 		std::cout << data.toString() << std::endl;
 		const auto audio_level = m_audioProvider->audioLevel();
 		const auto mouth_frame_index = m_headImages.spectrum().bucket(audio_level);
-		const auto emotion = data.protogenHeadState().emotion();
+		const auto emotion = data.protogenHeadState().getEmotionConsideringForceBlink();
 		auto frame = m_frameProvider->getFrame(emotion, mouth_frame_index);
 		m_matrix->SwapOnVSync(frame);
 	}

@@ -32,6 +32,17 @@ void web_server_thread_function(std::shared_ptr<httplib::Server> server) {
 	server->listen("0.0.0.0", 8080);
 }
 
+void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
+	static constexpr int BLINKING_OFF_MILLISECONDS = 5000;
+	static constexpr int BLINKING_ON_MILLISECONDS = 80;
+	while(!interrupt_received) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(BLINKING_OFF_MILLISECONDS));
+		app_state->protogenHeadState().setForceBlink(true);
+		std::this_thread::sleep_for(std::chrono::milliseconds(BLINKING_ON_MILLISECONDS));
+		app_state->protogenHeadState().setForceBlink(false);
+	}
+}
+
 int main(int argc, char *argv[]) {
 	Magick::InitializeMagick(*argv);
 	
@@ -78,7 +89,8 @@ int main(int argc, char *argv[]) {
 
 	// start threads
 	std::thread web_server_thread(web_server_thread_function, srv);
-	
+	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
+
 	static const int FPS = 60;
 	while(!interrupt_received) {
 		data_viewer->viewData(*app_state);
