@@ -47,7 +47,7 @@ public:
 		while(buckets_created != m_buckets) {
 			double bucket_start = m_min + (buckets_created * bucket_distance);
 			double bucket_end = bucket_start + bucket_distance + tolerance;
-			m_computed_buckets.push_back(std::make_pair(bucket_start, bucket_end));
+			m_computed_buckets.push_back(std::pair<double, double>(bucket_start, bucket_end));
 			buckets_created++;
 			std::cout << "start: " << bucket_start << " end: " << bucket_end << std::endl;
 		}

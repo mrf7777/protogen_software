@@ -101,6 +101,8 @@ public:
 			return "uwu";
 		case Emotion::Blink:
 			return "blink";
+		default:
+			return "";
 		}
 	}
 
