@@ -43,13 +43,7 @@ void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 	}
 }
 
-int main(int argc, char *argv[]) {
-	Magick::InitializeMagick(*argv);
-	
-	auto app_state = std::shared_ptr<AppState>(new AppState());
-
-	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
-
+void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
 	srv->set_logger([=](const auto& req, const auto& res){
 	});
 
@@ -69,6 +63,22 @@ int main(int argc, char *argv[]) {
 			app_state->protogenHeadState().setEmotion(emotion);
 	});	
 
+}
+
+void setup_signal_handlers() {
+	signal(SIGTERM, interrupt_handler);
+	signal(SIGINT, interrupt_handler);
+	signal(SIGABRT, interrupt_handler);
+}
+
+int main(int argc, char *argv[]) {
+	Magick::InitializeMagick(*argv);
+	
+	auto app_state = std::shared_ptr<AppState>(new AppState());
+
+	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
+	setup_web_server(srv, app_state);
+	
 	// use phone as a microphone/audio provider
 	auto web_audio_provider = std::unique_ptr<audio::WebsiteAudioProvider>(new audio::WebsiteAudioProvider(*srv, "/protogen/head/audio-loudness"));
 
@@ -82,12 +92,8 @@ int main(int argc, char *argv[]) {
 		std::cerr << "Could not mount static directory to web server." << std::endl;
 	}
 
-	// signals
-	signal(SIGTERM, interrupt_handler);
-	signal(SIGINT, interrupt_handler);
-	signal(SIGABRT, interrupt_handler);
+	setup_signal_handlers();
 
-	// start threads
 	std::thread web_server_thread(web_server_thread_function, srv);
 	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
 
