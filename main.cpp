@@ -105,5 +105,4 @@ int main(int argc, char *argv[]) {
 
 	// clean up
 	srv->stop();
-	data_viewer->clear();
 }
