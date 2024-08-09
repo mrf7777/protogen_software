@@ -36,6 +36,7 @@ public:
 		Scared,
 		Owo,
 		Uwu,
+		Blink,
 	};
 
 	static std::vector<Emotion> allEmotions() {
@@ -49,6 +50,7 @@ public:
 			Emotion::Scared,
 			Emotion::Owo,
 			Emotion::Uwu,
+			Emotion::Blink,
 		};
 	}
 
@@ -71,6 +73,8 @@ public:
 			return Emotion::Owo;
 		else if(s == "uwu")
 			return Emotion::Uwu;
+		else if(s == "blink")
+			return Emotion::Blink;
 		else
 			return Emotion::Normal;
 	}
@@ -95,6 +99,8 @@ public:
 			return "owo";
 		case Emotion::Uwu:
 			return "uwu";
+		case Emotion::Blink:
+			return "blink";
 		}
 	}
 
@@ -145,7 +151,7 @@ private:
 	bool m_forceBlink;
 	mutable std::mutex m_mutex;
 
-	static const Emotion FORCE_BLINK_EMOTION = Emotion::Uwu;
+	static const Emotion FORCE_BLINK_EMOTION = Emotion::Blink;
 };
 
 class AppState final : public IToString {

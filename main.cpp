@@ -34,7 +34,7 @@ void web_server_thread_function(std::shared_ptr<httplib::Server> server) {
 
 void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 	static constexpr int BLINKING_OFF_MILLISECONDS = 5000;
-	static constexpr int BLINKING_ON_MILLISECONDS = 80;
+	static constexpr int BLINKING_ON_MILLISECONDS = 100;
 	while(!interrupt_received) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(BLINKING_OFF_MILLISECONDS));
 		app_state->protogenHeadState().setForceBlink(true);
