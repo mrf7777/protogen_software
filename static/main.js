@@ -61,7 +61,34 @@ function updateCurrentEmotion() {
 	})
 }
 
+updateCurrentEmotion()
 const update_current_emotion_interval = setInterval(updateCurrentEmotion, 1000)
+
+// screen blank
+function setScreenBlank(blank) {
+	fetch(`${origin}/protogen/head/blank`, {method: "put", body: blank})
+}
+function getScreenBlank(callback) {
+	fetch(`${origin}/protogen/head/blank`, {method: "get"})
+		.then(response => response.text())
+		.then(blank_text => callback(blank_text))
+
+}
+
+let screen_blank_radio_container = document.getElementById("screen-blank")
+screen_blank_radio_container.addEventListener("change", (e) => {
+	setScreenBlank(e.target.value)
+})
+
+function updateScreenBlank() {
+	getScreenBlank(blank_text => {
+		let radio_to_check = screen_blank_radio_container.querySelector(`input[name=screen-blank][value=${blank_text}]`)
+		radio_to_check.checked = true
+	})
+}
+
+updateScreenBlank()
+const update_screen_blank = setInterval(updateScreenBlank, 1000)
 
 // audio levels
 function setAudioLevel(level) {

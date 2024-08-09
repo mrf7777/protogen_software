@@ -61,8 +61,16 @@ void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppS
 	srv->Put("/protogen/head/emotion", [app_state](const auto& req, auto& res){
 			const auto emotion = ProtogenHeadState::emotionFromString(req.body);
 			app_state->protogenHeadState().setEmotion(emotion);
-	});	
-
+	});
+	srv->Get("/protogen/head/blank", [app_state](const auto& req, auto& res){
+			const auto blank = app_state->protogenHeadState().blank();
+			const auto blank_string = blank ? "true" : "false";
+			res.set_content(blank_string, "text/plain");
+	});
+	srv->Put("/protogen/head/blank", [app_state](const auto& req, auto& res){
+			const auto blank = req.body == "true";
+			app_state->protogenHeadState().setBlank(blank);
+	});
 }
 
 void setup_signal_handlers() {

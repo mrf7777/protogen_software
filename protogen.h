@@ -116,7 +116,8 @@ public:
 
 	ProtogenHeadState()
 		: m_emotion(Emotion::Normal),
-		  m_forceBlink(false)
+		  m_forceBlink(false),
+		  m_blank(false)
 	{}
 
 	Emotion emotion() const {
@@ -135,6 +136,14 @@ public:
 		std::lock_guard<std::mutex> lock(m_mutex);
 		m_forceBlink = forceBlink;
 	}
+	void setBlank(bool blank) {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		m_blank = blank;	
+	}
+	bool blank() const {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		return m_blank;
+	}
 	Emotion getEmotionConsideringForceBlink() const {
 		std::lock_guard<std::mutex> lock(m_mutex);
 		if(m_forceBlink) {
@@ -145,12 +154,15 @@ public:
 	}
 	virtual std::string toString() const override {
 		std::lock_guard<std::mutex> lock(m_mutex);
-		return "ProtogenHeadState{emotion: " + emotionToString(m_emotion) + "}";
+		const auto force_blink_string = m_forceBlink ? "true" : "false";
+		const auto blank_string = m_blank ? "true" : "false";
+		return "ProtogenHeadState{emotion: " + emotionToString(m_emotion) + ", forceBlink: " + force_blink_string + ", blank: " + blank_string + "}";
 	}
 
 private:
 	Emotion m_emotion;
 	bool m_forceBlink;
+	bool m_blank;
 	mutable std::mutex m_mutex;
 
 	static const Emotion FORCE_BLINK_EMOTION = Emotion::Blink;
@@ -214,14 +226,19 @@ public:
 				renderFrame(frame, emotion, mouth_state, emotion_drawer, mouth_images, static_drawer);
 			}
 		}
+		// create a blank frame
+		m_blankFrameCanvas = rgb_matrix->CreateFrameCanvas();
+		m_blankFrameCanvas->Clear();
 	}
-	rgb_matrix::FrameCanvas* getFrame(ProtogenHeadState::Emotion emotion, std::size_t mouth_state)  {
-		return m_frameCanvases.at(static_cast<int>(emotion)).at(mouth_state);
+	rgb_matrix::FrameCanvas* getFrame(ProtogenHeadState::Emotion emotion, std::size_t mouth_state, bool blank)  {
+		if(blank) {
+			return m_blankFrameCanvas;
+		} else {
+			return m_frameCanvases.at(static_cast<int>(emotion)).at(mouth_state);
+		}
 	}
 private:
 	void renderFrame(rgb_matrix::FrameCanvas* frame, ProtogenHeadState::Emotion emotion, std::size_t mouth_state, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer) {
-		// std::cout << "Rendering frame. Emotion: " << ProtogenHeadState::emotionToString(emotion) << " mouth_state: " << mouth_state << " number of mouths: " << mouth_images.images().size() << std::endl;
-		frame->Clear();
 		// mouth
 		auto mouth_image = mouth_images.images().at(mouth_state);
 		writeImageToCanvas(mouth_image, frame);
@@ -236,6 +253,7 @@ private:
 	// emotion `e` and mouth position `m`. `e` is the integer version
 	// of the emotion.
 	std::vector<std::vector<rgb_matrix::FrameCanvas*>> m_frameCanvases;
+	rgb_matrix::FrameCanvas* m_blankFrameCanvas;
 };
 
 std::string read_file_to_str(const std::string& filename) {
@@ -283,11 +301,11 @@ public:
 	}
 	virtual void viewData(const AppState& data) override {
 		std::lock_guard<std::mutex> lock(m_mutex);
-		std::cout << data.toString() << std::endl;
 		const auto audio_level = m_audioProvider->audioLevel();
 		const auto mouth_frame_index = m_headImages.spectrum().bucket(audio_level);
 		const auto emotion = data.protogenHeadState().getEmotionConsideringForceBlink();
-		auto frame = m_frameProvider->getFrame(emotion, mouth_frame_index);
+		const auto blank = data.protogenHeadState().blank();
+		auto frame = m_frameProvider->getFrame(emotion, mouth_frame_index, blank);
 		m_matrix->SwapOnVSync(frame);
 	}
 	void clear() {
