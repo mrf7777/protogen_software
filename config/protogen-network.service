@@ -1,8 +1,0 @@
-[Unit]
-Description=Setup the protogen network that this Pi will host.
-
-[Service]
-ExecStart=nmcli device wifi hotspot ssid Protogen-Network password 1234567890
-
-[Install]
-WantedBy=multi-user.target
