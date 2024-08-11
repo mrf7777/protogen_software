@@ -10,13 +10,16 @@ sudo nmcli connection modify\
 	connection.autoconnect no\
 	connection.autoconnect-priority -999
 
-sudo nmcli connection add\
-	type wifi\
-	con-name Protogen-Network-as-Server\
-	ifname wlan0\
-	ssid Protogen-Network\
+sufo nmcli device wifi connect\
+	Protogen-Network\
 	password 1234567890\
-	connection.autoconnect yes\
-	connection.autoconnect-priority 999\
+	ifname wlan0\
+	name Protogen-Network-as-Server
+
+sudo nmcli connection modify\
+	Protogen-Network-as-Server\
+	ipv4.method manual\
 	ipv4.addresses 10.42.0.2/24\
-	ipv4.method manual
+	connection.autoconnect yes\
+	connection.autoconnect-priority 999
+
