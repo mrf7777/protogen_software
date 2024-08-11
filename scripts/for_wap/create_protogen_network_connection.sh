@@ -1,9 +1,13 @@
 #!/bin/bash
 
-# Make the default connection not auto-connect.
+# The device acting as the wireless access point (WAP) should run this script.
+# This disables DHCP so that everyone on the network has a reliable IP address. This
+# is important because mDNS does not work on all devices and is sometimes unreliable.
+# 
 # If you need to access the internet, you can set the
 # connection.autoconnect setting for the 'preconfigured' network
 # to the value 'yes'.
+
 sudo nmcli connection modify\
 	preconfigured\
 	connection.autoconnect no\
@@ -18,5 +22,8 @@ sudo nmcli device wifi hotspot \
 sudo nmcli connection modify\
 	Protogen-Network\
 	connection.autoconnect yes\
-	connection.autoconnect-priority 999
+	connection.autoconnect-priority 999\
+	ipv4.addresses 10.42.0.1/24\
+	ipv4.method manual\
+
 
