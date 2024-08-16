@@ -71,6 +71,18 @@ void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppS
 			const auto blank = req.body == "true";
 			app_state->protogenHeadState().setBlank(blank);
 	});
+	srv->Get("/protogen/head/brightness/all", [app_state](const auto& req, auto& res){
+			res.set_content(ProtogenHeadState::brightnessLevelsSeperatedByNewline(), "text/plain");
+	});
+	srv->Get("/protogen/head/brightness", [app_state](const auto& req, auto& res){
+			const auto brightness = app_state->protogenHeadState().brightness();
+			const auto brightness_string = ProtogenHeadState::brightnessToString(brightness);
+			res.set_content(brightness_string, "text/plain");
+	});
+	srv->Put("/protogen/head/brightness", [app_state](const auto& req, auto& res){
+			const auto brightness = ProtogenHeadState::stringToBrightness(req.body);
+			app_state->protogenHeadState().setBrightness(brightness);
+	});
 }
 
 void setup_signal_handlers() {

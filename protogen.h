@@ -115,6 +115,34 @@ public:
 		return {Brightness::ForBrightRoom, Brightness::ForDarkRoom};
 	}
 
+	static std::string brightnessLevelsSeperatedByNewline() {
+		std::string s;
+		for(const auto brightness : allBrightnessLevels()) {
+			s += brightnessToString(brightness) + "\n";
+		}
+		return s;
+	}
+
+	static std::string brightnessToString(Brightness brightness) {
+		switch(brightness) {
+		case Brightness::ForBrightRoom:
+			return "for_bright_room";
+		case Brightness::ForDarkRoom:
+			return "for_dark_room";
+		default:
+			return "";
+		}
+	}
+
+	static Brightness stringToBrightness(const std::string& brightness) {
+		if(brightness == "for_bright_room")
+			return Brightness::ForBrightRoom;
+		else if(brightness == "for_dark_room")
+			return Brightness::ForDarkRoom;
+		else
+			return Brightness::ForBrightRoom;
+	}
+
 	static uint8_t brightnessToPercent(Brightness brightness) {
 		switch(brightness) {
 		case Brightness::ForBrightRoom:

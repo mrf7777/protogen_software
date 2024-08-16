@@ -15,9 +15,7 @@ function getPossibleEmotions() {
 	return fetch(`${origin}/protogen/head/emotion/all`, {method: "get"})
 		.then(response => response.text())
 		.then(text => {
-			console.log(text)
 			const emotions = text.split(/\r?\n/).filter(emotion => emotion !== "")
-			console.log(emotions)
 			return emotions
 		})
 		.catch(error => console.log(error))
@@ -63,6 +61,61 @@ function updateCurrentEmotion() {
 
 updateCurrentEmotion()
 const update_current_emotion_interval = setInterval(updateCurrentEmotion, 1000)
+
+// brightness
+function setBrightness(brightness) {
+	fetch(`${origin}/protogen/head/brightness`, {method: "put", body: brightness})
+}
+function getCurrentBrightness(callback) {
+	fetch(`${origin}/protogen/head/brightness`, {method: "get"})
+		.then(response => response.text())
+		.then(brightness_text => callback(brightness_text))
+}
+function getPossibleBrightnessLevels() {
+	return fetch(`${origin}/protogen/head/brightness/all`, {method: "get"})
+		.then(response => response.text())
+		.then(text => {
+			const brightness_levels = text.split(/\r?\n/).filter(brightness => brightness !== "")
+			return brightness_levels
+		})
+		.catch(error => console.log(error))
+}
+
+let brightness_options_container = document.getElementById("brightness-options-container")
+getPossibleBrightnessLevels().then(brightness_levels => {
+	let legend = document.createElement("legend")
+	legend.appendChild(document.createTextNode("Brightness"))
+	brightness_options_container.appendChild(legend)
+	for(let brightness of brightness_levels) {
+		let input_id = `brightness_option_${brightness}`
+
+		let input = document.createElement("input")
+		input.setAttribute("type", "radio")
+		input.setAttribute("value", brightness)
+		input.setAttribute("id", input_id)
+		input.setAttribute("name", "brightness")
+		input.addEventListener("change", (e) => {
+			setBrightness(brightness)
+		})
+
+		let label = document.createElement("label")
+		label.setAttribute("for", input_id)
+		label.appendChild(document.createTextNode(brightness))
+
+		brightness_options_container.appendChild(input)
+		brightness_options_container.appendChild(label)
+	}
+})
+
+function updateBrightness() {
+	getCurrentBrightness(brightness => {
+		let radio_to_check = brightness_options_container.querySelector(`input[name=brightness][value=${brightness}]`)
+		radio_to_check.checked = true
+	})
+}
+
+updateBrightness()
+const update_brightness = setInterval(updateBrightness, 1000)
 
 // screen blank
 function setScreenBlank(blank) {
