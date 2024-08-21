@@ -166,7 +166,7 @@ public:
 		: m_emotion(Emotion::Normal),
 		  m_forceBlink(false),
 		  m_blank(false),
-		  m_brightness(Brightness::ForDarkRoom)
+		  m_brightness(Brightness::ForBrightRoom)
 	{}
 
 	Emotion emotion() const {
