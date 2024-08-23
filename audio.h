@@ -99,7 +99,7 @@ private:
 
 	static bool writeI2cByte(int i2c_file, uint8_t i2c_register, uint8_t byte) {
 		uint8_t data[2] = {i2c_register, byte};
-		if(write(i2c_file, &data, 2) != 1) {
+		if(write(i2c_file, &data, 2) != 2) {
 			std::cerr << "Failed to write to register: " << i2c_register << std::endl;
 			return false;
 		}
