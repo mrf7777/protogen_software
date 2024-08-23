@@ -331,11 +331,12 @@ std::string read_file_to_str(const std::string& filename) {
 class ProtogenHeadMatrices final : public IViewData<AppState> {
 public:
 	ProtogenHeadMatrices(int argc, char *argv[], std::unique_ptr<audio::IAudioProvider> audio_provider, EmotionDrawer emotion_drawer)
-       		: m_headImages("./protogen_images/mouth", 0.0, 255.0),
-		m_audioProvider(std::move(audio_provider)),
-		m_emotionDrawer(emotion_drawer),
+		: m_emotionDrawer(emotion_drawer),
 		m_staticImageDrawer("./protogen_images/static/nose.png")
 	{
+		m_audioProvider = std::move(audio_provider);
+		m_headImages = image::ImageSpectrum("./protogen_images/mouth", m_audioProvider->min(), m_audioProvider->max());
+
 		rgb_matrix::RGBMatrix::Options options;
 		options.rows = 32;
 		options.cols = 64;

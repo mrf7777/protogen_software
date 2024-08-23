@@ -83,6 +83,8 @@ public:
 	 * This class uses a Spectrum to assist in choosing an image
 	 * based on some continuous number.
 	 */
+	ImageSpectrum() {
+	}
 	ImageSpectrum(const std::string& images_directory, double min, double max) {
 		std::vector<std::filesystem::path> files_in_directory;
 		for(auto& file : std::filesystem::directory_iterator(images_directory)) {

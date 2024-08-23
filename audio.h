@@ -20,6 +20,8 @@ class IAudioProvider {
 public:
 	virtual ~IAudioProvider() = default;
 	virtual double audioLevel() const = 0;
+	virtual double min() const = 0;
+	virtual double max() const = 0;
 };
 
 class WebsiteAudioProvider final : public IAudioProvider {
@@ -39,6 +41,12 @@ public:
 	virtual double audioLevel() const override {
 		std::lock_guard<std::mutex> lock(m_mutex);
 		return m_currentLevel;
+	}
+	virtual double min() const override {
+		return 0.0;
+	}
+	virtual double max() const override {
+		return 100.0;
 	}
 private:
 	double m_currentLevel;
@@ -60,7 +68,7 @@ public:
 			std::cerr << "Could not connect to I2C device: " << I2C_ADDRESS << ". Is it connected?" << std::endl;
 		}
 
-		setTimeAverageMilliseconds(125);
+		setTimeAverageMilliseconds(17);
 	}
 	virtual double audioLevel() const override {
 		const auto potential_audio_level = readI2cByte(*m_i2cFile, I2C_DECIBEL_REGISTER);
@@ -71,6 +79,12 @@ public:
 		const double audio_level = static_cast<double>(potential_audio_level.value());
 		std::cout << "Audio level: " << audio_level << std::endl;
 		return audio_level;
+	}
+	virtual double min() const override {
+		return 39;
+	}
+	virtual double max() const override {
+		return 80;
 	}
 private:
 	bool setTimeAverageMilliseconds(uint16_t mili) {
