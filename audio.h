@@ -59,23 +59,53 @@ public:
 		if(i2c_connect_result < 0) {
 			std::cerr << "Could not connect to I2C device: " << I2C_ADDRESS << ". Is it connected?" << std::endl;
 		}
+
+		setTimeAverageMilliseconds(125);
 	}
 	virtual double audioLevel() const override {
-		uint8_t data = I2C_DECIBEL_REGISTER;
-		if(write(*m_i2cFile, &data, 1) != 1) {
-			std::cerr << "Failed to write to register: " << I2C_DECIBEL_REGISTER << std::endl;
+		const auto potential_audio_level = readI2cByte(*m_i2cFile, I2C_DECIBEL_REGISTER);
+		if(!potential_audio_level.has_value()) {
 			return -1.0;
 		}
 
-		if(read(*m_i2cFile, &data, 1) != 1) {
-			std::cerr << "Failed to read register: " << I2C_DECIBEL_REGISTER << std::endl;
-			return -1.0;
-		}
-		const double audio_level = static_cast<double>(data);
+		const double audio_level = static_cast<double>(potential_audio_level.value());
 		std::cout << "Audio level: " << audio_level << std::endl;
 		return audio_level;
 	}
 private:
+	bool setTimeAverageMilliseconds(uint16_t mili) {
+		uint8_t low = mili & 0xff;
+		uint8_t high = (mili>>8) & 0xff;
+		if(!writeI2cByte(*m_i2cFile, I2C_TAVG_HIGH_BYTE_REGISTER, high))
+			return false;
+		if(!writeI2cByte(*m_i2cFile, I2C_TAVG_LOW_BYTE_REGISTER, low))
+			return false;
+		return true;
+	}
+
+	static std::optional<uint8_t> readI2cByte(int i2c_file, uint8_t i2c_register) {
+		uint8_t data = i2c_register;
+		if(write(i2c_file, &data, 1) != 1) {
+			std::cerr << "Failed to write to register: " << i2c_register << std::endl;
+			return {};
+		}
+
+		if(read(i2c_file, &data, 1) != 1) {
+			std::cerr << "Failed to read register: " << i2c_register << std::endl;
+			return {};
+		}
+		return {data};
+	}
+
+	static bool writeI2cByte(int i2c_file, uint8_t i2c_register, uint8_t byte) {
+		uint8_t data[2] = {i2c_register, byte};
+		if(write(i2c_file, &data, 2) != 1) {
+			std::cerr << "Failed to write to register: " << i2c_register << std::endl;
+			return false;
+		}
+		return true;
+	}
+
 	struct FileDeleter {
 		void operator()(int * file) const {
 			if(file) {
@@ -88,6 +118,8 @@ private:
 	static constexpr const char * I2C_FILE_PATH = "/dev/i2c-1";
 	static constexpr uint8_t I2C_ADDRESS = 0x48;
 	static constexpr uint8_t I2C_DECIBEL_REGISTER = 0x0A;
+	static constexpr uint8_t I2C_TAVG_HIGH_BYTE_REGISTER = 0x07;
+	static constexpr uint8_t I2C_TAVG_LOW_BYTE_REGISTER = 0x08;
 };
 
 }
