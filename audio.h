@@ -81,10 +81,10 @@ public:
 		return audio_level;
 	}
 	virtual double min() const override {
-		return 39;
+		return 72;
 	}
 	virtual double max() const override {
-		return 80;
+		return 103;
 	}
 private:
 	bool setTimeAverageMilliseconds(uint16_t mili) {
