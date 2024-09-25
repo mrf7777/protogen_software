@@ -32,6 +32,10 @@ namespace mc
     {
     };
 
+    class WoodBlock final
+    {
+    };
+
     class GrassBlock final
     {
     };
@@ -47,7 +51,7 @@ namespace mc
     class Block final
     {
     public:
-        using BlockVariant = std::variant<AirBlock, StoneBlock, DirtBlock, GrassBlock, SandBlock, WaterBlock>;
+        using BlockVariant = std::variant<AirBlock, StoneBlock, DirtBlock, WoodBlock, GrassBlock, SandBlock, WaterBlock>;
         Block() : m_block(AirBlock()) {}
         explicit Block(const BlockVariant &variant) : m_block(variant) {}
         BlockVariant block() const
@@ -134,6 +138,8 @@ namespace mc
                                                               { return Block(stone); },
                                                               [](const DirtBlock &dirt)
                                                               { return Block(dirt); },
+                                                              [](const WoodBlock &wood)
+                                                              { return Block(WoodBlock()); },
                                                               [](const GrassBlock &grass)
                                                               { return Block(grass); },
                                                               [=](const SandBlock &sand)
