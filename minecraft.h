@@ -1,3 +1,6 @@
+#ifndef MINECRAFT_H
+#define MINECRAFT_H
+
 #include <iostream>
 #include <variant>
 #include <vector>
@@ -301,3 +304,5 @@ namespace mc
         std::size_t m_seaLevel;
     };
 }
+
+#endif

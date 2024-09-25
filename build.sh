@@ -7,4 +7,5 @@ g++ \
        	./main.cpp\
        	-l:librgbmatrix.a\
 	`GraphicsMagick++-config --ldflags --libs`\
-	-o main
+	-o main\
+	"$@"

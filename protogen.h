@@ -23,6 +23,7 @@
 
 #include "utils.h"
 #include "images.h"
+#include "minecraft.h"
 
 class ProtogenHeadState final : public IToString {
 public:
@@ -226,21 +227,41 @@ private:
 	static const Emotion FORCE_BLINK_EMOTION = Emotion::Blink;
 };
 
+class MinecraftState final {
+public:
+	MinecraftState() : m_blockMatrix(32, 128) {}
+	const mc::BlockMatrix& blockMatrix() const { return m_blockMatrix; }
+	mc::BlockMatrix& blockMatrix() { return m_blockMatrix; }
+private:
+	mc::BlockMatrix m_blockMatrix;
+};
+
 class AppState final : public IToString {
 public:
-	AppState() {}
+	enum class Mode {
+		ProtogenHead,
+		Minecraft,
+	};
+
+	AppState() : m_mode(Mode::ProtogenHead) {}
+	Mode mode() const { return m_mode; }
+	void setMode(Mode m) { m_mode = m; }
 	ProtogenHeadState& protogenHeadState() {
 		return m_protogenHeadState;
 	}
 	const ProtogenHeadState& protogenHeadState() const {
 		return m_protogenHeadState;
 	}
+	MinecraftState& minecraftState() { return m_minecraftState; }
+	const MinecraftState& minecraftState() const { return m_minecraftState; }
 
 	virtual std::string toString() const override {
 		return "AppState{protogenHeadState: " + m_protogenHeadState.toString() + "}";
 	}
 private:
+	Mode m_mode;
 	ProtogenHeadState m_protogenHeadState;
+	MinecraftState m_minecraftState;
 };
 
 class EmotionDrawer final {
