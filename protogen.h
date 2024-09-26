@@ -302,7 +302,6 @@ class MinecraftDrawer final {
 public:
 	MinecraftDrawer() {}
 	void drawToCanvas(rgb_matrix::Canvas& canvas, const MinecraftState& state) {
-		canvas.Clear();
 		for(std::size_t r = 0; r < state.blockMatrix().rows(); r++)
 		{
 			for(std::size_t c = 0; c < state.blockMatrix().cols(); c++)
