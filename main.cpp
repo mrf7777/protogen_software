@@ -43,10 +43,8 @@ void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 	}
 }
 
-void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
-	srv->set_logger([=](const auto& req, const auto& res){
-	});
 
+void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
 	srv->Get("/", [](const httplib::Request & req, httplib::Response & res){
 			res.set_content(read_file_to_str("./index.html"), "text/html");
 	});
@@ -83,6 +81,31 @@ void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppS
 			const auto brightness = ProtogenHeadState::stringToBrightness(req.body);
 			app_state->protogenHeadState().setBrightness(brightness);
 	});
+}
+
+void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
+	srv->Get("/protogen/minecraft", [app_state](const auto& req, auto& res){
+		res.set_content(read_file_to_str("./minecraft.html"), "text/html");
+	});
+	srv->Put("/protogen/minecraft/start", [app_state](const auto& req, auto& res){
+		const unsigned int seed = 123;
+		const auto world = mc::BlockMatrixGenerator(32, 128).generate(seed);
+		app_state->minecraftState().blockMatrix() = world;
+		app_state->setMode(AppState::Mode::Minecraft);
+	});
+	srv->Put("/protogen/minecraft/world/generate", [app_state](const auto& req, auto& res){
+		const unsigned int seed = 123;
+		const auto world = mc::BlockMatrixGenerator(32, 128).generate(seed);
+		app_state->minecraftState().blockMatrix() = world;
+	});
+}
+
+void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
+	srv->set_logger([=](const auto& req, const auto& res){
+	});
+
+	setup_web_server_for_protogen_head(srv, app_state);
+	setup_web_server_for_minecraft(srv, app_state);
 }
 
 void setup_signal_handlers() {
