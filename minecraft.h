@@ -99,6 +99,15 @@ namespace mc
         }
         BlockMatrix slice(std::size_t row, std::size_t col, std::size_t rows, std::size_t cols) const
         {
+            // cut rows and cols if too large
+            if(row + rows > this->rows())
+            {
+                rows = this->rows() - row;
+            }
+            if(col + cols > this->cols())
+            {
+                cols = this->cols() - col;
+            }
             BlockMatrix slice(rows, cols);
             const std::size_t end_row = row + rows;
             const std::size_t end_col = col + cols;
