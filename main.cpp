@@ -7,6 +7,7 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
+#include <functional>
 #include <signal.h>
 
 #include <graphics.h>
@@ -88,13 +89,10 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 		res.set_content(read_file_to_str("./minecraft.html"), "text/html");
 	});
 	srv->Put("/protogen/minecraft/start", [app_state](const auto& req, auto& res){
-		const unsigned int seed = 123;
-		const auto world = mc::BlockMatrixGenerator(32, 128).generate(seed);
-		app_state->minecraftState().blockMatrix() = world;
 		app_state->setMode(AppState::Mode::Minecraft);
 	});
 	srv->Put("/protogen/minecraft/world/generate", [app_state](const auto& req, auto& res){
-		const unsigned int seed = 123;
+		const std::size_t seed = std::hash<std::string>{}(req.body);
 		const auto world = mc::BlockMatrixGenerator(32, 128).generate(seed);
 		app_state->minecraftState().blockMatrix() = world;
 	});

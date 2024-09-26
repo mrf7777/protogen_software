@@ -183,7 +183,7 @@ namespace mc
         {
         }
 
-        BlockMatrix generate(unsigned int seed) const
+        BlockMatrix generate(std::size_t seed) const
         {
             const auto row_map = generateRowMap(seed);
 
@@ -224,7 +224,7 @@ namespace mc
                 bm.set(r, column, b);
             }
         }
-        std::vector<std::size_t> generateRowMap(unsigned int seed) const
+        std::vector<std::size_t> generateRowMap(std::size_t seed) const
         {
             // choose starting row
             const std::size_t center = m_rows / 2;
