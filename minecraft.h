@@ -267,7 +267,7 @@ namespace mc
         static void generateDungeons(BlockMatrix &bm, std::size_t seed)
         {
             std::mt19937 rng(seed);
-            std::bernoulli_distribution dist(0.01);   // how often to try for dungeon
+            std::bernoulli_distribution dist(0.001);   // how often to try for dungeon
             for(std::size_t r = 0; r < bm.rows(); r++)
             {
                 for(std::size_t c = 0; c < bm.cols(); c++)
