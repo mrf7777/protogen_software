@@ -11,6 +11,7 @@
 #include <chrono>
 #include <mutex>
 #include <cstdlib>
+#include <tuple>
 
 #include <graphics.h>
 #include <canvas.h>
@@ -287,6 +288,30 @@ private:
 	std::string m_emotionsDirectory;
 };
 
+class MinecraftDrawer final {
+public:
+	MinecraftDrawer() {}
+	void drawToCanvas(rgb_matrix::Canvas& canvas, const MinecraftState& state) {
+		canvas.Clear();
+		for(std::size_t r = 0; r < state.blockMatrix().rows(); r++)
+		{
+			for(std::size_t c = 0; c < state.blockMatrix().cols(); c++)
+			{
+				const std::tuple<uint8_t, uint8_t, uint8_t> color = std::visit(overloaded{
+					[](const mc::AirBlock){ return std::tuple{0, 0, 0}; },
+					[](const mc::StoneBlock){ return std::tuple{127, 127, 127}; },
+					[](const mc::DirtBlock){ return std::tuple{166, 81, 25}; },
+					[](const mc::WoodBlock){ return std::tuple{255, 169, 41}; },
+					[](const mc::GrassBlock){ return std::tuple{62, 191, 48}; },
+					[](const mc::SandBlock){ return std::tuple{245, 255, 105}; },
+					[](const mc::WaterBlock){ return std::tuple{87, 163, 222}; },
+				}, state.blockMatrix().get(r, c).value().block());
+				canvas.SetPixel(c, r, std::get<0>(color), std::get<1>(color), std::get<2>(color));
+			}
+		}
+	}
+};
+
 class ProtogenHeadFrameProvider final {
 public:
 	ProtogenHeadFrameProvider(rgb_matrix::RGBMatrix* rgb_matrix, std::size_t mouth_states, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer) {
@@ -353,7 +378,8 @@ class ProtogenHeadMatrices final : public IViewData<AppState> {
 public:
 	ProtogenHeadMatrices(int argc, char *argv[], std::unique_ptr<audio::IAudioProvider> audio_provider, EmotionDrawer emotion_drawer)
 		: m_emotionDrawer(emotion_drawer),
-		m_staticImageDrawer("./protogen_images/static/nose.png")
+		m_staticImageDrawer("./protogen_images/static/nose.png"),
+		m_minecraftFrameCanvasBuffer(nullptr)
 	{
 		m_audioProvider = std::move(audio_provider);
 		m_headImages = image::ImageSpectrum("./protogen_images/mouth", m_audioProvider->min(), m_audioProvider->max());
@@ -388,22 +414,44 @@ public:
 	}
 	virtual void viewData(const AppState& data) override {
 		std::lock_guard<std::mutex> lock(m_mutex);
-		const auto audio_level = m_audioProvider->audioLevel();
-		const auto mouth_frame_index = m_headImages.spectrum().bucket(audio_level);
-		const auto emotion = data.protogenHeadState().getEmotionConsideringForceBlink();
-		const auto blank = data.protogenHeadState().blank();
-		const auto brightness = data.protogenHeadState().brightness();
-		auto frame = m_frameProvider->getFrame(emotion, mouth_frame_index, blank, brightness);
-		m_matrix->SwapOnVSync(frame);
+		switch(data.mode()) {
+		case AppState::Mode::ProtogenHead:
+			viewProtogenHeadData(data.protogenHeadState());
+			break;
+		case AppState::Mode::Minecraft:
+			viewMinecraftData(data.minecraftState());
+			break;
+		}
 	}
+
 	void clear() {
 		m_matrix->Clear();
 	}
 private:
+	void viewProtogenHeadData(const ProtogenHeadState& data) {
+		const auto audio_level = m_audioProvider->audioLevel();
+		const auto mouth_frame_index = m_headImages.spectrum().bucket(audio_level);
+		const auto emotion = data.getEmotionConsideringForceBlink();
+		const auto blank = data.blank();
+		const auto brightness = data.brightness();
+		auto frame = m_frameProvider->getFrame(emotion, mouth_frame_index, blank, brightness);
+		m_matrix->SwapOnVSync(frame);
+	}
+	void viewMinecraftData(const MinecraftState& data) {
+		// Ensure that there is exactly one frame canvas for drawing minecraft.
+		if(m_minecraftFrameCanvasBuffer == nullptr)
+		{
+			m_minecraftFrameCanvasBuffer = m_matrix->CreateFrameCanvas();
+		}
+		m_minecraftDrawer.drawToCanvas(*m_minecraftFrameCanvasBuffer, data);
+		m_matrix->SwapOnVSync(m_minecraftFrameCanvasBuffer);
+	}
 	std::unique_ptr<ProtogenHeadFrameProvider> m_frameProvider;
 	std::unique_ptr<audio::IAudioProvider> m_audioProvider;
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
 	EmotionDrawer m_emotionDrawer;
+	MinecraftDrawer m_minecraftDrawer;
+	rgb_matrix::FrameCanvas * m_minecraftFrameCanvasBuffer;
 	image::ImageSpectrum m_headImages;
 	image::StaticImageDrawer m_staticImageDrawer;
 	mutable std::mutex m_mutex;
