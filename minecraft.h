@@ -97,6 +97,31 @@ namespace mc
         {
             return m_cols;
         }
+        BlockMatrix slice(std::size_t row, std::size_t col, std::size_t rows, std::size_t cols) const
+        {
+            BlockMatrix slice(rows, cols);
+            const std::size_t end_row = row + rows;
+            const std::size_t end_col = col + cols;
+            for(std::size_t r = row; r < end_row; r++)
+            {
+                for(std::size_t c = col; c < end_col; c++)
+                {
+                    slice.set(r - row, c - col, m_blocks.at(rowColToIndex(r, c)));
+                }
+            }
+            return slice;
+        }
+        template <typename BlockVariant>
+        bool isAll() const {
+            for(const auto& block : m_blocks)
+            {
+                if(!std::holds_alternative<BlockVariant>(block.block()))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
 
     private:
         std::size_t rowColToIndex(std::size_t r, std::size_t c) const
@@ -208,6 +233,8 @@ namespace mc
                 }
             }
 
+            generateStructures(block_matrix, seed);
+
             return block_matrix;
         }
 
@@ -222,6 +249,45 @@ namespace mc
             for (std::size_t r = row_start; r < row_end; r++)
             {
                 bm.set(r, column, b);
+            }
+        }
+        static void generateStructures(BlockMatrix &bm, std::size_t seed)
+        {
+            generateDungeons(bm, seed);
+        }
+        static void generateDungeons(BlockMatrix &bm, std::size_t seed)
+        {
+            std::mt19937 rng(seed);
+            std::bernoulli_distribution dist(0.01);   // how often to try for dungeon
+            for(std::size_t r = 0; r < bm.rows(); r++)
+            {
+                for(std::size_t c = 0; c < bm.cols(); c++)
+                {
+                    if(dist(rng))
+                    {
+                        tryGenerateDungeon(bm, r, c);
+                    }
+                }
+            }
+        }
+        static void tryGenerateDungeon(BlockMatrix &bm, std::size_t row, std::size_t col)
+        {
+            // Rectangle dungeon.
+            constexpr std::size_t ROWS = 3;
+            constexpr std::size_t COLS = 3;
+            // Test it can fit and can be placed in stone.
+            if(bm.slice(row, col, ROWS, COLS).isAll<StoneBlock>())
+            {
+                // Generate Dungeon
+                const std::size_t end_row = row + ROWS;
+                const std::size_t end_col = col + COLS;
+                for(std::size_t r = row; r < end_row; r++)
+                {
+                    for(std::size_t c = col; c < end_col; c++)
+                    {
+                        bm.set(r, c, Block(AirBlock()));
+                    }
+                }
             }
         }
         std::vector<std::size_t> generateRowMap(std::size_t seed) const
