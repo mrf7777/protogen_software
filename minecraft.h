@@ -268,18 +268,20 @@ namespace mc
         {
             std::mt19937 rng(seed);
             std::bernoulli_distribution dist(0.001);   // how often to try for dungeon
+            std::uniform_int_distribution chess_dist(0, 2); // where to place chess/wood. 0: left, 1: middle, 2: right
             for(std::size_t r = 0; r < bm.rows(); r++)
             {
                 for(std::size_t c = 0; c < bm.cols(); c++)
                 {
                     if(dist(rng))
                     {
-                        tryGenerateDungeon(bm, r, c);
+                        const std::size_t chess_relative_column = chess_dist(rng);
+                        tryGenerateDungeon(bm, r, c, chess_relative_column);
                     }
                 }
             }
         }
-        static void tryGenerateDungeon(BlockMatrix &bm, std::size_t row, std::size_t col)
+        static void tryGenerateDungeon(BlockMatrix &bm, std::size_t row, std::size_t col, std::size_t chess_relative_col)
         {
             // Rectangle dungeon.
             constexpr std::size_t ROWS = 3;
@@ -297,6 +299,9 @@ namespace mc
                         bm.set(r, c, Block(AirBlock()));
                     }
                 }
+
+                // place chess
+                bm.set(row + ROWS - 1, col + chess_relative_col, Block(WoodBlock()));
             }
         }
         std::vector<std::size_t> generateRowMap(std::size_t seed) const
