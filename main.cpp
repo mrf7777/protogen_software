@@ -139,8 +139,9 @@ int main(int argc, char *argv[]) {
 	std::thread web_server_thread(web_server_thread_function, srv);
 	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
 
-	static const int FPS = 60;
+	int FPS;
 	while(!interrupt_received) {
+		FPS = app_state->frameRate();
 		data_viewer->viewData(*app_state);
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000/FPS));
 	}

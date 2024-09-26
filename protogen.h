@@ -245,6 +245,16 @@ public:
 	};
 
 	AppState() : m_mode(Mode::ProtogenHead) {}
+	int frameRate() const {
+		switch(m_mode) {
+			case Mode::ProtogenHead:
+				return 50;
+			case Mode::Minecraft:
+				return 10;
+			default:
+				return 60;
+		}
+	}
 	Mode mode() const { return m_mode; }
 	void setMode(Mode m) { m_mode = m; }
 	ProtogenHeadState& protogenHeadState() {
