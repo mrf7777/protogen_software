@@ -1,6 +1,11 @@
 
 const origin = window.location.origin
 
+// protogen head
+function setModeToProtogenHead() {
+	fetch(`${origin}/protogen/head/start`, {method: "put"})
+}
+
 // emotions
 function setEmotion(emotion) {
 	fetch(`${origin}/protogen/head/emotion`, {method: "put", body: emotion})

@@ -3,63 +3,10 @@
 	<head>
 		<title>Protogen Controller</title>
 		<meta name="viewport" content="height=device-height, initial-scale=1.0, minimum-scale=1.0">
-
-		<style>
-			body {
-				margin: 0px 2em;
-				margin-bottom: 2em;
-			}
-
-			button {
-				padding: 0.25em;
-				border-style: solid;
-				border-width: 0.125em;
-				border-color: grey;
-				border-radius: 0.25em;
-			}
-
-			button img {
-				width: 100%;
-				max-width: 300px;
-			}
-
-			hr {
-				margin: 1.25em 0px;
-			}
-
-			body h3:first-of-type {
-				text-align: center;
-			}
-
-			input[type=color] {
-				min-width: 6em;
-				min-height: 6em;
-			}
-
-			input[type=range] {
-				width: 100%;
-			}
-			
-			#emotion-options-container {
-				display: grid;
-				grid-template-columns: auto auto;
-				gap: 1em;
-			}
-
-			#emotion-options-container button {
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: center;
-			}
-
-			.current-emotion {
-				background-color: rgb(200, 255, 200);
-			}
-
-		</style>
+		<link rel="stylesheet" href="/static/style.css">
 	</head>
 	<body>
+		<script src="static/fragments/toolbar.js"></script>
 		<h3>Protogen Controller</h3>
 		<div id="emotion-options-container">
 		</div>

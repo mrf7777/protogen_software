@@ -49,6 +49,9 @@ void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, st
 	srv->Get("/", [](const httplib::Request & req, httplib::Response & res){
 			res.set_content(read_file_to_str("./index.html"), "text/html");
 	});
+	srv->Put("/protogen/head/start", [app_state](const auto& req, auto& res){
+			app_state->setMode(AppState::Mode::ProtogenHead);
+	});
 	srv->Get("/protogen/head/emotion/all", [app_state](const auto& req, auto& res){
 			res.set_content(ProtogenHeadState::emotionsSeperatedByNewline(), "text/plain");
 	});
