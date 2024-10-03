@@ -12,6 +12,7 @@
 #include <mutex>
 #include <cstdlib>
 #include <tuple>
+#include <map>
 
 #include <graphics.h>
 #include <canvas.h>
@@ -228,13 +229,29 @@ private:
 	static const Emotion FORCE_BLINK_EMOTION = Emotion::Blink;
 };
 
+class MinecraftPlayerState final {
+public:
+	MinecraftPlayerState(std::size_t start_row, std::size_t start_col)
+		: m_cursor{start_row, start_col},
+		m_selectedBlock(mc::Block(mc::DirtBlock()))
+	{}
+private:
+	std::pair<std::size_t, std::size_t> m_cursor;
+	mc::Block m_selectedBlock;
+};
+
 class MinecraftState final {
 public:
-	MinecraftState() : m_blockMatrix(32, 128) {}
+	MinecraftState()
+		: m_blockMatrix(32, 128), 
+		m_players{}
+	{}
 	const mc::BlockMatrix& blockMatrix() const { return m_blockMatrix; }
 	mc::BlockMatrix& blockMatrix() { return m_blockMatrix; }
 private:
+	using PlayerId = std::string;
 	mc::BlockMatrix m_blockMatrix;
+	std::map<PlayerId, MinecraftPlayerState> m_players;
 };
 
 class AppState final : public IToString {
