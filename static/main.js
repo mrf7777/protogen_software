@@ -3,8 +3,13 @@ const origin = window.location.origin
 
 // protogen head
 function setModeToProtogenHead() {
-	fetch(`${origin}/protogen/head/start`, {method: "put"})
+	fetch(`${origin}/protogen/mode`, {method: "put", body: "protogen_head"})
 }
+
+let enable_button = document.getElementById("enable-button")
+enable_button.addEventListener("click", () => {
+	setModeToProtogenHead()
+})
 
 // emotions
 function setEmotion(emotion) {

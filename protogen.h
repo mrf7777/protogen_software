@@ -244,6 +244,28 @@ public:
 		Minecraft,
 	};
 
+	static std::string modeToString(Mode m) {
+		switch(m) {
+		case Mode::ProtogenHead:
+			return "protogen_head";
+		case Mode::Minecraft:
+			return "minecraft";
+		}
+	}
+
+	static Mode stringToMode(const std::string& m) {
+		if(m == "protogen_head")
+			return Mode::ProtogenHead;
+		else if(m == "minecraft")
+			return Mode::Minecraft;
+		else
+			return Mode::ProtogenHead;
+	}
+
+	static std::vector<Mode> allModes() {
+		return {Mode::ProtogenHead, Mode::Minecraft};
+	}
+
 	AppState() : m_mode(Mode::ProtogenHead) {}
 	int frameRate() const {
 		switch(m_mode) {
