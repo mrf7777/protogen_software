@@ -72,3 +72,13 @@ nav a {
 .current-emotion {
 	background-color: rgb(200, 255, 200);
 }
+
+.players-container li {
+	list-style: none;
+	padding: 1em;
+	border-radius: 0.25em;
+}
+
+.players-container li:nth-child(odd) {
+	background: #d1dbe0;
+}
