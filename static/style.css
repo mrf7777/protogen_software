@@ -77,8 +77,19 @@ nav a {
 	list-style: none;
 	padding: 1em;
 	border-radius: 0.25em;
+	display: flex;
+	gap: 1em;
+	align-items: center;
 }
 
 .players-container li:nth-child(odd) {
 	background: #d1dbe0;
+}
+
+.players-container li a {
+	background-color: buttonface;
+	border-radius: 3px;
+	text-decoration: none;
+	border: 1px outset buttonborder;
+	padding: 1px 6px;
 }
