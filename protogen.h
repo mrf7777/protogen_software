@@ -245,19 +245,15 @@ public:
 		correctCursor();
 	}
 	mc::Block selectedBlock() const {
-		std::lock_guard<std::mutex> lock(m_mutex);
 		return m_selectedBlock;
 	}
 	void setSelectedBlock(const mc::Block& b) {
-		std::lock_guard<std::mutex> lock(m_mutex);
 		m_selectedBlock = b;
 	}
 	CursorPos cursor() const {
-		std::lock_guard<std::mutex> lock(m_mutex);
 		return m_cursor;
 	}
 	void moveCursor(CursorMoveDirection direction) {
-		std::lock_guard<std::mutex> lock(m_mutex);
 		switch(direction) {
 		case CursorMoveDirection::Up:
 			if(m_cursor.first > 0)
@@ -290,7 +286,6 @@ private:
 	std::size_t m_maxRow;
 	std::size_t m_maxCol;
 	mc::Block m_selectedBlock;
-	mutable std::mutex m_mutex;
 };
 
 class MinecraftState final {
@@ -304,23 +299,26 @@ public:
 	const mc::BlockMatrix& blockMatrix() const { return m_blockMatrix; }
 	mc::BlockMatrix& blockMatrix() { return m_blockMatrix; }
 	bool addNewPlayer(const PlayerId& id) {
+		std::lock_guard<std::mutex> lock(m_playerMutex);
 		if(m_players.contains(id)) {
 			return false;
 		} else {
 			const std::size_t number_players = m_players.size();
 			const auto result = m_players.insert(std::make_pair(
 				id,
-				std::unique_ptr<MinecraftPlayerState>(new MinecraftPlayerState(0, number_players, 32, 128))
+				MinecraftPlayerState(0, number_players, 32, 128)
 			));
 			return true;
 		}
 	}
 	void removePlayer(const PlayerId& id) {
+		std::lock_guard<std::mutex> lock(m_playerMutex);
 		m_players.erase(id);
 	}
 	bool accessPlayer(const PlayerId& id, std::function<void(MinecraftPlayerState&)> accessor) {
+		std::lock_guard<std::mutex> lock(m_playerMutex);
 		if(m_players.contains(id)) {
-			accessor(*m_players.at(id).get());
+			accessor(m_players.at(id));
 			return true;
 		} else {
 			return false;
@@ -328,7 +326,8 @@ public:
 	}
 private:
 	mc::BlockMatrix m_blockMatrix;
-	std::map<PlayerId, std::unique_ptr<MinecraftPlayerState>> m_players;
+	mutable std::mutex m_playerMutex;
+	std::map<PlayerId, MinecraftPlayerState> m_players;
 };
 
 class AppState final : public IToString {
@@ -344,6 +343,8 @@ public:
 			return "protogen_head";
 		case Mode::Minecraft:
 			return "minecraft";
+		default:
+			return "";
 		}
 	}
 
