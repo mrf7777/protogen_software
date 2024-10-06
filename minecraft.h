@@ -62,6 +62,25 @@ namespace mc
             return m_block;
         }
 
+        static Block fromString(const std::string& s) {
+            if(s == "air")
+                return Block(AirBlock());
+            else if(s == "stone")
+                return Block(StoneBlock());
+            else if(s == "dirt")
+                return Block(DirtBlock());
+            else if(s == "wood")
+                return Block(DirtBlock());
+            else if(s == "grass")
+                return Block(GrassBlock());
+            else if(s == "sand")
+                return Block(SandBlock());
+            else if(s == "water")
+                return Block(WaterBlock());
+            else
+                return Block(AirBlock());
+        }
+
     private:
         BlockVariant m_block;
     };

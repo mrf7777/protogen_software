@@ -232,9 +232,21 @@ private:
 
 class MinecraftPlayerState final {
 public:
-	enum class CursorMoveDirection {
+	enum class CursorDirection {
 		Up, Down, Left, Right,
 	};
+	static CursorDirection stringToCursorDirection(const std::string& cd) {
+		if(cd == "up")
+			return CursorDirection::Up;
+		else if(cd == "down")
+			return CursorDirection::Down;
+		else if(cd == "left")
+			return CursorDirection::Left;
+		else if(cd == "right")
+			return CursorDirection::Right;
+		else
+			return CursorDirection::Up;
+	}
 	using CursorPos = std::pair<std::size_t, std::size_t>;
 	MinecraftPlayerState(std::size_t start_row, std::size_t start_col, std::size_t max_row, std::size_t max_col)
 		: m_cursor{start_row, start_col},
@@ -253,21 +265,21 @@ public:
 	CursorPos cursor() const {
 		return m_cursor;
 	}
-	void moveCursor(CursorMoveDirection direction) {
+	void moveCursor(CursorDirection direction) {
 		switch(direction) {
-		case CursorMoveDirection::Up:
+		case CursorDirection::Up:
 			if(m_cursor.first > 0)
 				m_cursor.first -= 1;
 			break;
-		case CursorMoveDirection::Down:
+		case CursorDirection::Down:
 			if(m_cursor.first < (m_maxRow - 1))
 				m_cursor.first += 1;
 			break;
-		case CursorMoveDirection::Left:
+		case CursorDirection::Left:
 			if(m_cursor.second > 0)
 				m_cursor.second -= 1;
 			break;
-		case CursorMoveDirection::Right:
+		case CursorDirection::Right:
 			if(m_cursor.second < (m_maxCol - 1))
 				m_cursor.second += 1;
 			break;

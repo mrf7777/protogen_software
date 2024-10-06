@@ -108,6 +108,34 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 	srv->Delete("/protogen/minecraft/players/:player", [app_state](const auto& req, auto& res){
 		app_state->minecraftState().removePlayer(req.path_params.at("player"));
 	});
+	srv->Post("/protogen/minecraft/players/:player/move", [app_state](const auto& req, auto& res){
+		const auto player_id = req.path_params.at("player");
+		const auto move_direction = MinecraftPlayerState::stringToCursorDirection(req.body);
+		app_state->minecraftState().accessPlayer(player_id, [move_direction](MinecraftPlayerState& player_state){
+			player_state.moveCursor(move_direction);
+		});
+	});
+	srv->Post("/protogen/minecraft/players/:player/place_block", [app_state](const auto& req, auto& res){
+		const auto player_id = req.path_params.at("player");
+		MinecraftPlayerState::CursorPos player_cursor;
+		mc::Block player_block;
+		app_state->minecraftState().accessPlayer(player_id, [&player_cursor, &player_block](MinecraftPlayerState& player_state){
+			player_cursor = player_state.cursor();
+			player_block = player_state.selectedBlock();
+		});
+		app_state->minecraftState().blockMatrix().set(
+			player_cursor.first,
+			player_cursor.second,
+			player_block
+		);
+	});
+	srv->Put("/protogen/minecraft/players/:player/block", [app_state](const auto& req, auto& res){
+		const auto player_id = req.path_params.at("player");
+		const auto block = mc::Block::fromString(req.body);
+		app_state->minecraftState().accessPlayer(player_id, [block](MinecraftPlayerState& player_state){
+			player_state.setSelectedBlock(block);
+		});
+	});
 }
 
 void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
