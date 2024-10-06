@@ -98,6 +98,16 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 		const auto world = mc::BlockMatrixGenerator(32, 128).generate(seed);
 		app_state->minecraftState().blockMatrix() = world;
 	});
+	
+	srv->Get("/protogen/minecraft/players", [app_state](const auto& req, auto& res){
+		res.set_content(app_state->minecraftState().playersSeperatedByNewline(), "text/plain");
+	});
+	srv->Put("/protogen/minecraft/players/:player", [app_state](const auto& req, auto& res){
+		app_state->minecraftState().addNewPlayer(req.path_params.at("player"));
+	});
+	srv->Delete("/protogen/minecraft/players/:player", [app_state](const auto& req, auto& res){
+		app_state->minecraftState().removePlayer(req.path_params.at("player"));
+	});
 }
 
 void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {

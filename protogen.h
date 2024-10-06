@@ -324,7 +324,27 @@ public:
 			return false;
 		}
 	}
+	std::vector<PlayerId> players() const {
+		std::lock_guard<std::mutex> lock(m_playerMutex);
+		return _players();
+	}
+	std::string playersSeperatedByNewline() const {
+		std::lock_guard<std::mutex> lock(m_playerMutex);
+		std::string players_string;
+		for(const auto player : _players()) {
+			players_string += player + "\n";
+		}
+		return players_string;
+	}
 private:
+	std::vector<PlayerId> _players() const {
+		std::vector<PlayerId> players;
+		for(const auto& player : m_players) {
+			players.push_back(player.first);
+		}
+		return players;
+	}
+
 	mc::BlockMatrix m_blockMatrix;
 	mutable std::mutex m_playerMutex;
 	std::map<PlayerId, MinecraftPlayerState> m_players;
