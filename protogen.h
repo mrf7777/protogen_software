@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <tuple>
 #include <map>
+#include <functional>
 
 #include <graphics.h>
 #include <canvas.h>
@@ -231,27 +232,103 @@ private:
 
 class MinecraftPlayerState final {
 public:
-	MinecraftPlayerState(std::size_t start_row, std::size_t start_col)
+	enum class CursorMoveDirection {
+		Up, Down, Left, Right,
+	};
+	using CursorPos = std::pair<std::size_t, std::size_t>;
+	MinecraftPlayerState(std::size_t start_row, std::size_t start_col, std::size_t max_row, std::size_t max_col)
 		: m_cursor{start_row, start_col},
+		m_maxRow{max_row},
+		m_maxCol{max_col},
 		m_selectedBlock(mc::Block(mc::DirtBlock()))
-	{}
+	{
+		correctCursor();
+	}
+	mc::Block selectedBlock() const {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		return m_selectedBlock;
+	}
+	void setSelectedBlock(const mc::Block& b) {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		m_selectedBlock = b;
+	}
+	CursorPos cursor() const {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		return m_cursor;
+	}
+	void moveCursor(CursorMoveDirection direction) {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		switch(direction) {
+		case CursorMoveDirection::Up:
+			if(m_cursor.first > 0)
+				m_cursor.first -= 1;
+			break;
+		case CursorMoveDirection::Down:
+			if(m_cursor.first < (m_maxRow - 1))
+				m_cursor.first += 1;
+			break;
+		case CursorMoveDirection::Left:
+			if(m_cursor.second > 0)
+				m_cursor.second -= 1;
+			break;
+		case CursorMoveDirection::Right:
+			if(m_cursor.second < (m_maxCol - 1))
+				m_cursor.second += 1;
+			break;
+		}
+	}
 private:
-	std::pair<std::size_t, std::size_t> m_cursor;
+	void correctCursor() {
+		// If cursor is out of bounds, put it back in bounds.
+		if(m_cursor.first >= m_maxRow)
+			m_cursor.first = m_maxRow - 1;
+		if(m_cursor.second >= m_maxCol)
+			m_cursor.second = m_maxCol - 1;
+	}
+
+	CursorPos m_cursor;
+	std::size_t m_maxRow;
+	std::size_t m_maxCol;
 	mc::Block m_selectedBlock;
+	mutable std::mutex m_mutex;
 };
 
 class MinecraftState final {
 public:
+	using PlayerId = std::string;
+
 	MinecraftState()
 		: m_blockMatrix(32, 128), 
-		m_players{}
+		m_players()
 	{}
 	const mc::BlockMatrix& blockMatrix() const { return m_blockMatrix; }
 	mc::BlockMatrix& blockMatrix() { return m_blockMatrix; }
+	bool addNewPlayer(const PlayerId& id) {
+		if(m_players.contains(id)) {
+			return false;
+		} else {
+			const std::size_t number_players = m_players.size();
+			const auto result = m_players.insert(std::make_pair(
+				id,
+				std::unique_ptr<MinecraftPlayerState>(new MinecraftPlayerState(0, number_players, 32, 128))
+			));
+			return true;
+		}
+	}
+	void removePlayer(const PlayerId& id) {
+		m_players.erase(id);
+	}
+	bool accessPlayer(const PlayerId& id, std::function<void(MinecraftPlayerState&)> accessor) {
+		if(m_players.contains(id)) {
+			accessor(*m_players.at(id).get());
+			return true;
+		} else {
+			return false;
+		}
+	}
 private:
-	using PlayerId = std::string;
 	mc::BlockMatrix m_blockMatrix;
-	std::map<PlayerId, MinecraftPlayerState> m_players;
+	std::map<PlayerId, std::unique_ptr<MinecraftPlayerState>> m_players;
 };
 
 class AppState final : public IToString {
@@ -304,7 +381,7 @@ public:
 	}
 	MinecraftState& minecraftState() { return m_minecraftState; }
 	const MinecraftState& minecraftState() const { return m_minecraftState; }
-
+	
 	virtual std::string toString() const override {
 		return "AppState{protogenHeadState: " + m_protogenHeadState.toString() + "}";
 	}
