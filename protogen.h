@@ -336,6 +336,15 @@ public:
 			return false;
 		}
 	}
+	bool accessPlayer(const PlayerId& id, std::function<void(const MinecraftPlayerState&)> accessor) const {
+		std::lock_guard<std::mutex> lock(m_playerMutex);
+		if(m_players.contains(id)) {
+			accessor(m_players.at(id));
+			return true;
+		} else {
+			return false;
+		}
+	}
 	std::vector<PlayerId> players() const {
 		std::lock_guard<std::mutex> lock(m_playerMutex);
 		return _players();
@@ -451,22 +460,43 @@ class MinecraftDrawer final {
 public:
 	MinecraftDrawer() {}
 	void drawToCanvas(rgb_matrix::Canvas& canvas, const MinecraftState& state) {
-		for(std::size_t r = 0; r < state.blockMatrix().rows(); r++)
+		drawWorld(canvas, state.blockMatrix());
+		drawPlayers(canvas, state);
+	}
+private:
+	static std::tuple<uint8_t, uint8_t, uint8_t> blockToColor(const mc::Block& b) {
+		return std::visit(overloaded{
+			[](const mc::AirBlock){ return std::tuple{0, 0, 0}; },
+			[](const mc::StoneBlock){ return std::tuple{127, 127, 127}; },
+			[](const mc::DirtBlock){ return std::tuple{166, 81, 25}; },
+			[](const mc::WoodBlock){ return std::tuple{255, 169, 41}; },
+			[](const mc::GrassBlock){ return std::tuple{62, 191, 48}; },
+			[](const mc::SandBlock){ return std::tuple{245, 255, 105}; },
+			[](const mc::WaterBlock){ return std::tuple{87, 163, 222}; },
+		}, b.block());
+	}
+	static void drawWorld(rgb_matrix::Canvas& canvas, const mc::BlockMatrix& block_matrix) {
+		for(std::size_t r = 0; r < block_matrix.rows(); r++)
 		{
-			for(std::size_t c = 0; c < state.blockMatrix().cols(); c++)
+			for(std::size_t c = 0; c < block_matrix.cols(); c++)
 			{
-				const std::tuple<uint8_t, uint8_t, uint8_t> color = std::visit(overloaded{
-					[](const mc::AirBlock){ return std::tuple{0, 0, 0}; },
-					[](const mc::StoneBlock){ return std::tuple{127, 127, 127}; },
-					[](const mc::DirtBlock){ return std::tuple{166, 81, 25}; },
-					[](const mc::WoodBlock){ return std::tuple{255, 169, 41}; },
-					[](const mc::GrassBlock){ return std::tuple{62, 191, 48}; },
-					[](const mc::SandBlock){ return std::tuple{245, 255, 105}; },
-					[](const mc::WaterBlock){ return std::tuple{87, 163, 222}; },
-				}, state.blockMatrix().get(r, c).value().block());
+				const auto color = blockToColor(block_matrix.get(r, c).value());
 				canvas.SetPixel(c, r, std::get<0>(color), std::get<1>(color), std::get<2>(color));
 			}
 		}
+	}
+	static void drawPlayers(rgb_matrix::Canvas& canvas, const MinecraftState& state) {
+		const auto players = state.players();
+		for(const auto& player_id : players) {
+			state.accessPlayer(player_id, [&canvas](const MinecraftPlayerState& player_state){
+				drawPlayer(canvas, player_state);
+			});
+		}
+	}
+	static void drawPlayer(rgb_matrix::Canvas& canvas, const MinecraftPlayerState& player_state) {
+		const auto color = blockToColor(player_state.selectedBlock());
+		const auto cursor = player_state.cursor();
+		canvas.SetPixel(cursor.second, cursor.first, std::get<0>(color), std::get<1>(color), std::get<2>(color));
 	}
 };
 
