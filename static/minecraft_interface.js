@@ -12,3 +12,7 @@ document.getElementById("minecraft-up").addEventListener("click", () => {
 document.getElementById("minecraft-down").addEventListener("click", () => {
 	playerMove(player_id, "down")
 })
+
+document.getElementById("place-block").addEventListener("click", () => {
+	playerPlaceBlock(player_id)
+})
