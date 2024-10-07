@@ -93,3 +93,31 @@ nav a {
 	border: 1px outset buttonborder;
 	padding: 1px 6px;
 }
+
+#minecraft-controls {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-rows: 1fr 1fr 1fr;
+	width: 200px;
+	height: 200px;
+}
+
+#minecraft-left {
+	grid-column: 1 / 2;
+	grid-row: 2 / 3;
+}
+
+#minecraft-right {
+	grid-column: 3 / 4;
+	grid-row: 2 / 3;
+}
+
+#minecraft-up {
+	grid-column: 2 / 3;
+	grid-row: 1 / 2;
+}
+
+#minecraft-down {
+	grid-column: 2 / 3;
+	grid-row: 3 / 4;
+}
