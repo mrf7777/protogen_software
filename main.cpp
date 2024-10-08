@@ -139,6 +139,10 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 			player_state.setSelectedBlock(block);
 		});
 	});
+
+	srv->Get("/protogen/minecraft/blocks", [app_state](const auto& req, auto& res){
+		res.set_content(mc::Block::allBlocksSeperatedByNewline(), "text/plain");
+	});
 }
 
 void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {

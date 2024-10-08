@@ -81,6 +81,19 @@ namespace mc
                 return Block(AirBlock());
         }
 
+	static std::vector<std::string> allBlockStrings() {
+		return {"air", "stone", "dirt", "wood", "grass", "sand", "water"};
+	}
+
+	static std::string allBlocksSeperatedByNewline() {
+		std::string blocks;
+		for(const auto& block : allBlockStrings()) {
+			blocks += block;
+			blocks += "\n";
+		}
+		return blocks;
+	}
+
     private:
         BlockVariant m_block;
     };
