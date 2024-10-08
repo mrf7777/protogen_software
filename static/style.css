@@ -95,16 +95,10 @@ nav a {
 }
 
 #minecraft-controls {
-	display: flex;
-	justify-content: space-between;
-}
-
-#minecraft-direction-controls {
 	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-columns: 100px 100px 100px auto 100px;
 	grid-template-rows: 1fr 1fr 1fr;
-	width: 200px;
-	height: 200px;
+	height: 300px;
 }
 
 #minecraft-left {
@@ -125,4 +119,14 @@ nav a {
 #minecraft-down {
 	grid-column: 2 / 3;
 	grid-row: 3 / 4;
+}
+
+#minecraft-block-selection {
+	grid-column: 4 / 5;
+	grid-row: 1 / 4;
+}
+
+#place-block {
+	grid-column: 5 / 6;
+	grid-row: 1 / 4;
 }
