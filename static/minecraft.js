@@ -13,6 +13,8 @@ function createPlayerElement(player_id) {
 	let player_list_item = document.createElement("li")
 	let player_user_interface_link_element = document.createElement("a")
 	player_user_interface_link_element.href = `${origin}/protogen/minecraft/interface?player_id=${player_id}`
+	player_user_interface_link_element.rel = "noopener noreferrer"
+	player_user_interface_link_element.target = "_blank"
 	player_user_interface_link_element.appendChild(document.createTextNode("Play as"))
 	let player_id_element = document.createTextNode(player_id)
 	player_list_item.appendChild(player_user_interface_link_element)
