@@ -502,57 +502,21 @@ private:
 
 class ProtogenHeadFrameProvider final {
 public:
-	ProtogenHeadFrameProvider(rgb_matrix::RGBMatrix* rgb_matrix, std::size_t mouth_states, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer) {
-		const auto emotions = ProtogenHeadState::allEmotions();
-		// pre-render all of the face images per emotion, mouth state, and brightness.
-		for(const auto& emotion : emotions) {
-			const auto emotion_number = static_cast<int>(emotion);
-			m_frameCanvases.push_back(std::vector<std::vector<rgb_matrix::FrameCanvas*>>());
-			for(std::size_t mouth_state = 0; mouth_state < mouth_states; mouth_state++) {
-				m_frameCanvases.at(emotion_number).push_back(std::vector<rgb_matrix::FrameCanvas*>());
-				const auto brightness_levels = ProtogenHeadState::allBrightnessLevels();
-				for(const auto& brightness : brightness_levels) {
-					const auto brightness_number = static_cast<int>(brightness);
-					auto frame = rgb_matrix->CreateFrameCanvas();
-					if(frame == nullptr) {
-						std::cerr << "Could not allocate a frame canvas during pre-rendering protogen head." << std::endl;
-						abort();
-					}
-					m_frameCanvases.at(emotion_number).at(mouth_state).push_back(frame);
-					renderFrame(frame, emotion, mouth_state, emotion_drawer, mouth_images, static_drawer, brightness);
-				}
-			}
-		}
-		// create a blank frame
-		m_blankFrameCanvas = rgb_matrix->CreateFrameCanvas();
-		m_blankFrameCanvas->Clear();
-	}
-	rgb_matrix::FrameCanvas* getFrame(ProtogenHeadState::Emotion emotion, std::size_t mouth_state, bool blank, ProtogenHeadState::Brightness brightness)  {
-		if(blank) {
-			return m_blankFrameCanvas;
-		} else {
-			return m_frameCanvases.at(static_cast<int>(emotion)).at(mouth_state).at(static_cast<int>(brightness));
+	ProtogenHeadFrameProvider() {}
+	void renderFrame(rgb_matrix::FrameCanvas* frame, ProtogenHeadState::Emotion emotion, std::size_t mouth_state, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer, ProtogenHeadState::Brightness brightness, bool blank) {
+		frame->Clear();
+		if(!blank) {
+			// brightness
+			frame->SetBrightness(ProtogenHeadState::brightnessToPercent(brightness));
+			// mouth
+			auto mouth_image = mouth_images.images().at(mouth_state);
+			writeImageToCanvas(mouth_image, frame);
+			// emotion
+			emotion_drawer.drawToCanvas(*frame, emotion);
+			// static
+			static_drawer.drawToCanvas(*frame);
 		}
 	}
-private:
-	void renderFrame(rgb_matrix::FrameCanvas* frame, ProtogenHeadState::Emotion emotion, std::size_t mouth_state, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer, ProtogenHeadState::Brightness brightness) {
-		// brightnes
-		frame->SetBrightness(ProtogenHeadState::brightnessToPercent(brightness));
-		// mouth
-		auto mouth_image = mouth_images.images().at(mouth_state);
-		writeImageToCanvas(mouth_image, frame);
-		// emotion
-		emotion_drawer.drawToCanvas(*frame, emotion);
-		// static
-		static_drawer.drawToCanvas(*frame);
-	}
-
-	// Stores pre-computed frames.
-	// `m_frameCanvas[e][m][b]` returns a pre-rendered frame for:
-	// emotion `e`, mouth position `m`, and brightness `b`. `e` is the integer version
-	// of the emotion. `b` is the integer version of the brightness level.
-	std::vector<std::vector<std::vector<rgb_matrix::FrameCanvas*>>> m_frameCanvases;
-	rgb_matrix::FrameCanvas* m_blankFrameCanvas;
 };
 
 std::string read_file_to_str(const std::string& filename) {
@@ -589,13 +553,9 @@ public:
 		);
 		m_matrix->Clear();
 
-		m_frameProvider = std::unique_ptr<ProtogenHeadFrameProvider>(new ProtogenHeadFrameProvider(
-			m_matrix.get(),
-			m_headImages.images().size(),
-			m_emotionDrawer,
-			m_headImages,
-			m_staticImageDrawer
-		));
+		m_frameProvider = std::unique_ptr<ProtogenHeadFrameProvider>(new ProtogenHeadFrameProvider());
+
+		m_protogenFrameBuffer = m_matrix->CreateFrameCanvas();
 	};
 	~ProtogenHeadMatrices() {
 		m_matrix->Clear();
@@ -622,8 +582,16 @@ private:
 		const auto emotion = data.getEmotionConsideringForceBlink();
 		const auto blank = data.blank();
 		const auto brightness = data.brightness();
-		auto frame = m_frameProvider->getFrame(emotion, mouth_frame_index, blank, brightness);
-		m_matrix->SwapOnVSync(frame);
+		m_frameProvider->renderFrame(
+			m_protogenFrameBuffer, 
+			data.emotion(), 
+			m_headImages.spectrum().bucket(m_audioProvider->audioLevel()), 
+			m_emotionDrawer, 
+			m_headImages, 
+			m_staticImageDrawer,
+			data.brightness(),
+			data.blank());
+		m_matrix->SwapOnVSync(m_protogenFrameBuffer);
 	}
 	void viewMinecraftData(const MinecraftState& data) {
 		// Ensure that there is exactly one frame canvas for drawing minecraft.
@@ -639,6 +607,7 @@ private:
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
 	EmotionDrawer m_emotionDrawer;
 	MinecraftDrawer m_minecraftDrawer;
+	rgb_matrix::FrameCanvas * m_protogenFrameBuffer;
 	rgb_matrix::FrameCanvas * m_minecraftFrameCanvasBuffer;
 	image::ImageSpectrum m_headImages;
 	image::StaticImageDrawer m_staticImageDrawer;
