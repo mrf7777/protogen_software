@@ -32,20 +32,19 @@ public:
 };
 
 static void writeImageToCanvas(const Magick::Image &img, rgb_matrix::Canvas* canvas) {
-	for(std::size_t y = 0; y < img.rows(); ++y) {
-		for(std::size_t x = 0; x < img.columns(); ++x) {
-			const Magick::Color& c = img.pixelColor(x, y);
-			if(c.alphaQuantum() < 255) {
-				canvas->SetPixel(
-					x, y,
-					ScaleQuantumToChar(c.redQuantum()),
-					ScaleQuantumToChar(c.greenQuantum()),
-					ScaleQuantumToChar(c.blueQuantum())
-				);
-			}
-		}
-	}
+        const unsigned int width = img.columns();
+        const unsigned int height = img.rows();
+        const Magick::PixelPacket* pixels = img.getConstPixels(0, 0, width, height);
+        for(int y = 0; y < height; ++y) {
+                for(int x = 0; x < width; ++x) {
+                        const Magick::PixelPacket& pixel = pixels[y * width + x];
+                        if(pixel.opacity < 255) {
+                                canvas->SetPixel(x, y, pixel.red, pixel.green, pixel.blue);
+                        }
+                }
+        }
 }
+
 
 class RGBColor : public IToString {
 public:
