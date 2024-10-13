@@ -531,7 +531,8 @@ public:
 	ProtogenHeadMatrices(int argc, char *argv[], std::unique_ptr<audio::IAudioProvider> audio_provider, EmotionDrawer emotion_drawer)
 		: m_emotionDrawer(emotion_drawer),
 		m_staticImageDrawer("./protogen_images/static/nose.png"),
-		m_minecraftFrameCanvasBuffer(nullptr)
+		m_minecraftFrameCanvasBuffer(nullptr),
+		m_whichProtogenFrameBufferIsUsed(0)
 	{
 		m_audioProvider = std::move(audio_provider);
 		m_headImages = image::ImageSpectrum("./protogen_images/mouth", m_audioProvider->min(), m_audioProvider->max());
@@ -555,7 +556,8 @@ public:
 
 		m_frameProvider = std::unique_ptr<ProtogenHeadFrameProvider>(new ProtogenHeadFrameProvider());
 
-		m_protogenFrameBuffer = m_matrix->CreateFrameCanvas();
+		m_protogenFrameBuffer0 = m_matrix->CreateFrameCanvas();
+		m_protogenFrameBuffer1 = m_matrix->CreateFrameCanvas();
 	};
 	~ProtogenHeadMatrices() {
 		m_matrix->Clear();
@@ -582,8 +584,10 @@ private:
 		const auto emotion = data.getEmotionConsideringForceBlink();
 		const auto blank = data.blank();
 		const auto brightness = data.brightness();
+
+		auto current_frame_buffer = getNextProtogenFrameBuffer();
 		m_frameProvider->renderFrame(
-			m_protogenFrameBuffer, 
+			current_frame_buffer, 
 			data.emotion(), 
 			m_headImages.spectrum().bucket(m_audioProvider->audioLevel()), 
 			m_emotionDrawer, 
@@ -591,7 +595,7 @@ private:
 			m_staticImageDrawer,
 			data.brightness(),
 			data.blank());
-		m_matrix->SwapOnVSync(m_protogenFrameBuffer);
+		m_matrix->SwapOnVSync(current_frame_buffer);
 	}
 	void viewMinecraftData(const MinecraftState& data) {
 		// Ensure that there is exactly one frame canvas for drawing minecraft.
@@ -602,12 +606,24 @@ private:
 		m_minecraftDrawer.drawToCanvas(*m_minecraftFrameCanvasBuffer, data);
 		m_matrix->SwapOnVSync(m_minecraftFrameCanvasBuffer);
 	}
+	rgb_matrix::FrameCanvas * getNextProtogenFrameBuffer() {
+		switch(m_whichProtogenFrameBufferIsUsed) {
+		case 0:
+			m_whichProtogenFrameBufferIsUsed = 1;
+			return m_protogenFrameBuffer1;
+		case 1:
+			m_whichProtogenFrameBufferIsUsed = 0;
+			return m_protogenFrameBuffer0;
+		}
+	}
 	std::unique_ptr<ProtogenHeadFrameProvider> m_frameProvider;
 	std::unique_ptr<audio::IAudioProvider> m_audioProvider;
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
 	EmotionDrawer m_emotionDrawer;
 	MinecraftDrawer m_minecraftDrawer;
-	rgb_matrix::FrameCanvas * m_protogenFrameBuffer;
+	rgb_matrix::FrameCanvas * m_protogenFrameBuffer0;
+	rgb_matrix::FrameCanvas * m_protogenFrameBuffer1;
+	unsigned int m_whichProtogenFrameBufferIsUsed;
 	rgb_matrix::FrameCanvas * m_minecraftFrameCanvasBuffer;
 	image::ImageSpectrum m_headImages;
 	image::StaticImageDrawer m_staticImageDrawer;
