@@ -143,6 +143,12 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 	srv->Get("/protogen/minecraft/blocks", [app_state](const auto& req, auto& res){
 		res.set_content(mc::Block::allBlocksSeperatedByNewline(), "text/plain");
 	});
+	srv->Get("/protogen/minecraft/blocks/:block/color", [app_state](const auto& req, auto& res){
+		const auto block = mc::Block::fromString(req.body);
+		const auto block_color = app_state->minecraftState().blockColorProfile()(block);
+		const auto color_hex = mc::colorHexCodeFromColor(block_color);
+		res.set_content(color_hex, "text/plain");
+	});
 }
 
 void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {

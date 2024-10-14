@@ -306,10 +306,12 @@ public:
 
 	MinecraftState()
 		: m_blockMatrix(32, 128), 
-		m_players()
+		m_players(),
+		m_blockColorProfile(mc::defaultBlockColorProfile)
 	{}
 	const mc::BlockMatrix& blockMatrix() const { return m_blockMatrix; }
 	mc::BlockMatrix& blockMatrix() { return m_blockMatrix; }
+	const mc::BlockColorProfile blockColorProfile() const { return m_blockColorProfile; }
 	bool addNewPlayer(const PlayerId& id) {
 		std::lock_guard<std::mutex> lock(m_playerMutex);
 		if(m_players.contains(id)) {
@@ -367,6 +369,7 @@ private:
 	}
 
 	mc::BlockMatrix m_blockMatrix;
+	mc::BlockColorProfile m_blockColorProfile;
 	mutable std::mutex m_playerMutex;
 	std::map<PlayerId, MinecraftPlayerState> m_players;
 };
@@ -459,14 +462,10 @@ private:
 class MinecraftDrawer final {
 public:
 	MinecraftDrawer(const mc::BlockColorProfile& color_profile)
-		: m_blockColorProfile(color_profile)
 	{}
 	void drawToCanvas(rgb_matrix::Canvas& canvas, const MinecraftState& state) {
-		drawWorld(canvas, state.blockMatrix(), m_blockColorProfile);
-		drawPlayers(canvas, state, m_blockColorProfile);
-	}
-	mc::BlockColorProfile colorProfile() const {
-		return m_blockColorProfile;
+		drawWorld(canvas, state.blockMatrix(), state.blockColorProfile());
+		drawPlayers(canvas, state);
 	}
 private:
 	static void drawWorld(rgb_matrix::Canvas& canvas, const mc::BlockMatrix& block_matrix, const mc::BlockColorProfile& color_profile) {
@@ -479,11 +478,11 @@ private:
 			}
 		}
 	}
-	static void drawPlayers(rgb_matrix::Canvas& canvas, const MinecraftState& state, const mc::BlockColorProfile& color_profile) {
+	static void drawPlayers(rgb_matrix::Canvas& canvas, const MinecraftState& state) {
 		const auto players = state.players();
 		for(const auto& player_id : players) {
-			state.accessPlayer(player_id, [&canvas, &color_profile](const MinecraftPlayerState& player_state){
-				drawPlayer(canvas, player_state, color_profile);
+			state.accessPlayer(player_id, [&canvas, &state](const MinecraftPlayerState& player_state){
+				drawPlayer(canvas, player_state, state.blockColorProfile());
 			});
 		}
 	}
@@ -492,8 +491,6 @@ private:
 		const auto cursor = player_state.cursor();
 		canvas.SetPixel(cursor.second, cursor.first, std::get<0>(color), std::get<1>(color), std::get<2>(color));
 	}
-
-	mc::BlockColorProfile m_blockColorProfile;
 };
 
 class ProtogenHeadFrameProvider final {
@@ -574,10 +571,6 @@ public:
 	void clear() {
 		std::lock_guard<std::mutex> lock(m_mutex);
 		m_matrix->Clear();
-	}
-	mc::BlockColorProfile minecraftColorProfile() const {
-		std::lock_guard<std::mutex> lock(m_mutex);
-		return m_minecraftDrawer.colorProfile();
 	}
 private:
 	void viewProtogenHeadData(const ProtogenHeadState& data) {
