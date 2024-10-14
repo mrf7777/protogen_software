@@ -117,8 +117,10 @@ namespace mc
 
     std::string colorHexCodeFromColor(const std::tuple<uint8_t, uint8_t, uint8_t>& color) {
         std::stringstream ss;
-        ss << "#" << std::hex << std::setfill('0') << std::setw(2) << std::get<0>(color)
-        << std::setw(2) << std::get<1>(color) << std::setw(2) << std::get<2>(color);
+        ss << "#" << std::hex << std::setfill('0')
+        << std::setw(2) << static_cast<int>(std::get<0>(color))
+        << std::setw(2) << static_cast<int>(std::get<1>(color))
+        << std::setw(2) << static_cast<int>(std::get<2>(color));
         return ss.str();
     }
 
