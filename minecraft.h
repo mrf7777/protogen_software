@@ -2,6 +2,8 @@
 #define MINECRAFT_H
 
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <variant>
 #include <vector>
 #include <optional>
@@ -111,6 +113,13 @@ namespace mc
 			[](const mc::SandBlock){ return std::tuple{245, 255, 105}; },
 			[](const mc::WaterBlock){ return std::tuple{87, 163, 222}; },
 		}, b.block());
+    }
+
+    std::string colorHexCodeFromColor(const std::tuple<uint8_t, uint8_t, uint8_t>& color) {
+        std::stringstream ss;
+        ss << "#" << std::hex << std::setfill('0') << std::setw(2) << std::get<0>(color)
+        << std::setw(2) << std::get<1>(color) << std::setw(2) << std::get<2>(color);
+        return ss.str();
     }
 
     class BlockMatrix

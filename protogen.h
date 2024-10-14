@@ -465,6 +465,9 @@ public:
 		drawWorld(canvas, state.blockMatrix(), m_blockColorProfile);
 		drawPlayers(canvas, state, m_blockColorProfile);
 	}
+	mc::BlockColorProfile colorProfile() const {
+		return m_blockColorProfile;
+	}
 private:
 	static void drawWorld(rgb_matrix::Canvas& canvas, const mc::BlockMatrix& block_matrix, const mc::BlockColorProfile& color_profile) {
 		for(std::size_t r = 0; r < block_matrix.rows(); r++)
@@ -569,7 +572,12 @@ public:
 	}
 
 	void clear() {
+		std::lock_guard<std::mutex> lock(m_mutex);
 		m_matrix->Clear();
+	}
+	mc::BlockColorProfile minecraftColorProfile() const {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		return m_minecraftDrawer.colorProfile();
 	}
 private:
 	void viewProtogenHeadData(const ProtogenHeadState& data) {
