@@ -36,3 +36,20 @@ function setPlayerBlock(player_id, block) {
 function generateWorld(seed) {
     fetch(`${origin}/protogen/minecraft/world/generate`, {method: "put", body: seed})
 }
+
+function getBlocks(callback) {
+    fetch(`${origin}/protogen/minecraft/blocks`)
+        .then(response => response.text())
+        .then(text => {
+            const blocks = text.split(/\r?\n/).filter(block => block !== "")
+            callback(blocks)
+        })
+}
+
+function getBlockColor(block_name, callback) {
+    fetch(`${origin}/protogen/minecraft/blocks/${block_name}/color`)
+    .then(response => response.text())
+    .then(color => {
+        callback(color)
+    })
+}
