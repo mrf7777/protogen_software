@@ -16,3 +16,22 @@ document.getElementById("minecraft-down").addEventListener("click", () => {
 document.getElementById("place-block").addEventListener("click", () => {
 	playerPlaceBlock(player_id)
 })
+
+let blocks_container = document.getElementById("minecraft-block-selection")
+function createBlockEntry(block) {
+	let block_entry = document.createElement("li")
+	let block_color_square = document.createElement("div")
+	block_color_square.classList.add("minecraft-color-block")
+	block_entry.appendChild(block_color_square)
+	block_entry.appendChild(document.createTextNode(block))
+	getBlockColor(block, (block_color) => {
+		block_color_square.style.background = "#ff0000"
+	})
+	return block_entry
+}
+getBlocks((blocks) => {
+	blocks.forEach((block) => {
+		let block_entry = createBlockEntry(block)
+		blocks_container.appendChild(block_entry)
+	})
+})
