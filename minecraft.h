@@ -98,6 +98,21 @@ namespace mc
         BlockVariant m_block;
     };
 
+    // A function type mapping from block to RGB color tuple.
+    using BlockColorProfile = std::function<std::tuple<uint8_t, uint8_t, uint8_t>(const Block&)>;
+
+    std::tuple<uint8_t, uint8_t, uint8_t> defaultBlockColorProfile(const Block& b) {
+        return std::visit(overloaded{
+			[](const mc::AirBlock){ return std::tuple{0, 0, 0}; },
+			[](const mc::StoneBlock){ return std::tuple{127, 127, 127}; },
+			[](const mc::DirtBlock){ return std::tuple{166, 81, 25}; },
+			[](const mc::WoodBlock){ return std::tuple{255, 169, 41}; },
+			[](const mc::GrassBlock){ return std::tuple{62, 191, 48}; },
+			[](const mc::SandBlock){ return std::tuple{245, 255, 105}; },
+			[](const mc::WaterBlock){ return std::tuple{87, 163, 222}; },
+		}, b.block());
+    }
+
     class BlockMatrix
     {
     public:

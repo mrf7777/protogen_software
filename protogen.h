@@ -458,46 +458,39 @@ private:
 
 class MinecraftDrawer final {
 public:
-	MinecraftDrawer() {}
+	MinecraftDrawer(const mc::BlockColorProfile& color_profile)
+		: m_blockColorProfile(color_profile)
+	{}
 	void drawToCanvas(rgb_matrix::Canvas& canvas, const MinecraftState& state) {
-		drawWorld(canvas, state.blockMatrix());
-		drawPlayers(canvas, state);
+		drawWorld(canvas, state.blockMatrix(), m_blockColorProfile);
+		drawPlayers(canvas, state, m_blockColorProfile);
 	}
 private:
-	static std::tuple<uint8_t, uint8_t, uint8_t> blockToColor(const mc::Block& b) {
-		return std::visit(overloaded{
-			[](const mc::AirBlock){ return std::tuple{0, 0, 0}; },
-			[](const mc::StoneBlock){ return std::tuple{127, 127, 127}; },
-			[](const mc::DirtBlock){ return std::tuple{166, 81, 25}; },
-			[](const mc::WoodBlock){ return std::tuple{255, 169, 41}; },
-			[](const mc::GrassBlock){ return std::tuple{62, 191, 48}; },
-			[](const mc::SandBlock){ return std::tuple{245, 255, 105}; },
-			[](const mc::WaterBlock){ return std::tuple{87, 163, 222}; },
-		}, b.block());
-	}
-	static void drawWorld(rgb_matrix::Canvas& canvas, const mc::BlockMatrix& block_matrix) {
+	static void drawWorld(rgb_matrix::Canvas& canvas, const mc::BlockMatrix& block_matrix, const mc::BlockColorProfile& color_profile) {
 		for(std::size_t r = 0; r < block_matrix.rows(); r++)
 		{
 			for(std::size_t c = 0; c < block_matrix.cols(); c++)
 			{
-				const auto color = blockToColor(block_matrix.get(r, c).value());
+				const auto color = color_profile(block_matrix.get(r, c).value());
 				canvas.SetPixel(c, r, std::get<0>(color), std::get<1>(color), std::get<2>(color));
 			}
 		}
 	}
-	static void drawPlayers(rgb_matrix::Canvas& canvas, const MinecraftState& state) {
+	static void drawPlayers(rgb_matrix::Canvas& canvas, const MinecraftState& state, const mc::BlockColorProfile& color_profile) {
 		const auto players = state.players();
 		for(const auto& player_id : players) {
-			state.accessPlayer(player_id, [&canvas](const MinecraftPlayerState& player_state){
-				drawPlayer(canvas, player_state);
+			state.accessPlayer(player_id, [&canvas, &color_profile](const MinecraftPlayerState& player_state){
+				drawPlayer(canvas, player_state, color_profile);
 			});
 		}
 	}
-	static void drawPlayer(rgb_matrix::Canvas& canvas, const MinecraftPlayerState& player_state) {
-		const auto color = blockToColor(player_state.selectedBlock());
+	static void drawPlayer(rgb_matrix::Canvas& canvas, const MinecraftPlayerState& player_state, const mc::BlockColorProfile& color_profile) {
+		const auto color = color_profile(player_state.selectedBlock());
 		const auto cursor = player_state.cursor();
 		canvas.SetPixel(cursor.second, cursor.first, std::get<0>(color), std::get<1>(color), std::get<2>(color));
 	}
+
+	mc::BlockColorProfile m_blockColorProfile;
 };
 
 class ProtogenHeadFrameProvider final {
@@ -532,7 +525,8 @@ public:
 		: m_emotionDrawer(emotion_drawer),
 		m_staticImageDrawer("./protogen_images/static/nose.png"),
 		m_minecraftFrameCanvasBuffer(nullptr),
-		m_whichProtogenFrameBufferIsUsed(0)
+		m_whichProtogenFrameBufferIsUsed(0),
+		m_minecraftDrawer(mc::defaultBlockColorProfile)
 	{
 		m_audioProvider = std::move(audio_provider);
 		m_headImages = image::ImageSpectrum("./protogen_images/mouth", m_audioProvider->min(), m_audioProvider->max());
