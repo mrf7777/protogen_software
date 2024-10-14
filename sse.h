@@ -4,6 +4,8 @@
 #include <iostream>
 #include <mutex>
 #include <sstream>
+#include <optional>
+#include <string>
 
 #include <httplib.h>
 
@@ -17,7 +19,7 @@ namespace sse {
 class Event final {
 public:
 	static std::optional<Event> make_event(const std::string& event, const std::string& data) {
-		if(string_contains_substring(event, "\n") || string_contains_substring(data, "\n")) {
+		if(event.find("\n") != std::string::npos || data.find("\n") != std::string::npos) {
 			return {};
 		}
 		Event e;
