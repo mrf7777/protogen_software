@@ -588,7 +588,7 @@ private:
 		auto current_frame_buffer = getNextProtogenFrameBuffer();
 		m_frameProvider->renderFrame(
 			current_frame_buffer, 
-			data.emotion(), 
+			data.getEmotionConsideringForceBlink(), 
 			m_headImages.spectrum().bucket(m_audioProvider->audioLevel()), 
 			m_emotionDrawer, 
 			m_headImages, 
