@@ -118,6 +118,7 @@ nav a {
 .minecraft-color-block {
 	width: 2em;
 	height: 2em;
+	border-radius: 0.25em;
 }
 
 #minecraft-left {
