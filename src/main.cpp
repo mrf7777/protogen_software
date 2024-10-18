@@ -1,4 +1,4 @@
-#include "common_headers.hpp"
+#include <common_headers.hpp>
 
 #include <iostream>
 #include <memory>
@@ -21,10 +21,10 @@
 
 #include <Magick++.h>
 
-#include "images.h"
-#include "audio.h"
-#include "utils.h"
-#include "protogen.h"
+#include <images.h>
+#include <audio.h>
+#include <utils.h>
+#include <protogen.h>
 
 volatile bool interrupt_received = false;
 static void interrupt_handler(int signal) {

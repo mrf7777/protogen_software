@@ -4,7 +4,7 @@ project(Protogen)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(PROTOGEN_SOURCES main.cpp)
+set(PROTOGEN_SOURCES "${PROJECT_SOURCE_DIR}/src/main.cpp")
 add_executable(protogen ${PROTOGEN_SOURCES})
 
 # GraphicsMagick
@@ -40,5 +40,8 @@ target_link_libraries(protogen PRIVATE
 
 # protogen project
 target_include_directories(protogen PRIVATE 
-    ${PROJECT_SOURCE_DIR}
+    "${PROJECT_SOURCE_DIR}/include"
+)
+target_precompile_headers(protogen PRIVATE
+    "${PROJECT_SOURCE_DIR}/include/common_headers.hpp"
 )
