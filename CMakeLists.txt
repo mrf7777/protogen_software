@@ -45,3 +45,11 @@ target_include_directories(protogen PRIVATE
 target_precompile_headers(protogen PRIVATE
     "${PROJECT_SOURCE_DIR}/include/common_headers.hpp"
 )
+
+# install
+install(TARGETS protogen
+    DESTINATION bin
+)
+install(DIRECTORY resources/
+    DESTINATION share/protogen/resources
+)
