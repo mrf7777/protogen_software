@@ -4,7 +4,10 @@ project(Protogen)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(PROTOGEN_SOURCES "${PROJECT_SOURCE_DIR}/src/main.cpp")
+set(PROTOGEN_SOURCES
+    "${PROJECT_SOURCE_DIR}/src/main.cpp"
+    "${PROJECT_SOURCE_DIR}/src/images.cpp"
+)
 add_executable(protogen ${PROTOGEN_SOURCES})
 
 # GraphicsMagick
