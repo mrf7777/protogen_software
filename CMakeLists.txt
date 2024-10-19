@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(PROTOGEN_SOURCES
     "${PROJECT_SOURCE_DIR}/src/main.cpp"
     "${PROJECT_SOURCE_DIR}/src/images.cpp"
+    "${PROJECT_SOURCE_DIR}/src/minecraft.cpp"
 )
 add_executable(protogen ${PROTOGEN_SOURCES})
 
