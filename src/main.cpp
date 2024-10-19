@@ -49,7 +49,7 @@ void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 
 void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
 	srv->Get("/", [](const httplib::Request & req, httplib::Response & res){
-			res.set_content(read_file_to_str("./index.html"), "text/html");
+			res.set_content(read_file_to_str("./resources/index.html"), "text/html");
 	});
 	srv->Put("/protogen/head/start", [app_state](const auto& req, auto& res){
 			app_state->setMode(AppState::Mode::ProtogenHead);
@@ -91,10 +91,10 @@ void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, st
 
 void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
 	srv->Get("/protogen/minecraft", [app_state](const auto& req, auto& res){
-		res.set_content(read_file_to_str("./minecraft.html"), "text/html");
+		res.set_content(read_file_to_str("./resources/minecraft.html"), "text/html");
 	});
 	srv->Get("/protogen/minecraft/interface", [app_state](const auto& req, auto& res){
-		res.set_content(read_file_to_str("./minecraft_interface.html"), "text/html");
+		res.set_content(read_file_to_str("./resources/minecraft_interface.html"), "text/html");
 	});
 	srv->Put("/protogen/minecraft/world/generate", [app_state](const auto& req, auto& res){
 		const std::size_t seed = std::hash<std::string>{}(req.body);
@@ -190,7 +190,7 @@ int main(int argc, char *argv[]) {
 
 	auto data_viewer = std::unique_ptr<ProtogenHeadMatrices>(new ProtogenHeadMatrices(argc, argv, std::move(decibel_module_audio_provider), emotion_drawer));
 
-	auto ret = srv->set_mount_point("/static", "./static");
+	auto ret = srv->set_mount_point("/static", "./resources/static");
 	if(!ret) {
 		std::cerr << "Could not mount static directory to web server." << std::endl;
 	}
