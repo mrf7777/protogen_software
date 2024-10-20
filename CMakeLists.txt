@@ -15,7 +15,7 @@ set(PROTOGEN_SOURCES
     "${PROJECT_SOURCE_DIR}/src/protogen_head_state.cpp"
 )
 add_executable(protogen ${PROTOGEN_SOURCES})
-target_compile_options(protogen PRIVATE -Wall -Wextra -Werror)
+target_compile_options(protogen PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 # GraphicsMagick
 execute_process(
