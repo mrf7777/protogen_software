@@ -4,6 +4,9 @@ sudo apt upgrade
 # required for some utilites in the rpi rgb led matrix library
 sudo apt-get install libgraphicsmagick++-dev libwebp-dev -y
 
+# compile tools
+sudo apt-get install cmake -y
+
 # disable the sound module if not disabled already
 blacklist_file=/etc/modprobe.d/alsa-blacklist.conf
 sudo touch $blacklist_file
