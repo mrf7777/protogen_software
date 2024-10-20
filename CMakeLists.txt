@@ -57,10 +57,15 @@ target_precompile_headers(protogen PRIVATE
     "${PROJECT_SOURCE_DIR}/include/common_headers.hpp"
 )
 
-# install
+set(PROTOGEN_BINARY_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/bin")
+set(PROTOGEN_RESOURCES_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/protogen/resources")
+
+configure_file("include/cmake_config.h.in" "cmake_config.h")
+target_include_directories(protogen PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+
 install(TARGETS protogen
-    DESTINATION bin
+    DESTINATION ${PROTOGEN_BINARY_INSTALL_DIR}
 )
 install(DIRECTORY resources/
-    DESTINATION share/protogen/resources
+    DESTINATION ${PROTOGEN_RESOURCES_INSTALL_DIR}
 )

@@ -26,6 +26,7 @@
 #include <utils.h>
 #include <protogen.h>
 #include <web_server.h>
+#include <cmake_config.h>
 
 volatile bool interrupt_received = false;
 static void interrupt_handler([[maybe_unused]] int signal) {
