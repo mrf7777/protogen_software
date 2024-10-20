@@ -9,6 +9,7 @@ set(PROTOGEN_SOURCES
     "${PROJECT_SOURCE_DIR}/src/images.cpp"
     "${PROJECT_SOURCE_DIR}/src/minecraft.cpp"
     "${PROJECT_SOURCE_DIR}/src/utils.cpp"
+    "${PROJECT_SOURCE_DIR}/src/audio.cpp"
 )
 add_executable(protogen ${PROTOGEN_SOURCES})
 
