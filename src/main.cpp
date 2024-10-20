@@ -9,6 +9,7 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
+#include <filesystem>
 #include <functional>
 #include <signal.h>
 
@@ -57,19 +58,27 @@ void setup_signal_handlers() {
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	Magick::InitializeMagick(*argv);
 	
+	const std::string resources_dir = std::string(PROTOGEN_RESOURCES_INSTALL_DIR);
+	const std::string static_web_resources_dir = (std::filesystem::path(resources_dir) / std::filesystem::path("static")).generic_string();
+	const std::string html_files_dir = std::filesystem::path(resources_dir).generic_string();
+	const std::string protogen_emotions_dir = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/eyes")).generic_string();
+	const std::string static_protogen_image_path = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/static/nose.png")).generic_string();
+	const std::string protogen_mouth_dir = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/mouth")).generic_string();
+
 	auto app_state = std::shared_ptr<AppState>(new AppState());
 
 	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
-	setup_web_server(srv, app_state);
+	setup_web_server(srv, app_state, html_files_dir);
 	
 	auto decibel_module_audio_provider = std::unique_ptr<audio::PcbArtistsDecibelMeter>(new audio::PcbArtistsDecibelMeter());
 
-	auto emotion_drawer = EmotionDrawer();
+	auto emotion_drawer = EmotionDrawer(protogen_emotions_dir);
 	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");
 
-	auto data_viewer = std::unique_ptr<ProtogenHeadMatrices>(new ProtogenHeadMatrices(std::move(decibel_module_audio_provider), emotion_drawer));
+	auto data_viewer = std::unique_ptr<ProtogenHeadMatrices>(new ProtogenHeadMatrices(std::move(decibel_module_audio_provider), emotion_drawer, protogen_mouth_dir, static_protogen_image_path));
 
-	auto ret = srv->set_mount_point("/static", "./resources/static");
+	// TODO: move to webserver setup
+	auto ret = srv->set_mount_point("/static", static_web_resources_dir);
 	if(!ret) {
 		std::cerr << "Could not mount static directory to web server." << std::endl;
 	}

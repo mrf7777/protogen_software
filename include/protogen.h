@@ -31,7 +31,7 @@
 
 class EmotionDrawer final {
 public:
-	EmotionDrawer(const std::string& emotions_directory = "./resources/protogen_images/eyes")
+	EmotionDrawer(const std::string& emotions_directory)
 		: m_images(emotions_directory),
 		m_emotionsDirectory(emotions_directory)
 	{
@@ -107,15 +107,15 @@ public:
 
 class ProtogenHeadMatrices final : public IViewData<AppState> {
 public:
-	ProtogenHeadMatrices(std::unique_ptr<audio::IAudioProvider> audio_provider, EmotionDrawer emotion_drawer)
+	ProtogenHeadMatrices(std::unique_ptr<audio::IAudioProvider> audio_provider, EmotionDrawer emotion_drawer, const std::string& mouth_images_dir, const std::string& static_image_path)
 		: m_emotionDrawer(emotion_drawer),
 		m_minecraftDrawer(),
 		m_whichProtogenFrameBufferIsUsed(0),
 		m_minecraftFrameCanvasBuffer(nullptr),
-		m_staticImageDrawer("./resources/protogen_images/static/nose.png")
+		m_staticImageDrawer(static_image_path)
 	{
 		m_audioProvider = std::move(audio_provider);
-		m_headImages = image::ImageSpectrum("./resources/protogen_images/mouth", m_audioProvider->min(), m_audioProvider->max());
+		m_headImages = image::ImageSpectrum(mouth_images_dir, m_audioProvider->min(), m_audioProvider->max());
 
 		rgb_matrix::RGBMatrix::Options options;
 		options.rows = 32;

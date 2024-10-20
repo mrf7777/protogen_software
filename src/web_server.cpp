@@ -1,6 +1,6 @@
 #include <web_server.h>
 
-void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
+void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir) {
 	srv->set_logger([=](const auto&, auto&){
 	});
 	
@@ -14,13 +14,13 @@ void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppS
 			app_state->setMode(mode);
 	});
 
-	setup_web_server_for_protogen_head(srv, app_state);
-	setup_web_server_for_minecraft(srv, app_state);
+	setup_web_server_for_protogen_head(srv, app_state, html_files_dir);
+	setup_web_server_for_minecraft(srv, app_state, html_files_dir);
 }
 
-void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
-	srv->Get("/", [](const auto&, auto& res){
-			res.set_content(read_file_to_str("./resources/index.html"), "text/html");
+void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir) {
+	srv->Get("/", [html_files_dir](const auto&, auto& res){
+			res.set_content(read_file_to_str(html_files_dir + "/index.html"), "text/html");
 	});
 	srv->Put("/protogen/head/start", [app_state](const auto&, auto&){
 			app_state->setMode(AppState::Mode::ProtogenHead);
@@ -60,12 +60,12 @@ void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, st
 	});
 }
 
-void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
-	srv->Get("/protogen/minecraft", [app_state](const auto&, auto& res){
-		res.set_content(read_file_to_str("./resources/minecraft.html"), "text/html");
+void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir) {
+	srv->Get("/protogen/minecraft", [app_state, html_files_dir](const auto&, auto& res){
+		res.set_content(read_file_to_str(html_files_dir + "/minecraft.html"), "text/html");
 	});
-	srv->Get("/protogen/minecraft/interface", [app_state](const auto&, auto& res){
-		res.set_content(read_file_to_str("./resources/minecraft_interface.html"), "text/html");
+	srv->Get("/protogen/minecraft/interface", [app_state, html_files_dir](const auto&, auto& res){
+		res.set_content(read_file_to_str(html_files_dir + "/minecraft_interface.html"), "text/html");
 	});
 	srv->Put("/protogen/minecraft/world/generate", [app_state](const auto& req, auto&){
 		const std::size_t seed = std::hash<std::string>{}(req.body);
