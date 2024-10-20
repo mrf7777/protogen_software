@@ -94,7 +94,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	int FPS;
 	while(!interrupt_received) {
 		FPS = app_state->frameRate();
-		data_viewer->viewRender(renderer.render(*app_state));
+		const auto render = renderer.render(*app_state);
+		data_viewer->viewRender(render);
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000/FPS));
 	}
 

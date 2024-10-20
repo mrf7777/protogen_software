@@ -19,10 +19,10 @@ public:
     std::size_t width() const { return m_width; }
     std::size_t height() const { return m_height; }
     Color get(std::size_t x, std::size_t y) const {
-        return m_data[x * m_width + y];
+        return m_data.at(x * m_width + y);
     }
     void set(std::size_t x, std::size_t y, Color c) {
-        m_data[x * m_width + y] = c;
+        m_data.at(x * m_width + y) = c;
     }
     
 private:

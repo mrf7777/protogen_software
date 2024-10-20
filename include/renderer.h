@@ -100,9 +100,9 @@ public:
         m_emotionDrawer(emotion_drawer),
         m_minecraftDrawer(minecraft_drawer),
         m_staticImageDrawer(static_image_path),
-        m_headImages(mouth_images_dir, m_audioProvider->min(), m_audioProvider->max())
+        m_headImages(mouth_images_dir, m_audioProvider->min(), m_audioProvider->max()),
+        m_protogenHeadFrameProvider()
     {
-
     }
 
     virtual Render render(const AppState& data) override {
