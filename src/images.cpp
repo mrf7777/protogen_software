@@ -115,6 +115,10 @@ StaticImageDrawer::StaticImageDrawer(const std::string& image_path) {
         m_image = image_result.value();
     }
 }
+void StaticImageDrawer::drawToRender(render::Render& render) {
+    writeImageToRender(m_image, render);
+}
+
 void StaticImageDrawer::drawToCanvas(rgb_matrix::Canvas& canvas) {
     writeImageToCanvas(m_image, &canvas);
 }

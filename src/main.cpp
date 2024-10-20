@@ -26,6 +26,7 @@
 #include <audio.h>
 #include <utils.h>
 #include <protogen.h>
+#include <renderer.h>
 #include <web_server.h>
 #include <cmake_config.h>
 
@@ -72,10 +73,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	
 	auto decibel_module_audio_provider = std::unique_ptr<audio::PcbArtistsDecibelMeter>(new audio::PcbArtistsDecibelMeter());
 
-	auto emotion_drawer = EmotionDrawer(protogen_emotions_dir);
+	auto emotion_drawer = render::EmotionDrawer(protogen_emotions_dir);
 	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");
 
-	auto data_viewer = std::unique_ptr<ProtogenHeadMatrices>(new ProtogenHeadMatrices(std::move(decibel_module_audio_provider), emotion_drawer, protogen_mouth_dir, static_protogen_image_path));
+	auto data_viewer = std::unique_ptr<ProtogenHeadMatrices>(new ProtogenHeadMatrices());
+
+	auto renderer = render::Renderer(std::move(decibel_module_audio_provider), emotion_drawer, render::MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
 
 	// TODO: move to webserver setup
 	auto ret = srv->set_mount_point("/static", static_web_resources_dir);
@@ -91,7 +94,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	int FPS;
 	while(!interrupt_received) {
 		FPS = app_state->frameRate();
-		data_viewer->viewData(*app_state);
+		data_viewer->viewRender(renderer.render(*app_state));
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000/FPS));
 	}
 

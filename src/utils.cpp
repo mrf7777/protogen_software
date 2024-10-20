@@ -14,6 +14,20 @@ void writeImageToCanvas(const Magick::Image &img, rgb_matrix::Canvas* canvas) {
         }
 }
 
+void writeImageToRender(const Magick::Image &img, render::Render& render) {
+        const unsigned int width = img.columns();
+        const unsigned int height = img.rows();
+        const Magick::PixelPacket* pixels = img.getConstPixels(0, 0, width, height);
+        for(unsigned int y = 0; y < height; ++y) {
+                for(unsigned int x = 0; x < width; ++x) {
+                        const Magick::PixelPacket& pixel = pixels[y * width + x];
+                        if(pixel.opacity < 255) {
+                                render.set(x, y, {pixel.red, pixel.green, pixel.blue});
+                        }
+                }
+        }
+}
+
 RGBColor::RGBColor(uint8_t r, uint8_t g, uint8_t b) : m_r(r), m_g(g), m_b(b) {}
 RGBColor::RGBColor(std::string hex) {
     if(hex.at(0) == '#') {

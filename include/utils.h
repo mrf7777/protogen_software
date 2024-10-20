@@ -11,6 +11,8 @@
 #include <chrono>
 #include <mutex>
 
+#include <render.h>
+
 #include <graphics.h>
 #include <canvas.h>
 #include <led-matrix.h>
@@ -32,6 +34,7 @@ public:
 };
 
 void writeImageToCanvas(const Magick::Image &img, rgb_matrix::Canvas* canvas);
+void writeImageToRender(const Magick::Image &img, render::Render& render);
 
 class RGBColor : public IToString {
 public:
