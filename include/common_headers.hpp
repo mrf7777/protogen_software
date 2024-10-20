@@ -10,6 +10,16 @@
 #include <cstdlib>
 #include <tuple>
 #include <map>
+#include <utility>
+#include <optional>
+#include <algorithm>
+#include <random>
+#include <variant>
+#include <cmath>
+#include <iomanip>
+#include <vector>
+#include <filesystem>
+#include <functional>
 
 #include <graphics.h>
 #include <canvas.h>
