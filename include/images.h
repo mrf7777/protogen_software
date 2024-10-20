@@ -14,7 +14,7 @@
 
 namespace image {
 
-static std::optional<Magick::Image> loadImage(const std::string& filename);
+std::optional<Magick::Image> loadImage(const std::string& filename);
 
 class Spectrum {
 public:

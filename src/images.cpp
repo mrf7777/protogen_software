@@ -2,7 +2,7 @@
 
 namespace image {
 
-static std::optional<Magick::Image> loadImage(const std::string& filename) {
+std::optional<Magick::Image> loadImage(const std::string& filename) {
 	Magick::Image image;
 	try {
 		image.read(filename);
@@ -30,7 +30,7 @@ Spectrum::Spectrum(double min, double max, unsigned int buckets, double toleranc
     const auto bucket_distance = interval_distance / m_buckets;
     std::cout << "whole interval distance" << interval_distance << std::endl;
     std::cout << "bucket_distance" << bucket_distance << std::endl;
-    int buckets_created = 0;
+    unsigned int buckets_created = 0;
     while(buckets_created != m_buckets) {
         double bucket_start = m_min + (buckets_created * bucket_distance);
         double bucket_end = bucket_start + bucket_distance + tolerance;
@@ -104,7 +104,7 @@ ImagesDirectoryResource::ImagesDirectoryResource (const std::string& images_dire
 std::optional<Magick::Image> ImagesDirectoryResource::getImage(const std::string& key) const {
     try {
         return {m_images.at(key)};
-    } catch(std::out_of_range) {
+    } catch(std::out_of_range&) {
         return {};
     }
 }

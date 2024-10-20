@@ -54,7 +54,7 @@ private:
 
 class MinecraftDrawer final {
 public:
-	MinecraftDrawer(const mc::BlockColorProfile& color_profile)
+	MinecraftDrawer()
 	{}
 	void drawToCanvas(rgb_matrix::Canvas& canvas, const MinecraftState& state) {
 		drawWorld(canvas, state.blockMatrix(), state.blockColorProfile());
@@ -114,12 +114,12 @@ std::string read_file_to_str(const std::string& filename) {
 
 class ProtogenHeadMatrices final : public IViewData<AppState> {
 public:
-	ProtogenHeadMatrices(int argc, char *argv[], std::unique_ptr<audio::IAudioProvider> audio_provider, EmotionDrawer emotion_drawer)
+	ProtogenHeadMatrices(std::unique_ptr<audio::IAudioProvider> audio_provider, EmotionDrawer emotion_drawer)
 		: m_emotionDrawer(emotion_drawer),
-		m_staticImageDrawer("./resources/protogen_images/static/nose.png"),
-		m_minecraftFrameCanvasBuffer(nullptr),
+		m_minecraftDrawer(),
 		m_whichProtogenFrameBufferIsUsed(0),
-		m_minecraftDrawer(mc::defaultBlockColorProfile)
+		m_minecraftFrameCanvasBuffer(nullptr),
+		m_staticImageDrawer("./resources/protogen_images/static/nose.png")
 	{
 		m_audioProvider = std::move(audio_provider);
 		m_headImages = image::ImageSpectrum("./resources/protogen_images/mouth", m_audioProvider->min(), m_audioProvider->max());
@@ -167,12 +167,6 @@ public:
 	}
 private:
 	void viewProtogenHeadData(const ProtogenHeadState& data) {
-		const auto audio_level = m_audioProvider->audioLevel();
-		const auto mouth_frame_index = m_headImages.spectrum().bucket(audio_level);
-		const auto emotion = data.getEmotionConsideringForceBlink();
-		const auto blank = data.blank();
-		const auto brightness = data.brightness();
-
 		auto current_frame_buffer = getNextProtogenFrameBuffer();
 		m_frameProvider->renderFrame(
 			current_frame_buffer, 
@@ -200,6 +194,7 @@ private:
 			m_whichProtogenFrameBufferIsUsed = 1;
 			return m_protogenFrameBuffer1;
 		case 1:
+		default:
 			m_whichProtogenFrameBufferIsUsed = 0;
 			return m_protogenFrameBuffer0;
 		}

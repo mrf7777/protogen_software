@@ -154,7 +154,7 @@ BlockMatrix evolveBlockMatrix(const BlockMatrix &a)
                                                             [](const DirtBlock &dirt)
                                                             { return Block(dirt); },
                                                             [](const WoodBlock &wood)
-                                                            { return Block(WoodBlock()); },
+                                                            { return Block(wood); },
                                                             [](const GrassBlock &grass)
                                                             { return Block(grass); },
                                                             [=](const SandBlock &sand)

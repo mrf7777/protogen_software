@@ -9,7 +9,7 @@ namespace audio
 {
 
 WebsiteAudioProvider::WebsiteAudioProvider(httplib::Server& srv, const std::string& url_path) : m_currentLevel(0.0) {
-    srv.Put(url_path, [this](const auto& req, auto& res){
+    srv.Put(url_path, [this](const auto& req, auto&){
         std::lock_guard<std::mutex> lock(this->m_mutex);
         this->m_currentLevel = std::stod(req.body);
     });

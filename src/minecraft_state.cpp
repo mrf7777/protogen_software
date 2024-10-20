@@ -64,9 +64,9 @@ void MinecraftPlayerState::correctCursor() {
 }
 
 MinecraftState::MinecraftState()
-    : m_blockMatrix(32, 128), 
-    m_players(),
-    m_blockColorProfile(mc::defaultBlockColorProfile)
+    : m_blockMatrix(32, 128),
+    m_blockColorProfile(mc::defaultBlockColorProfile),
+    m_players()
 {}
 
 const mc::BlockMatrix& MinecraftState::blockMatrix() const { return m_blockMatrix; }
@@ -81,7 +81,9 @@ bool MinecraftState::addNewPlayer(const PlayerId& id) {
         return false;
     } else {
         const std::size_t number_players = m_players.size();
-        const auto result = m_players.insert(std::make_pair(
+        // TODO: result of insert is not used. Should we check this 
+        // and return boolean? Is'nt this going away soon?
+        m_players.insert(std::make_pair(
             id,
             MinecraftPlayerState(0, number_players, 32, 128)
         ));
@@ -122,7 +124,7 @@ std::vector<MinecraftState::PlayerId> MinecraftState::players() const {
 std::string MinecraftState::playersSeparatedByNewline() const {
     std::lock_guard<std::mutex> lock(m_playerMutex);
     std::string players_string;
-    for(const auto player : _players()) {
+    for(const auto& player : _players()) {
         players_string += player + "\n";
     }
     return players_string;
