@@ -13,7 +13,7 @@ using Color = std::tuple<std::uint8_t, std::uint8_t, std::uint8_t>;
 class Render {
 public:
     Render(std::size_t width, std::size_t height)
-        : m_data(width * height), m_width(width), m_height(height)
+        : m_data(width * height, {0, 0, 0}), m_width(width), m_height(height)
     {}
 
     std::size_t width() const { return m_width; }
