@@ -55,7 +55,7 @@ void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, st
 			app_state->setMode(AppState::Mode::ProtogenHead);
 	});
 	srv->Get("/protogen/head/emotion/all", [app_state](const auto& req, auto& res){
-			res.set_content(ProtogenHeadState::emotionsSeperatedByNewline(), "text/plain");
+			res.set_content(ProtogenHeadState::emotionsSeparatedByNewline(), "text/plain");
 	});
 	srv->Get("/protogen/head/emotion", [app_state](const auto& req, auto& res){
 			const auto emotion = app_state->protogenHeadState().emotion();
@@ -76,7 +76,7 @@ void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, st
 			app_state->protogenHeadState().setBlank(blank);
 	});
 	srv->Get("/protogen/head/brightness/all", [app_state](const auto& req, auto& res){
-			res.set_content(ProtogenHeadState::brightnessLevelsSeperatedByNewline(), "text/plain");
+			res.set_content(ProtogenHeadState::brightnessLevelsSeparatedByNewline(), "text/plain");
 	});
 	srv->Get("/protogen/head/brightness", [app_state](const auto& req, auto& res){
 			const auto brightness = app_state->protogenHeadState().brightness();
@@ -103,7 +103,7 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 	});
 	
 	srv->Get("/protogen/minecraft/players", [app_state](const auto& req, auto& res){
-		res.set_content(app_state->minecraftState().playersSeperatedByNewline(), "text/plain");
+		res.set_content(app_state->minecraftState().playersSeparatedByNewline(), "text/plain");
 	});
 	srv->Put("/protogen/minecraft/players/:player", [app_state](const auto& req, auto& res){
 		app_state->minecraftState().addNewPlayer(req.path_params.at("player"));
@@ -141,7 +141,7 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 	});
 
 	srv->Get("/protogen/minecraft/blocks", [app_state](const auto& req, auto& res){
-		res.set_content(mc::Block::allBlocksSeperatedByNewline(), "text/plain");
+		res.set_content(mc::Block::allBlocksSeparatedByNewline(), "text/plain");
 	});
 	srv->Get("/protogen/minecraft/blocks/:block/color", [app_state](const auto& req, auto& res){
 		const auto block = mc::Block::fromString(req.path_params.at("block"));

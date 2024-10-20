@@ -34,7 +34,7 @@ std::vector<std::string> Block::allBlockStrings() {
     return {"air", "stone", "dirt", "wood", "grass", "sand", "water"};
 }
 
-std::string Block::allBlocksSeperatedByNewline() {
+std::string Block::allBlocksSeparatedByNewline() {
     std::string blocks;
     for(const auto& block : allBlockStrings()) {
         blocks += block;

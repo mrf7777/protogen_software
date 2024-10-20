@@ -53,7 +53,7 @@ namespace mc
         BlockVariant block() const;
         static Block fromString(const std::string& s);
         static std::vector<std::string> allBlockStrings();
-        static std::string allBlocksSeperatedByNewline();
+        static std::string allBlocksSeparatedByNewline();
 
     private:
         BlockVariant m_block;

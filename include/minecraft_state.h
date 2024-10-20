@@ -46,7 +46,7 @@ public:
 	bool accessPlayer(const PlayerId& id, std::function<void(MinecraftPlayerState&)> accessor);
 	bool accessPlayer(const PlayerId& id, std::function<void(const MinecraftPlayerState&)> accessor) const;
 	std::vector<PlayerId> players() const;
-	std::string playersSeperatedByNewline() const;
+	std::string playersSeparatedByNewline() const;
 private:
 	std::vector<PlayerId> _players() const;
 

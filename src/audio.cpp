@@ -63,9 +63,9 @@ double PcbArtistsDecibelMeter::max() const  {
     return 103;
 }
 
-bool PcbArtistsDecibelMeter::setTimeAverageMilliseconds(uint16_t mili) {
-    uint8_t low = mili & 0xff;
-    uint8_t high = (mili>>8) & 0xff;
+bool PcbArtistsDecibelMeter::setTimeAverageMilliseconds(uint16_t miliseconds) {
+    uint8_t low = miliseconds & 0xff;
+    uint8_t high = (miliseconds>>8) & 0xff;
     if(!writeI2cByte(*m_i2cFile, I2C_TAVG_HIGH_BYTE_REGISTER, high))
         return false;
     if(!writeI2cByte(*m_i2cFile, I2C_TAVG_LOW_BYTE_REGISTER, low))

@@ -45,7 +45,7 @@ public:
 	virtual double min() const override;
 	virtual double max() const override;
 private:
-	bool setTimeAverageMilliseconds(uint16_t mili);
+	bool setTimeAverageMilliseconds(uint16_t miliseconds);
 
 	static std::optional<uint8_t> readI2cByte(int i2c_file, uint8_t i2c_register);
 

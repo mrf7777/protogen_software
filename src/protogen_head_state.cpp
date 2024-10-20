@@ -71,7 +71,7 @@ std::vector<ProtogenHeadState::Brightness> ProtogenHeadState::allBrightnessLevel
     return {Brightness::ForBrightRoom, Brightness::ForDarkRoom};
 }
 
-std::string ProtogenHeadState::brightnessLevelsSeperatedByNewline() {
+std::string ProtogenHeadState::brightnessLevelsSeparatedByNewline() {
     std::string s;
     for(const auto brightness : allBrightnessLevels()) {
         s += brightnessToString(brightness) + "\n";
@@ -110,7 +110,7 @@ uint8_t ProtogenHeadState::brightnessToPercent(Brightness brightness) {
     }
 }
 
-std::string ProtogenHeadState::emotionsSeperatedByNewline() {
+std::string ProtogenHeadState::emotionsSeparatedByNewline() {
     std::string emotions;
     for(const auto emotion : allEmotions()) {
         emotions += emotionToString(emotion) + "\n";

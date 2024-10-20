@@ -31,11 +31,11 @@ public:
 	static Emotion emotionFromString(const std::string& s);
 	static std::string emotionToString(Emotion e);
 	static std::vector<Brightness> allBrightnessLevels();
-	static std::string brightnessLevelsSeperatedByNewline();
+	static std::string brightnessLevelsSeparatedByNewline();
 	static std::string brightnessToString(Brightness brightness);
 	static Brightness stringToBrightness(const std::string& brightness);
 	static uint8_t brightnessToPercent(Brightness brightness);
-	static std::string emotionsSeperatedByNewline();
+	static std::string emotionsSeparatedByNewline();
 
 	ProtogenHeadState();
 

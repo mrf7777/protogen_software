@@ -119,7 +119,7 @@ std::vector<MinecraftState::PlayerId> MinecraftState::players() const {
     return _players();
 }
 
-std::string MinecraftState::playersSeperatedByNewline() const {
+std::string MinecraftState::playersSeparatedByNewline() const {
     std::lock_guard<std::mutex> lock(m_playerMutex);
     std::string players_string;
     for(const auto player : _players()) {
