@@ -48,4 +48,6 @@ private:
        uint8_t m_b;
 };
 
+std::string read_file_to_str(const std::string& filename);
+
 #endif

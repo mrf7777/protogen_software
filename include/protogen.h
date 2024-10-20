@@ -105,13 +105,6 @@ public:
 	}
 };
 
-std::string read_file_to_str(const std::string& filename) {
-	std::ifstream file(filename);
-	std::stringstream buffer;
-	buffer << file.rdbuf();
-	return buffer.str();
-}
-
 class ProtogenHeadMatrices final : public IViewData<AppState> {
 public:
 	ProtogenHeadMatrices(std::unique_ptr<audio::IAudioProvider> audio_provider, EmotionDrawer emotion_drawer)

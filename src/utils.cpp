@@ -33,5 +33,12 @@ uint8_t RGBColor::g() const { return m_g; }
 uint8_t RGBColor::b() const { return m_b; }
 
 std::string RGBColor::toString() const {
-    return "RGBColor{r: " + std::to_string(m_r) + ", g: " + std::to_string(m_g) + ", b: " + std::to_string(m_b) + "}";
+        return "RGBColor{r: " + std::to_string(m_r) + ", g: " + std::to_string(m_g) + ", b: " + std::to_string(m_b) + "}";
+}
+
+std::string read_file_to_str(const std::string& filename) {
+        std::ifstream file(filename);
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        return buffer.str();
 }
