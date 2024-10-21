@@ -8,8 +8,6 @@
 #include <canvas.h>
 #include <led-matrix.h>
 
-#include <render.h>
-
 class ProtogenHeadMatrices final{
 public:
 	ProtogenHeadMatrices()
@@ -36,23 +34,12 @@ public:
 		m_protogenFrameBuffer1 = m_matrix->CreateFrameCanvas();
 	};
 
-	void viewRender(const render::Render& render) {
-		std::lock_guard<std::mutex> lock(m_mutex);
-		auto* frame = getNextProtogenFrameBuffer();
-		for(std::size_t y = 0; y < render.height(); ++y) {
-			for(std::size_t x = 0; x < render.width(); ++x) {
-				const auto color = render.get(x, y);
-				frame->SetPixel(x, y, std::get<0>(color), std::get<1>(color), std::get<2>(color));
-			}
-		}
-		m_matrix->SwapOnVSync(frame);
-	}
-
 	~ProtogenHeadMatrices() {
 		m_matrix->Clear();
 	}
 
 	rgb_matrix::FrameCanvas * getNextProtogenFrameBuffer() {
+		std::lock_guard<std::mutex> lock(m_mutex);
 		switch(m_whichProtogenFrameBufferIsUsed) {
 		case 0:
 			m_whichProtogenFrameBufferIsUsed = 1;

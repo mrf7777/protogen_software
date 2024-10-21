@@ -11,7 +11,6 @@
 #include <magick/image.h>
 
 #include <utils.h>
-#include <render.h>
 
 namespace image {
 
@@ -67,7 +66,6 @@ private:
 class StaticImageDrawer final {
 public:
 	StaticImageDrawer(const std::string& image_path);
-	void drawToRender(render::Render& render);
 	void drawToCanvas(rgb_matrix::Canvas& canvas);
 private:
 	Magick::Image m_image;
