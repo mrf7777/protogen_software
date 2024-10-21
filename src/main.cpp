@@ -94,7 +94,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	int FPS;
 	while(!interrupt_received) {
 		FPS = app_state->frameRate();
-		renderer.render(*app_state, *data_viewer.getNextProtogenFrameBuffer());
+		
+		data_viewer.drawFrame([&](rgb_matrix::Canvas& canvas) {
+			renderer.render(*app_state, canvas);
+		});
+
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000/FPS));
 	}
 

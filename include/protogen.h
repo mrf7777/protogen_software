@@ -51,6 +51,13 @@ public:
 		}
 	}
 
+	void drawFrame(const std::function<void(rgb_matrix::Canvas&)>& drawer) {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		auto frame = getNextProtogenFrameBuffer();
+		drawer(*frame);
+		m_matrix->SwapOnVSync(frame);
+	}
+
 private:
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
 	rgb_matrix::FrameCanvas * m_protogenFrameBuffer0;
