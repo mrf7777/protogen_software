@@ -14,10 +14,10 @@ public:
 	ProtogenHeadMatrices();
 	~ProtogenHeadMatrices();
 
-	rgb_matrix::FrameCanvas * getNextProtogenFrameBuffer();
 	void drawFrame(const std::function<void(rgb_matrix::Canvas&)>& drawer);
-
 private:
+	rgb_matrix::FrameCanvas * getNextProtogenFrameBuffer();
+
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
 	rgb_matrix::FrameCanvas * m_protogenFrameBuffer0;
 	rgb_matrix::FrameCanvas * m_protogenFrameBuffer1;

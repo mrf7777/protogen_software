@@ -30,7 +30,6 @@ ProtogenHeadMatrices::~ProtogenHeadMatrices() {
 }
 
 rgb_matrix::FrameCanvas * ProtogenHeadMatrices::getNextProtogenFrameBuffer() {
-    std::lock_guard<std::mutex> lock(m_mutex);
     switch(m_whichProtogenFrameBufferIsUsed) {
     case 0:
         m_whichProtogenFrameBufferIsUsed = 1;
