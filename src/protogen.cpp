@@ -44,6 +44,7 @@ rgb_matrix::FrameCanvas * ProtogenHeadMatrices::getNextProtogenFrameBuffer() {
 void ProtogenHeadMatrices::drawFrame(const std::function<void(rgb_matrix::Canvas&)>& drawer) {
     std::lock_guard<std::mutex> lock(m_mutex);
     auto frame = getNextProtogenFrameBuffer();
+    frame->Clear();
     drawer(*frame);
     m_matrix->SwapOnVSync(frame);
 }
