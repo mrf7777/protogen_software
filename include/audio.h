@@ -20,6 +20,22 @@ public:
 	virtual double max() const = 0;
 };
 
+class IProportionProvider {
+public:
+	virtual ~IProportionProvider() = default;
+	// Must return a value between 0 and 1.
+	virtual double proportion() const = 0;
+};
+
+class AudioToProportionAdapter : public IProportionProvider {
+public:
+	AudioToProportionAdapter(std::unique_ptr<IAudioProvider> audio_provider);
+
+	virtual double proportion() const override;
+private:
+	std::unique_ptr<IAudioProvider> m_audioProvider;
+};
+
 class WebsiteAudioProvider final : public IAudioProvider {
 public:
 	/**

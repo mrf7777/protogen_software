@@ -102,4 +102,24 @@ void PcbArtistsDecibelMeter::FileDeleter::operator()(int * file) const {
     }
 }
 
+AudioToProportionAdapter::AudioToProportionAdapter(std::unique_ptr<IAudioProvider> audio_provider)
+    : m_audioProvider(std::move(audio_provider))
+{}
+
+double AudioToProportionAdapter::proportion() const
+{
+    const double audio_min = m_audioProvider->min();
+    const double audio_max = m_audioProvider->max();
+    const double audio_level_clamped = std::clamp(m_audioProvider->audioLevel(), audio_min, audio_max);
+
+    // We need to do reverse linear interpolation. Here is the lerp formula:
+    //   l = a + t(b - a)
+    // Where t is in [0, 1], a is audio min, b is audio max, and l is audio level clamped.
+    //
+    // We want t, since this is between 0 and 1.
+    //   (l - a) / (b - a) = t
+    const double proportion = (audio_level_clamped - audio_min) / (audio_max - audio_min);
+    return proportion;
+}
+
 }
