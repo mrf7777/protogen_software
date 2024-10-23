@@ -41,14 +41,14 @@ void web_server_thread_function(std::shared_ptr<httplib::Server> server) {
 }
 
 void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
+	// TODO: figure out way to animate a dip in proportion.
 	double x = 0;
 	const double x_per_second = 0.5;
-	static constexpr double delay_seconds = 1.0 / 60.0;
+	static constexpr double delay_seconds = 1.0 / 30.0;
 	while(!interrupt_received) {
 		const Proportion openness = Proportion::make((std::sin(x)+1)/2).value();
 		app_state->protogenHeadState().setEyeOpenness(openness);
 		x += x_per_second * delay_seconds;
-		std::cout << "x: " << x << " openness: " << static_cast<double>(openness) << std::endl;
 		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int64_t>(delay_seconds * 1000)));
 	}
 }
