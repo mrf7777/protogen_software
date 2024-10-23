@@ -25,7 +25,6 @@ function createBlockEntry(block) {
 	block_entry.appendChild(block_color_square)
 	block_entry.appendChild(document.createTextNode(block))
 	getBlockColor(block, (block_color) => {
-		// TODO: fix backend which sends invalid color hex
 		block_color_square.style.background = block_color
 
 		block_entry.addEventListener("click", () => {
