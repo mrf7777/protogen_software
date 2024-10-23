@@ -122,7 +122,8 @@ ProtogenHeadState::ProtogenHeadState()
     : m_emotion(Emotion::Normal),
         m_forceBlink(false),
         m_blank(false),
-        m_brightness(Brightness::ForBrightRoom)
+        m_brightness(Brightness::ForBrightRoom),
+        m_mouthOpenness(Proportion::make(0.0).value())
 {}
 
 ProtogenHeadState::Emotion ProtogenHeadState::emotion() const {
@@ -172,6 +173,14 @@ ProtogenHeadState::Emotion ProtogenHeadState::getEmotionConsideringForceBlink() 
     } else {
         return m_emotion;
     }
+}
+
+void ProtogenHeadState::setMouthOpenness(Proportion openness) {
+    m_mouthOpenness = openness;
+}
+
+Proportion ProtogenHeadState::mouthOpenness() const {
+    return m_mouthOpenness;
 }
 
 std::string ProtogenHeadState::toString() const {

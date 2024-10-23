@@ -6,6 +6,7 @@
 #include <mutex>
 
 #include <utils.h>
+#include <proportion.h>
 
 class ProtogenHeadState final : public IToString {
 public:
@@ -48,12 +49,15 @@ public:
 	void setBrightness(Brightness brightness);
 	Brightness brightness() const;
 	Emotion getEmotionConsideringForceBlink() const;
+	void setMouthOpenness(Proportion openness);
+	Proportion mouthOpenness() const;
 	virtual std::string toString() const override;
 private:
 	Emotion m_emotion;
 	bool m_forceBlink;
 	bool m_blank;
 	Brightness m_brightness;
+	Proportion m_mouthOpenness;
 	mutable std::mutex m_mutex;
 
 	static const Emotion FORCE_BLINK_EMOTION = Emotion::Blink;
