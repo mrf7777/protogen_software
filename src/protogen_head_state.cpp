@@ -177,18 +177,22 @@ ProtogenHeadState::Emotion ProtogenHeadState::getEmotionConsideringForceBlink() 
 }
 
 void ProtogenHeadState::setMouthOpenness(Proportion openness) {
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_mouthOpenness = openness;
 }
 
 Proportion ProtogenHeadState::mouthOpenness() const {
+    std::lock_guard<std::mutex> lock(m_mutex);
     return m_mouthOpenness;
 }
 
 void ProtogenHeadState::setEyeOpenness(Proportion openness) {
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_eyeOpenness = openness;
 }
 
 Proportion ProtogenHeadState::eyeOpenness() const {
+    std::lock_guard<std::mutex> lock(m_mutex);
     return m_eyeOpenness;
 }
 
