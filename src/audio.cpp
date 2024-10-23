@@ -106,7 +106,7 @@ AudioToProportionAdapter::AudioToProportionAdapter(std::unique_ptr<IAudioProvide
     : m_audioProvider(std::move(audio_provider))
 {}
 
-double AudioToProportionAdapter::proportion() const
+Proportion AudioToProportionAdapter::proportion() const
 {
     const double audio_min = m_audioProvider->min();
     const double audio_max = m_audioProvider->max();
@@ -119,7 +119,7 @@ double AudioToProportionAdapter::proportion() const
     // We want t, since this is between 0 and 1.
     //   (l - a) / (b - a) = t
     const double proportion = (audio_level_clamped - audio_min) / (audio_max - audio_min);
-    return proportion;
+    return Proportion::make(proportion).value();
 }
 
 }

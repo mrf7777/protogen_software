@@ -20,18 +20,37 @@ public:
 	virtual double max() const = 0;
 };
 
+/**
+ * A floating value between in the closed interval [0, 1].
+ */
+class Proportion {
+public:
+	static std::optional<Proportion> make(double x) {
+		if(0 <= x && x <= 1) {
+			return {Proportion(x)};
+		} else {
+			return {};
+		}
+	}
+
+	operator double() const { return m_value; }
+	operator float() const { return m_value; }
+private:
+	Proportion(double x) : m_value{x} {}
+	double m_value;
+};
+
 class IProportionProvider {
 public:
 	virtual ~IProportionProvider() = default;
-	// Must return a value between 0 and 1.
-	virtual double proportion() const = 0;
+	virtual Proportion proportion() const = 0;
 };
 
 class AudioToProportionAdapter : public IProportionProvider {
 public:
 	AudioToProportionAdapter(std::unique_ptr<IAudioProvider> audio_provider);
 
-	virtual double proportion() const override;
+	virtual Proportion proportion() const override;
 private:
 	std::unique_ptr<IAudioProvider> m_audioProvider;
 };
