@@ -80,7 +80,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	auto app_state = std::shared_ptr<AppState>(new AppState());
 
 	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
-	setup_web_server(srv, app_state, html_files_dir);
 	
 	auto mouth_openness_provider = std::unique_ptr<audio::IProportionProvider>(new audio::AudioToProportionAdapter(std::unique_ptr<audio::PcbArtistsDecibelMeter>(new audio::PcbArtistsDecibelMeter())));
 
@@ -92,12 +91,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	auto renderer = render::Renderer(emotion_drawer, render::MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
 
-	// TODO: move to webserver setup
-	auto ret = srv->set_mount_point("/static", static_web_resources_dir);
-	if(!ret) {
-		std::cerr << "Could not mount static directory to web server." << std::endl;
-	}
-
+	setup_web_server(srv, app_state, html_files_dir, static_web_resources_dir);
 	setup_signal_handlers();
 
 	std::thread web_server_thread(web_server_thread_function, srv);

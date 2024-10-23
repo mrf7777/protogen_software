@@ -1,8 +1,13 @@
 #include <web_server.h>
 
-void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir) {
+void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const std::string& static_files_dir) {
 	srv->set_logger([=](const auto&, auto&){
 	});
+
+	auto ret = srv->set_mount_point("/static", static_files_dir);
+	if(!ret) {
+		std::cerr << "Could not mount static directory to web server." << std::endl;
+	}
 	
 	srv->Get("/protogen/mode", [app_state](const auto&, auto& res){
 			const auto mode = app_state->mode();
