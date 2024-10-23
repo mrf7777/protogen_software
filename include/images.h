@@ -48,20 +48,6 @@ private:
 	Spectrum m_spectrum;
 };
 
-class ImagesDirectoryResource final {
-public:
-	/**
-	 * Expects a directory path with PNG images.
-	 * Creates a map between filename and images. Filename
-	 * used for the key does not include directory names
-	 * or file extensions.
-	 */
-	ImagesDirectoryResource (const std::string& images_directory);
-	std::optional<Magick::Image> getImage(const std::string& key) const;
-private:
-	std::map<std::string, Magick::Image> m_images;
-};
-
 class StaticImageDrawer final {
 public:
 	StaticImageDrawer(const std::string& image_path);

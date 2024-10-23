@@ -87,24 +87,6 @@ std::vector<Magick::Image> ImageSpectrum::images() const {
     return m_images;
 }
 
-ImagesDirectoryResource::ImagesDirectoryResource (const std::string& images_directory) {
-    std::vector<std::filesystem::path> files_in_directory;
-    for(const auto& file : std::filesystem::directory_iterator(images_directory)) {
-        auto result_image = loadImage(file.path().string());
-        if(result_image.has_value()) {
-            const auto key = file.path().filename().replace_extension().string();
-            m_images.insert({key, result_image.value()});
-        }
-    }
-}
-std::optional<Magick::Image> ImagesDirectoryResource::getImage(const std::string& key) const {
-    try {
-        return {m_images.at(key)};
-    } catch(std::out_of_range&) {
-        return {};
-    }
-}
-
 StaticImageDrawer::StaticImageDrawer(const std::string& image_path) {
     auto image_result = image::loadImage(image_path);
     if(image_result.has_value()) {
