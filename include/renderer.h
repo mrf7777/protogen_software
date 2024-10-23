@@ -96,12 +96,11 @@ public:
 
 class Renderer : public IRender{
 public:
-    Renderer(std::unique_ptr<audio::IAudioProvider> audio_provider, EmotionDrawer emotion_drawer, MinecraftDrawer minecraft_drawer, const std::string& mouth_images_dir, const std::string& static_image_path)
-        : m_audioProvider(std::move(audio_provider)),
-        m_emotionDrawer(emotion_drawer),
+    Renderer(EmotionDrawer emotion_drawer, MinecraftDrawer minecraft_drawer, const std::string& mouth_images_dir, const std::string& static_image_path)
+        : m_emotionDrawer(emotion_drawer),
         m_minecraftDrawer(minecraft_drawer),
         m_staticImageDrawer(static_image_path),
-        m_headImages(mouth_images_dir, m_audioProvider->min(), m_audioProvider->max()),
+        m_headImages(mouth_images_dir, 0.0, 1.0),
         m_protogenHeadFrameProvider()
     {
     }
@@ -122,7 +121,7 @@ private:
         m_protogenHeadFrameProvider.draw(
             canvas,
             data.getEmotionConsideringForceBlink(),
-            m_headImages.spectrum().bucket(m_audioProvider->audioLevel()),
+            m_headImages.spectrum().bucket(data.mouthOpenness()),
             m_emotionDrawer,
             m_headImages,
             m_staticImageDrawer,
@@ -134,7 +133,6 @@ private:
 		m_minecraftDrawer.draw(canvas, data);
 	}
 
-    std::unique_ptr<audio::IAudioProvider> m_audioProvider;
     EmotionDrawer m_emotionDrawer;
     MinecraftDrawer m_minecraftDrawer;
     image::StaticImageDrawer m_staticImageDrawer;

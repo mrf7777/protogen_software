@@ -50,6 +50,18 @@ void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 	}
 }
 
+// 
+void protogen_mouth_sync_thread_function(std::shared_ptr<AppState> app_state, std::unique_ptr<audio::IProportionProvider> mouth_openness_provider) {
+	// TODO: only run loop when the protogen is the active mode.
+	int framerate = app_state->frameRate();
+	while(!interrupt_received) {
+		app_state->protogenHeadState().setMouthOpenness(mouth_openness_provider->proportion());
+		framerate = app_state->frameRate();
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000/framerate));
+	}
+	
+}
+
 void setup_signal_handlers() {
 	signal(SIGTERM, interrupt_handler);
 	signal(SIGINT, interrupt_handler);
@@ -71,14 +83,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
 	setup_web_server(srv, app_state, html_files_dir);
 	
-	auto decibel_module_audio_provider = std::unique_ptr<audio::PcbArtistsDecibelMeter>(new audio::PcbArtistsDecibelMeter());
+	auto mouth_openness_provider = std::unique_ptr<audio::IProportionProvider>(new audio::AudioToProportionAdapter(std::unique_ptr<audio::PcbArtistsDecibelMeter>(new audio::PcbArtistsDecibelMeter())));
+
 
 	auto emotion_drawer = render::EmotionDrawer(protogen_emotions_dir);
 	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");
 
 	auto data_viewer = ProtogenHeadMatrices();
 
-	auto renderer = render::Renderer(std::move(decibel_module_audio_provider), emotion_drawer, render::MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
+	auto renderer = render::Renderer(emotion_drawer, render::MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
 
 	// TODO: move to webserver setup
 	auto ret = srv->set_mount_point("/static", static_web_resources_dir);
@@ -90,6 +103,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	std::thread web_server_thread(web_server_thread_function, srv);
 	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
+	std::thread protogen_mouth_sync_thread(protogen_mouth_sync_thread_function, app_state, std::move(mouth_openness_provider));
 
 	int FPS;
 	while(!interrupt_received) {
