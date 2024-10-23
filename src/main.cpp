@@ -43,7 +43,7 @@ void web_server_thread_function(std::shared_ptr<httplib::Server> server) {
 void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 	double x = 0;
 	const double x_per_second = 0.5;
-	static constexpr double delay_seconds = 1 / 60;
+	static constexpr double delay_seconds = 1.0 / 60.0;
 	while(!interrupt_received) {
 		const Proportion openness = Proportion::make((std::sin(x)+1)/2).value();
 		app_state->protogenHeadState().setEyeOpenness(openness);
