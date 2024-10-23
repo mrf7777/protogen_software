@@ -51,6 +51,8 @@ public:
 	Emotion getEmotionConsideringForceBlink() const;
 	void setMouthOpenness(Proportion openness);
 	Proportion mouthOpenness() const;
+	void setEyeOpenness(Proportion openness);
+	Proportion eyeOpenness() const;
 	virtual std::string toString() const override;
 private:
 	Emotion m_emotion;
@@ -58,6 +60,7 @@ private:
 	bool m_blank;
 	Brightness m_brightness;
 	Proportion m_mouthOpenness;
+	Proportion m_eyeOpenness;
 	mutable std::mutex m_mutex;
 
 	static const Emotion FORCE_BLINK_EMOTION = Emotion::Blink;

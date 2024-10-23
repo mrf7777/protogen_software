@@ -123,7 +123,8 @@ ProtogenHeadState::ProtogenHeadState()
         m_forceBlink(false),
         m_blank(false),
         m_brightness(Brightness::ForBrightRoom),
-        m_mouthOpenness(Proportion::make(0.0).value())
+        m_mouthOpenness(Proportion::make(0.0).value()),
+        m_eyeOpenness(Proportion::make(1.0).value())
 {}
 
 ProtogenHeadState::Emotion ProtogenHeadState::emotion() const {
@@ -181,6 +182,14 @@ void ProtogenHeadState::setMouthOpenness(Proportion openness) {
 
 Proportion ProtogenHeadState::mouthOpenness() const {
     return m_mouthOpenness;
+}
+
+void ProtogenHeadState::setEyeOpenness(Proportion openness) {
+    m_eyeOpenness = openness;
+}
+
+Proportion ProtogenHeadState::eyeOpenness() const {
+    return m_eyeOpenness;
 }
 
 std::string ProtogenHeadState::toString() const {
