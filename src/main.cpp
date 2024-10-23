@@ -59,7 +59,6 @@ void protogen_mouth_sync_thread_function(std::shared_ptr<AppState> app_state, st
 		framerate = app_state->frameRate();
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000/framerate));
 	}
-	
 }
 
 void setup_signal_handlers() {
