@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <functional>
 #include <signal.h>
+#include <cmath>
 
 #include <graphics.h>
 #include <canvas.h>
@@ -40,17 +41,16 @@ void web_server_thread_function(std::shared_ptr<httplib::Server> server) {
 }
 
 void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
-	static constexpr int BLINKING_OFF_MILLISECONDS = 7000;
-	static constexpr int BLINKING_ON_MILLISECONDS = 100;
+	double x = 0;
+	const double x_per_second = 0.5;
+	static constexpr double delay_seconds = 1 / 60;
 	while(!interrupt_received) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(BLINKING_OFF_MILLISECONDS));
-		app_state->protogenHeadState().setForceBlink(true);
-		std::this_thread::sleep_for(std::chrono::milliseconds(BLINKING_ON_MILLISECONDS));
-		app_state->protogenHeadState().setForceBlink(false);
+		app_state->protogenHeadState().setEyeOpenness(Proportion::make((std::sin(x)+1)/2).value());
+		x += x_per_second * delay_seconds;
+		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int64_t>(delay_seconds * 1000)));
 	}
 }
 
-// 
 void protogen_mouth_sync_thread_function(std::shared_ptr<AppState> app_state, std::unique_ptr<audio::IProportionProvider> mouth_openness_provider) {
 	// TODO: only run loop when the protogen is the active mode.
 	int framerate = app_state->frameRate();
