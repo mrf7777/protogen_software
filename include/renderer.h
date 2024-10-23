@@ -4,13 +4,14 @@
 #include <tuple>
 #include <cstdint>
 #include <mutex>
+#include <unordered_map>
+
+#include <canvas.h>
 
 #include <audio.h>
 #include <images.h>
 #include <app_state.h>
 #include <proportion.h>
-
-#include <canvas.h>
 
 namespace render
 {
@@ -21,12 +22,18 @@ public:
 		: m_images(emotions_directory),
 		m_emotionsDirectory(emotions_directory)
 	{
-	}
-	void draw(rgb_matrix::Canvas& canvas, ProtogenHeadState::Emotion emotion) const {
-		auto image = m_images.getImage(ProtogenHeadState::emotionToString(emotion));
-		if(image.has_value()) {
-			writeImageToCanvas(image.value(), &canvas);
+		for(const auto& emotion : ProtogenHeadState::allEmotions()) {
+			// TODO: use std::filesystem to join file system paths.
+			const auto emotion_images_dir = emotions_directory + "/" + ProtogenHeadState::emotionToString(emotion);
+			m_emotionImageSpectrums.insert({
+				emotion,
+				image::ImageSpectrum(emotion_images_dir)
+			});
 		}
+	}
+	void draw(rgb_matrix::Canvas& canvas, ProtogenHeadState::Emotion emotion, Proportion eye_openness) const {
+		auto image = m_emotionImageSpectrums.at(emotion).imageForValue(eye_openness);
+		writeImageToCanvas(image, &canvas);
 	}
 	void configWebServerToHostEmotionImages(
 			httplib::Server& srv,
@@ -34,6 +41,7 @@ public:
 		srv.set_mount_point(base_url_path, m_emotionsDirectory);
 	}
 private:
+	std::unordered_map<ProtogenHeadState::Emotion, image::ImageSpectrum> m_emotionImageSpectrums;
 	image::ImagesDirectoryResource m_images;
 	std::string m_emotionsDirectory;
 };
@@ -41,13 +49,13 @@ private:
 class ProtogenHeadFrameProvider final {
 public:
 	ProtogenHeadFrameProvider() {}
-	void draw(rgb_matrix::Canvas& canvas, ProtogenHeadState::Emotion emotion, Proportion mouth_openness, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer, bool blank) {
+	void draw(rgb_matrix::Canvas& canvas, ProtogenHeadState::Emotion emotion, Proportion mouth_openness, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer, bool blank, Proportion eye_openness) {
 		if(!blank) {
 			// mouth
 			auto mouth_image = mouth_images.imageForValue(mouth_openness);
 			writeImageToCanvas(mouth_image, &canvas);
 			// emotion
-			emotion_drawer.draw(canvas, emotion);
+			emotion_drawer.draw(canvas, emotion, eye_openness);
 			// static
 			static_drawer.drawToCanvas(canvas);
 		}
@@ -126,7 +134,8 @@ private:
             m_emotionDrawer,
             m_headImages,
             m_staticImageDrawer,
-            data.blank()
+            data.blank(),
+			data.eyeOpenness()
         );
 	}
 
