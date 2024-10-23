@@ -8,6 +8,7 @@
 #include <audio.h>
 #include <images.h>
 #include <app_state.h>
+#include <proportion.h>
 
 #include <canvas.h>
 
@@ -40,10 +41,10 @@ private:
 class ProtogenHeadFrameProvider final {
 public:
 	ProtogenHeadFrameProvider() {}
-	void draw(rgb_matrix::Canvas& canvas, ProtogenHeadState::Emotion emotion, std::size_t mouth_state, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer, bool blank) {
+	void draw(rgb_matrix::Canvas& canvas, ProtogenHeadState::Emotion emotion, Proportion mouth_openness, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer, bool blank) {
 		if(!blank) {
 			// mouth
-			auto mouth_image = mouth_images.images().at(mouth_state);
+			auto mouth_image = mouth_images.imageForValue(mouth_openness);
 			writeImageToCanvas(mouth_image, &canvas);
 			// emotion
 			emotion_drawer.draw(canvas, emotion);
@@ -100,7 +101,7 @@ public:
         : m_emotionDrawer(emotion_drawer),
         m_minecraftDrawer(minecraft_drawer),
         m_staticImageDrawer(static_image_path),
-        m_headImages(mouth_images_dir, 0.0, 1.0),
+        m_headImages(mouth_images_dir),
         m_protogenHeadFrameProvider()
     {
     }
@@ -121,7 +122,7 @@ private:
         m_protogenHeadFrameProvider.draw(
             canvas,
             data.getEmotionConsideringForceBlink(),
-            m_headImages.spectrum().bucket(data.mouthOpenness()),
+            data.mouthOpenness(),
             m_emotionDrawer,
             m_headImages,
             m_staticImageDrawer,

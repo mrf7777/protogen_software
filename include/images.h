@@ -11,6 +11,7 @@
 #include <magick/image.h>
 
 #include <utils.h>
+#include <proportion.h>
 
 namespace image {
 
@@ -36,14 +37,12 @@ public:
 	 * - 0.png
 	 * - 1.png
 	 * - 2.png
-	 * This class uses a Spectrum to assist in choosing an image
-	 * based on some continuous number.
+	 * This class uses a Proportion value (a value in the closed interval [0, 1]) to choose an image.
 	 */
 	ImageSpectrum();
-	ImageSpectrum(const std::string& images_directory, double min, double max);
-	Magick::Image imageForValue(double value) const;
+	ImageSpectrum(const std::string& images_directory);
+	Magick::Image imageForValue(Proportion value) const;
 	std::vector<Magick::Image> images() const;
-	Spectrum& spectrum();
 private:
 	std::vector<Magick::Image> m_images;
 	Spectrum m_spectrum;

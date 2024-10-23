@@ -55,13 +55,13 @@ std::size_t Spectrum::bucket(double value) const {
 
 ImageSpectrum::ImageSpectrum() {}
 
-ImageSpectrum::ImageSpectrum(const std::string& images_directory, double min, double max) {
+ImageSpectrum::ImageSpectrum(const std::string& images_directory) {
     std::vector<std::filesystem::path> files_in_directory;
     for(auto& file : std::filesystem::directory_iterator(images_directory)) {
         std::cout << "ImageSpectrum found file in dir: " << file.path().filename().string() << std::endl;
         files_in_directory.push_back(file.path());
     }
-    m_spectrum = Spectrum(min, max, files_in_directory.size());
+    m_spectrum = Spectrum(0.0, 1.0, files_in_directory.size());
     std::sort(files_in_directory.begin(), files_in_directory.end(), [](std::filesystem::path a, std::filesystem::path b){
         const auto a_number = a.filename().string().substr(0, a.filename().string().size()-4);
         const auto b_number = b.filename().string().substr(0, b.filename().string().size()-4);
@@ -78,17 +78,13 @@ ImageSpectrum::ImageSpectrum(const std::string& images_directory, double min, do
     }
 }
 
-Magick::Image ImageSpectrum::imageForValue(double value) const {
+Magick::Image ImageSpectrum::imageForValue(Proportion value) const {
     const auto bucket = m_spectrum.bucket(value);
     return m_images.at(bucket);
 }
 
 std::vector<Magick::Image> ImageSpectrum::images() const {
     return m_images;
-}
-
-Spectrum& ImageSpectrum::spectrum() {
-    return m_spectrum;
 }
 
 ImagesDirectoryResource::ImagesDirectoryResource (const std::string& images_directory) {
