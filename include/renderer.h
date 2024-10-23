@@ -19,8 +19,7 @@ namespace render
 class EmotionDrawer final {
 public:
 	EmotionDrawer(const std::string& emotions_directory)
-		: m_images(emotions_directory),
-		m_emotionsDirectory(emotions_directory)
+		: m_emotionsDirectory(emotions_directory)
 	{
 		for(const auto& emotion : ProtogenHeadState::allEmotions()) {
 			// TODO: use std::filesystem to join file system paths.
@@ -42,7 +41,6 @@ public:
 	}
 private:
 	std::unordered_map<ProtogenHeadState::Emotion, image::ImageSpectrum> m_emotionImageSpectrums;
-	image::ImagesDirectoryResource m_images;
 	std::string m_emotionsDirectory;
 };
 
