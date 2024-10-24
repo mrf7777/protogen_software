@@ -81,9 +81,9 @@ void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 		if(animation_time < animation_action_start_time) {
 			eye_openness = Proportion::make(1.0).value();
 		} else if(animation_action_start_time <= animation_time && animation_time <= animation_action_mid_time) {
-			std::lerp(1.0, 0.0, normalize(animation_time, animation_action_start_time, animation_action_mid_time));
+			eye_openness = Proportion::make(std::lerp(1.0, 0.0, normalize(animation_time, animation_action_start_time, animation_action_mid_time))).value();
 		} else if(animation_action_mid_time <= animation_time && animation_time <= animation_action_end_time) {
-			std::lerp(0.0, 1.0, normalize(animation_time, animation_action_mid_time, animation_action_end_time));
+			eye_openness = Proportion::make(std::lerp(0.0, 1.0, normalize(animation_time, animation_action_mid_time, animation_action_end_time))).value();
 		} else {
 			eye_openness = Proportion::make(1.0).value();
 		}
