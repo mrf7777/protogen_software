@@ -68,7 +68,7 @@ void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 	static constexpr double animation_action_end_time = 5.0;
 	static constexpr double animation_action_mid_time = (animation_action_start_time + animation_action_end_time) / 2;
 	static_assert(animation_action_start_time < animation_action_end_time);
-	static constexpr double delay_seconds = 1.0 / 60.0;
+	static constexpr double delay_seconds = 1.0 / 5.0;
 	
 	while(!interrupt_received) {
 		//app_state->protogenHeadState().setEyeOpenness(openness);
@@ -88,6 +88,7 @@ void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 			eye_openness = Proportion::make(1.0).value();
 		}
 		app_state->protogenHeadState().setEyeOpenness(eye_openness);
+		std::cout << "Proportion: " << (double)eye_openness << " animation_time: " << animation_time << " time_epoch_seconds: " << time_epoch_seconds << std::endl;
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int64_t>(delay_seconds * 1000)));
 	}
