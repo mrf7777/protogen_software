@@ -51,7 +51,6 @@ double PcbArtistsDecibelMeter::audioLevel() const {
     }
 
     const double audio_level = static_cast<double>(potential_audio_level.value());
-    std::cout << "Audio level: " << audio_level << std::endl;
     return audio_level;
 }
 

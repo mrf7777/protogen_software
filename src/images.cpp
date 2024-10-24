@@ -28,17 +28,13 @@ Spectrum::Spectrum(double min, double max, unsigned int buckets, double toleranc
 
     const auto interval_distance = m_max - m_min;
     const auto bucket_distance = interval_distance / m_buckets;
-    std::cout << "whole interval distance" << interval_distance << std::endl;
-    std::cout << "bucket_distance" << bucket_distance << std::endl;
     unsigned int buckets_created = 0;
     while(buckets_created != m_buckets) {
         double bucket_start = m_min + (buckets_created * bucket_distance);
         double bucket_end = bucket_start + bucket_distance + tolerance;
         m_computed_buckets.push_back(std::pair<double, double>(bucket_start, bucket_end));
         buckets_created++;
-        std::cout << "start: " << bucket_start << " end: " << bucket_end << std::endl;
     }
-    std::cout << "Buckets created: " << buckets_created << std::endl;
 }
 
 std::size_t Spectrum::bucket(double value) const {
@@ -58,7 +54,6 @@ ImageSpectrum::ImageSpectrum() {}
 ImageSpectrum::ImageSpectrum(const std::string& images_directory) {
     std::vector<std::filesystem::path> files_in_directory;
     for(auto& file : std::filesystem::directory_iterator(images_directory)) {
-        std::cout << "ImageSpectrum found file in dir: " << file.path().filename().string() << std::endl;
         files_in_directory.push_back(file.path());
     }
     m_spectrum = Spectrum(0.0, 1.0, files_in_directory.size());
