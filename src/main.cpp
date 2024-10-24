@@ -74,7 +74,8 @@ void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 		//app_state->protogenHeadState().setEyeOpenness(openness);
 		const auto system_time = std::chrono::system_clock::now();
 		const auto time_epoch = system_time.time_since_epoch();
-		const double animation_time = std::chrono::duration_cast<std::chrono::milliseconds>(time_epoch).count() / 1000.0;
+		const double time_epoch_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(time_epoch).count() / 1000.0;
+		const double animation_time = std::fmod(time_epoch_seconds, animation_action_end_time);
 
 		Proportion eye_openness = Proportion::make(1.0).value();
 		if(animation_time < animation_action_start_time) {
