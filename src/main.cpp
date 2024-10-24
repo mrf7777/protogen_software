@@ -40,15 +40,54 @@ void web_server_thread_function(std::shared_ptr<httplib::Server> server) {
 	server->listen("0.0.0.0", 8080);
 }
 
+double normalize(double value, double min, double max) {
+    if (value < min || value > max) {
+        std::cerr << "Value is outside the specified interval." << std::endl;
+        return -1; // Or throw an exception
+    }
+
+    return (value - min) / (max - min);
+}
+
 void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 	// TODO: figure out way to animate a dip in proportion.
-	double x = 0;
-	const double x_per_second = 0.5;
-	static constexpr double delay_seconds = 1.0 / 30.0;
+	// Proportion animation over time
+	//
+	//     ^
+	//     |
+	//     (proportion)
+	// 1.0 |**********       *********
+	//     |          *     *
+	//     |           *   *
+	//     |            * *
+	//     |             *
+	// 0.0 |----------------------------(time)->
+	//
+
+	static constexpr double animation_action_start_time = 4.5;
+	static constexpr double animation_action_end_time = 5.0;
+	static constexpr double animation_action_mid_time = (animation_action_start_time + animation_action_end_time) / 2;
+	static_assert(animation_action_start_time < animation_action_end_time);
+	static constexpr double delay_seconds = 1.0 / 60.0;
+	
 	while(!interrupt_received) {
-		const Proportion openness = Proportion::make((std::sin(x)+1)/2).value();
-		app_state->protogenHeadState().setEyeOpenness(openness);
-		x += x_per_second * delay_seconds;
+		//app_state->protogenHeadState().setEyeOpenness(openness);
+		const auto system_time = std::chrono::system_clock::now();
+		const auto time_epoch = system_time.time_since_epoch();
+		const double animation_time = std::chrono::duration_cast<std::chrono::milliseconds>(time_epoch).count() / 1000.0;
+
+		Proportion eye_openness = Proportion::make(1.0).value();
+		if(animation_time < animation_action_start_time) {
+			eye_openness = Proportion::make(1.0).value();
+		} else if(animation_action_start_time <= animation_time && animation_time <= animation_action_mid_time) {
+			std::lerp(1.0, 0.0, normalize(animation_time, animation_action_start_time, animation_action_mid_time));
+		} else if(animation_action_mid_time <= animation_time && animation_time <= animation_action_end_time) {
+			std::lerp(0.0, 1.0, normalize(animation_time, animation_action_mid_time, animation_action_end_time));
+		} else {
+			eye_openness = Proportion::make(1.0).value();
+		}
+		app_state->protogenHeadState().setEyeOpenness(eye_openness);
+
 		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int64_t>(delay_seconds * 1000)));
 	}
 }
