@@ -154,7 +154,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	auto emotion_drawer = render::EmotionDrawer(protogen_emotions_dir);
 	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");
 
-	//auto data_viewer = ProtogenHeadMatrices();
+	auto data_viewer = ProtogenHeadMatrices();
 
 	auto renderer = render::Renderer(emotion_drawer, render::MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
 
@@ -169,9 +169,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	while(!interrupt_received) {
 		FPS = app_state->frameRate();
 		
-		// data_viewer.drawFrame([&](rgb_matrix::Canvas& canvas) {
-		// 	renderer.render(*app_state, canvas);
-		// });
+		data_viewer.drawFrame([&](rgb_matrix::Canvas& canvas) {
+			renderer.render(*app_state, canvas);
+		});
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000/FPS));
 	}
