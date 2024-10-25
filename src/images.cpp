@@ -64,6 +64,7 @@ ImageSpectrum::ImageSpectrum(const std::string& images_directory) {
             try {
                 const int file_stem_int = std::stoi(file_stem);
                 if(file_stem_int >= 0) {
+                    std::cout << "Found image for image spectrum: " << file.path() << std::endl;
                     files_in_directory.push_back(file.path());
                 }
             } catch(const std::invalid_argument&) {
