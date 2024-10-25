@@ -35,12 +35,10 @@ void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, st
 	});
 	srv->Get("/protogen/head/emotion", [app_state](const auto&, auto& res){
 			const auto emotion = app_state->protogenHeadState().emotion();
-			const auto emotion_string = ProtogenHeadState::emotionToString(emotion);
-			res.set_content(emotion_string, "text/plain");
+			res.set_content(emotion, "text/plain");
 	});
 	srv->Put("/protogen/head/emotion", [app_state](const auto& req, auto&){
-			const auto emotion = ProtogenHeadState::emotionFromString(req.body);
-			app_state->protogenHeadState().setEmotion(emotion);
+			app_state->protogenHeadState().setEmotion(req.body);
 	});
 	srv->Get("/protogen/head/blank", [app_state](const auto&, auto& res){
 			const auto blank = app_state->protogenHeadState().blank();

@@ -10,18 +10,7 @@
 
 class ProtogenHeadState final : public IToString {
 public:
-	enum class Emotion {
-		Normal,
-		Angry,
-		Flustered,
-		Sad,
-		Disappointed,
-		Flirty,
-		Scared,
-		Owo,
-		Uwu,
-		Blink,
-	};
+	using Emotion = std::string;
 
 	enum class Brightness {
 		ForBrightRoom,
@@ -29,8 +18,6 @@ public:
 	};
 
 	static std::vector<Emotion> allEmotions();
-	static Emotion emotionFromString(const std::string& s);
-	static std::string emotionToString(Emotion e);
 	static std::vector<Brightness> allBrightnessLevels();
 	static std::string brightnessLevelsSeparatedByNewline();
 	static std::string brightnessToString(Brightness brightness);
@@ -63,7 +50,8 @@ private:
 	Proportion m_eyeOpenness;
 	mutable std::mutex m_mutex;
 
-	static const Emotion FORCE_BLINK_EMOTION = Emotion::Blink;
+	// Cant be static, wont compile.
+	const Emotion FORCE_BLINK_EMOTION = "blink";
 };
 
 #endif

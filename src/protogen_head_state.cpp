@@ -1,70 +1,19 @@
 #include <protogen_head_state.h>
 
 std::vector<ProtogenHeadState::Emotion> ProtogenHeadState::allEmotions() {
+    // TODO: scan resources directory and deduce.
     return {
-        Emotion::Normal,
-        Emotion::Angry,
-        Emotion::Flustered,
-        Emotion::Sad,
-        Emotion::Disappointed,
-        Emotion::Flirty,
-        Emotion::Scared,
-        Emotion::Owo,
-        Emotion::Uwu,
-        Emotion::Blink,
+        "normal",
+        "angry",
+        "flustered",
+        "sad",
+        "disappointed",
+        "flirty",
+        "scared",
+        "owo",
+        "uwu",
+        "blink",
     };
-}
-
-ProtogenHeadState::Emotion ProtogenHeadState::emotionFromString(const std::string& s) {
-    if(s == "normal")
-        return Emotion::Normal;
-    else if(s == "angry")
-        return Emotion::Angry;
-    else if(s == "flustered")
-        return Emotion::Flustered;
-    else if(s == "sad")
-        return Emotion::Sad;
-    else if(s == "disappointed")
-        return Emotion::Disappointed;
-    else if(s == "flirty")
-        return Emotion::Flirty;
-    else if(s == "scared")
-        return Emotion::Scared;
-    else if(s == "owo")
-        return Emotion::Owo;
-    else if(s == "uwu")
-        return Emotion::Uwu;
-    else if(s == "blink")
-        return Emotion::Blink;
-    else
-        return Emotion::Normal;
-}
-
-std::string ProtogenHeadState::emotionToString(Emotion e) {
-    switch(e) {
-    case Emotion::Normal:
-        return "normal";
-    case Emotion::Angry:
-        return "angry";
-    case Emotion::Flustered:
-        return "flustered";
-    case Emotion::Sad:
-        return "sad";
-    case Emotion::Disappointed:
-        return "disappointed";
-    case Emotion::Flirty:
-        return "flirty";
-    case Emotion::Scared:
-        return "scared";
-    case Emotion::Owo:
-        return "owo";
-    case Emotion::Uwu:
-        return "uwu";
-    case Emotion::Blink:
-        return "blink";
-    default:
-        return "";
-    }
 }
 
 std::vector<ProtogenHeadState::Brightness> ProtogenHeadState::allBrightnessLevels() {
@@ -112,14 +61,14 @@ uint8_t ProtogenHeadState::brightnessToPercent(Brightness brightness) {
 
 std::string ProtogenHeadState::emotionsSeparatedByNewline() {
     std::string emotions;
-    for(const auto emotion : allEmotions()) {
-        emotions += emotionToString(emotion) + "\n";
+    for(const auto& emotion : allEmotions()) {
+        emotions += emotion + "\n";
     }
     return emotions;
 }
 
 ProtogenHeadState::ProtogenHeadState()
-    : m_emotion(Emotion::Normal),
+    : m_emotion("normal"),
         m_forceBlink(false),
         m_blank(false),
         m_brightness(Brightness::ForBrightRoom),
@@ -200,5 +149,5 @@ std::string ProtogenHeadState::toString() const {
     std::lock_guard<std::mutex> lock(m_mutex);
     const auto force_blink_string = m_forceBlink ? "true" : "false";
     const auto blank_string = m_blank ? "true" : "false";
-    return "ProtogenHeadState{emotion: " + emotionToString(m_emotion) + ", forceBlink: " + force_blink_string + ", blank: " + blank_string + "}";
+    return "ProtogenHeadState{emotion: " + m_emotion + ", forceBlink: " + force_blink_string + ", blank: " + blank_string + "}";
 }

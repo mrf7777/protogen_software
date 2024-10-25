@@ -23,7 +23,7 @@ public:
 	{
 		for(const auto& emotion : ProtogenHeadState::allEmotions()) {
 			// TODO: use std::filesystem to join file system paths.
-			const auto emotion_images_dir = emotions_directory + "/" + ProtogenHeadState::emotionToString(emotion);
+			const auto emotion_images_dir = emotions_directory + "/" + emotion;
 			m_emotionImageSpectrums.insert({
 				emotion,
 				image::ImageSpectrum(emotion_images_dir)
