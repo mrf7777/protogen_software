@@ -149,13 +149,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
 	
-	auto mouth_openness_provider = std::unique_ptr<audio::IProportionProvider>(new audio::AudioToProportionAdapter(std::unique_ptr<audio::PcbArtistsDecibelMeter>(new audio::PcbArtistsDecibelMeter())));
-
+	//auto mouth_openness_provider = std::unique_ptr<audio::IProportionProvider>(new audio::AudioToProportionAdapter(std::unique_ptr<audio::PcbArtistsDecibelMeter>(new audio::PcbArtistsDecibelMeter())));
 
 	auto emotion_drawer = render::EmotionDrawer(protogen_emotions_dir);
 	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");
 
-	auto data_viewer = ProtogenHeadMatrices();
+	//auto data_viewer = ProtogenHeadMatrices();
 
 	auto renderer = render::Renderer(emotion_drawer, render::MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
 
@@ -164,15 +163,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	std::thread web_server_thread(web_server_thread_function, srv);
 	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
-	std::thread protogen_mouth_sync_thread(protogen_mouth_sync_thread_function, app_state, std::move(mouth_openness_provider));
+	//std::thread protogen_mouth_sync_thread(protogen_mouth_sync_thread_function, app_state, std::move(mouth_openness_provider));
 
 	int FPS;
 	while(!interrupt_received) {
 		FPS = app_state->frameRate();
 		
-		data_viewer.drawFrame([&](rgb_matrix::Canvas& canvas) {
-			renderer.render(*app_state, canvas);
-		});
+		// data_viewer.drawFrame([&](rgb_matrix::Canvas& canvas) {
+		// 	renderer.render(*app_state, canvas);
+		// });
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000/FPS));
 	}
