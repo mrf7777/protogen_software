@@ -111,10 +111,34 @@ void setup_signal_handlers() {
 	signal(SIGABRT, interrupt_handler);
 }
 
+std::optional<std::filesystem::path> getResourcesDir() {
+	// Try local resources directory first.
+	const auto current_directory = std::filesystem::current_path();
+	const auto local_resources_dir = current_directory / std::filesystem::path("resources");
+	if(std::filesystem::is_directory(local_resources_dir)) {
+		std::cout << "Found 'resources' locally at: " << local_resources_dir << std::endl;
+		return {local_resources_dir};
+	}
+
+	// Try installed resources.
+	const auto installed_resources_dir = std::filesystem::path(std::string(PROTOGEN_RESOURCES_INSTALL_DIR));
+	if(std::filesystem::is_directory(installed_resources_dir)) {
+		std::cout << "Found 'resources' installed at: " << installed_resources_dir << std::endl;
+		return {installed_resources_dir};
+	}
+
+	return {};
+}
+
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	Magick::InitializeMagick(*argv);
 	
-	const std::string resources_dir = std::string(PROTOGEN_RESOURCES_INSTALL_DIR);
+	const auto potential_resources_dir = getResourcesDir();
+	if(!potential_resources_dir.has_value()) {
+		std::cerr << "Could not find either your local or installed 'resources' directory." << std::endl;
+		exit(1);
+	}
+	const std::string resources_dir = potential_resources_dir.value();
 	const std::string static_web_resources_dir = (std::filesystem::path(resources_dir) / std::filesystem::path("static")).generic_string();
 	const std::string html_files_dir = std::filesystem::path(resources_dir).generic_string();
 	const std::string protogen_emotions_dir = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/eyes")).generic_string();
