@@ -43,7 +43,7 @@ getPossibleEmotions().then(possible_emotions => {
 		button.appendChild(document.createTextNode(emotion))
 
 		let button_image = document.createElement("img")
-		button_image.setAttribute("src", `${origin}/protogen/head/emotion/images/${emotion}.png`)
+		button_image.setAttribute("src", `${origin}/protogen/head/emotion/images/${emotion}/0.png`)
 		button_image.setAttribute("alt", emotion)
 		button.appendChild(button_image)
 
