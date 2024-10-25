@@ -60,7 +60,7 @@ target_precompile_headers(protogen PRIVATE
 
 # Copy resources to build so one can run current build
 # with resources without installing resources to system.
-file(COPY "${PROJECT_SOURCE_DIR}/resources" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/resources" )
+file(COPY "${PROJECT_SOURCE_DIR}/resources" DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
 
 set(PROTOGEN_BINARY_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/bin")
 set(PROTOGEN_RESOURCES_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/protogen/resources")
