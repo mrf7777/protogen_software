@@ -154,8 +154,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	auto emotion_drawer = render::EmotionDrawer(protogen_emotions_dir);
 	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");
 
-	auto data_viewer = ProtogenHeadMatrices();
-
 	auto renderer = render::Renderer(emotion_drawer, render::MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
 
 	setup_web_server(srv, app_state, html_files_dir, static_web_resources_dir);
@@ -164,6 +162,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	std::thread web_server_thread(web_server_thread_function, srv);
 	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
 	//std::thread protogen_mouth_sync_thread(protogen_mouth_sync_thread_function, app_state, std::move(mouth_openness_provider));
+
+	// Is seems that any file or directory reading after initializing this results in a permission denied error.
+	// I wonder if its related to the runtime options in the constructor of ProtogenHeadMatrices.
+	auto data_viewer = ProtogenHeadMatrices();
 
 	int FPS;
 	while(!interrupt_received) {
