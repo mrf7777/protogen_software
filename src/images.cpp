@@ -1,5 +1,7 @@
 #include <images.h>
 
+#include <stdexcept>
+
 namespace image {
 
 std::optional<Magick::Image> loadImage(const std::string& filename) {
@@ -53,13 +55,28 @@ ImageSpectrum::ImageSpectrum() {}
 
 ImageSpectrum::ImageSpectrum(const std::string& images_directory) {
     std::vector<std::filesystem::path> files_in_directory;
+
+    // Get all .png files that have only a non-negative integer in the filename.
     for(auto& file : std::filesystem::directory_iterator(images_directory)) {
-        files_in_directory.push_back(file.path());
+        const auto file_extention = file.path().extension().string();
+        const auto file_stem = file.path().stem().string();
+        if(file_extention == ".png") {
+            try {
+                const int file_stem_int = std::stoi(file_stem);
+                if(file_stem_int >= 0) {
+                    files_in_directory.push_back(file.path());
+                }
+            } catch(const std::invalid_argument&) {
+                // Do nothing. Ignore images that are not numbered.
+            }
+        }
     }
+
+    // Sort frames based on the integer in the filename.
     m_spectrum = Spectrum(0.0, 1.0, files_in_directory.size());
     std::sort(files_in_directory.begin(), files_in_directory.end(), [](std::filesystem::path a, std::filesystem::path b){
-        const auto a_number = a.filename().string().substr(0, a.filename().string().size()-4);
-        const auto b_number = b.filename().string().substr(0, b.filename().string().size()-4);
+        const auto a_number = std::stoi(a.stem());
+        const auto b_number = std::stoi(b.stem());
         return a_number < b_number;
     });
 
