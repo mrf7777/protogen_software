@@ -15,6 +15,7 @@ set(PROTOGEN_SOURCES
     "${PROJECT_SOURCE_DIR}/src/protogen_head_state.cpp"
     "${PROJECT_SOURCE_DIR}/src/web_server.cpp"
     "${PROJECT_SOURCE_DIR}/src/protogen.cpp"
+    "${PROJECT_SOURCE_DIR}/src/renderer.cpp"
 )
 add_executable(protogen ${PROTOGEN_SOURCES})
 target_compile_options(protogen PRIVATE -Wall -Wextra -Wpedantic -Werror)
