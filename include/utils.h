@@ -18,13 +18,6 @@
 
 #include <Magick++.h>
 
-template<typename Data>
-class IViewData {
-public:
-	virtual ~IViewData() = default;
-	virtual void viewData(const Data& data) = 0;
-};
-
 class IToString {
 public:
 	~IToString() = default;
