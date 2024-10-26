@@ -6,15 +6,16 @@
 #include <tuple>
 #include <functional>
 
-#include <canvas.h>
+#include <render_surface.h>
+
 #include <led-matrix.h>
 
-class ProtogenHeadMatrices final {
+class ProtogenHeadMatrices final : public IRenderSurface {
 public:
 	ProtogenHeadMatrices();
 	~ProtogenHeadMatrices();
 
-	void drawFrame(const std::function<void(rgb_matrix::Canvas&)>& drawer);
+	void drawFrame(const std::function<void(rgb_matrix::Canvas&)>& drawer) override;
 private:
 	rgb_matrix::FrameCanvas * getNextProtogenFrameBuffer();
 
