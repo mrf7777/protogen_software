@@ -130,6 +130,19 @@ std::optional<std::filesystem::path> getResourcesDir() {
 	return {};
 }
 
+std::unique_ptr<audio::IProportionProvider> getMouthProportionProvider() {
+	// Try using I2C PCB artists decibel meter.
+	auto potential_pcb_artists_decibel_meter = audio::PcbArtistsDecibelMeter::make();
+	if(potential_pcb_artists_decibel_meter.has_value()) {
+		std::cout << "Audio device found: PCB Artist's Decibel Meter." << std::endl;
+		return std::unique_ptr<audio::IProportionProvider>(new audio::AudioToProportionAdapter(std::move(potential_pcb_artists_decibel_meter.value())));
+	}
+
+	// As a fallback, use a static mouth proportion provider.
+	std::cout << "Audio device not found. Mouth will be closed at all times." << std::endl;
+	return std::unique_ptr<audio::IProportionProvider>(new audio::ConstantProportionProvider());
+}
+
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	Magick::InitializeMagick(*argv);
 	
@@ -149,7 +162,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
 	
-	auto mouth_openness_provider = std::unique_ptr<audio::IProportionProvider>(new audio::AudioToProportionAdapter(std::unique_ptr<audio::PcbArtistsDecibelMeter>(new audio::PcbArtistsDecibelMeter())));
+	auto mouth_openness_provider = getMouthProportionProvider();
 
 	auto emotion_drawer = render::EmotionDrawer(protogen_emotions_dir);
 	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");

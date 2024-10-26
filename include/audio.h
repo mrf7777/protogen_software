@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <utility>
+#include <stdexcept>
 #include <optional>
 
 #include <httplib.h>
@@ -26,6 +27,12 @@ class IProportionProvider {
 public:
 	virtual ~IProportionProvider() = default;
 	virtual Proportion proportion() const = 0;
+};
+
+class ConstantProportionProvider : public IProportionProvider {
+public:
+	ConstantProportionProvider();
+	virtual Proportion proportion() const override;
 };
 
 class AudioToProportionAdapter : public IProportionProvider {
@@ -57,11 +64,16 @@ private:
 
 class PcbArtistsDecibelMeter : public IAudioProvider {
 public:
-	PcbArtistsDecibelMeter();
+	static std::optional<std::unique_ptr<PcbArtistsDecibelMeter>> make();
 	virtual double audioLevel() const override;
 	virtual double min() const override;
 	virtual double max() const override;
 private:
+	class ConstructionException : public std::exception {
+	public:
+		ConstructionException();
+	};
+	PcbArtistsDecibelMeter();
 	bool setTimeAverageMilliseconds(uint16_t miliseconds);
 
 	static std::optional<uint8_t> readI2cByte(int i2c_file, uint8_t i2c_register);

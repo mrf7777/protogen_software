@@ -28,17 +28,28 @@ double WebsiteAudioProvider::max() const {
     return 100.0;
 }
 
-PcbArtistsDecibelMeter::PcbArtistsDecibelMeter() {
+std::optional<std::unique_ptr<PcbArtistsDecibelMeter>> PcbArtistsDecibelMeter::make()
+{
+    try {
+        return {std::unique_ptr<PcbArtistsDecibelMeter>(new PcbArtistsDecibelMeter())};
+    } catch(const ConstructionException&) {
+        return {};
+    }
+}
+
+PcbArtistsDecibelMeter::PcbArtistsDecibelMeter()
+{
     int open_result = open(I2C_FILE_PATH, O_RDWR);
     if(open_result < 0) {
         std::cerr << "Could not open I2C: " << I2C_FILE_PATH << std::endl;
-        exit(1);
+        throw ConstructionException();
     }
     m_i2cFile = std::unique_ptr<int, FileDeleter>(new int(open_result));
 
     int i2c_connect_result = ioctl(*m_i2cFile, I2C_SLAVE, I2C_ADDRESS);
     if(i2c_connect_result < 0) {
         std::cerr << "Could not connect to I2C device: " << I2C_ADDRESS << ". Is it connected?" << std::endl;
+        throw ConstructionException();
     }
 
     setTimeAverageMilliseconds(17);
@@ -101,6 +112,10 @@ void PcbArtistsDecibelMeter::FileDeleter::operator()(int * file) const {
     }
 }
 
+PcbArtistsDecibelMeter::ConstructionException::ConstructionException()
+    : std::exception()
+{}
+
 AudioToProportionAdapter::AudioToProportionAdapter(std::unique_ptr<IAudioProvider> audio_provider)
     : m_audioProvider(std::move(audio_provider))
 {}
@@ -119,6 +134,15 @@ Proportion AudioToProportionAdapter::proportion() const
     //   (l - a) / (b - a) = t
     const double proportion = (audio_level_clamped - audio_min) / (audio_max - audio_min);
     return Proportion::make(proportion).value();
+}
+
+ConstantProportionProvider::ConstantProportionProvider()
+{
+}
+
+Proportion ConstantProportionProvider::proportion() const
+{
+    return Proportion::make(0.0).value();
 }
 
 }
