@@ -55,18 +55,14 @@ ImageSpectrum::ImageSpectrum() {}
 
 ImageSpectrum::ImageSpectrum(const std::string& images_directory) {
     std::vector<std::filesystem::path> files_in_directory;
-    std::cout << "ImageSpectrum with image directory: " << images_directory << std::endl;
-
     // Get all .png files that have only a non-negative integer in the filename.
     for(auto& file : std::filesystem::directory_iterator(images_directory)) {
-        std::cout << "  Trying to find png image at " << file.path() << std::endl;
         const auto file_extention = file.path().extension().string();
         const auto file_stem = file.path().stem().string();
         if(file_extention == ".png") {
             try {
                 const int file_stem_int = std::stoi(file_stem);
                 if(file_stem_int >= 0) {
-                    std::cout << "    Found image for image spectrum: " << file.path() << std::endl;
                     files_in_directory.push_back(file.path());
                 }
             } catch(const std::invalid_argument&) {
