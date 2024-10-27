@@ -149,6 +149,7 @@ std::unique_ptr<IRenderSurface> getRenderSurface() {
 	auto protogen_head_matrices = ProtogenHeadMatrices::make();
 	if(protogen_head_matrices.has_value()) {
 		std::cout << "Video device found: Protogen Head Matrices." << std::endl;
+		return std::move(protogen_head_matrices.value());
 	}
 
 	// As a fallback, use a fake surface.
