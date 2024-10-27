@@ -1,5 +1,6 @@
 #include <audio.h>
 
+#include <iomanip>
 #include <fcntl.h>
 #include <unistd.h>
 #include <linux/i2c-dev.h>
@@ -48,7 +49,7 @@ PcbArtistsDecibelMeter::PcbArtistsDecibelMeter()
 
     int i2c_connect_result = ioctl(*m_i2cFile, I2C_SLAVE, I2C_ADDRESS);
     if(i2c_connect_result < 0) {
-        std::cerr << "Could not connect to I2C device: " << I2C_ADDRESS << ". Is it connected?" << std::endl;
+        std::cerr << "Could not connect to I2C device: " << std::hex << I2C_ADDRESS << ". Is it connected?" << std::endl;
         throw ConstructionException();
     }
 
@@ -93,12 +94,12 @@ bool PcbArtistsDecibelMeter::setTimeAverageMilliseconds(uint16_t miliseconds) {
 std::optional<uint8_t> PcbArtistsDecibelMeter::readI2cByte(int i2c_file, uint8_t i2c_register) {
     uint8_t data = i2c_register;
     if(write(i2c_file, &data, 1) != 1) {
-        std::cerr << "Failed to write to register: " << i2c_register << std::endl;
+        std::cerr << "Failed to write to register: " << std::hex << i2c_register << std::endl;
         return {};
     }
 
     if(read(i2c_file, &data, 1) != 1) {
-        std::cerr << "Failed to read register: " << i2c_register << std::endl;
+        std::cerr << "Failed to read register: " << std::hex << i2c_register << std::endl;
         return {};
     }
     return {data};
@@ -107,7 +108,7 @@ std::optional<uint8_t> PcbArtistsDecibelMeter::readI2cByte(int i2c_file, uint8_t
 bool PcbArtistsDecibelMeter::writeI2cByte(int i2c_file, uint8_t i2c_register, uint8_t byte) {
     uint8_t data[2] = {i2c_register, byte};
     if(write(i2c_file, &data, 2) != 2) {
-        std::cerr << "Failed to write to register: " << i2c_register << std::endl;
+        std::cerr << "Failed to write to register: " << std::hex << i2c_register << std::endl;
         return false;
     }
     return true;
