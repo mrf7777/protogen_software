@@ -29,6 +29,7 @@
 #include <protogen.h>
 #include <renderer.h>
 #include <web_server.h>
+#include <render_surface.h>
 #include <cmake_config.h>
 
 volatile bool interrupt_received = false;
@@ -143,6 +144,18 @@ std::unique_ptr<audio::IProportionProvider> getMouthProportionProvider() {
 	return std::unique_ptr<audio::IProportionProvider>(new audio::ConstantProportionProvider());
 }
 
+std::unique_ptr<IRenderSurface> getRenderSurface() {
+	// Try Hub75 type led matrices.
+	auto protogen_head_matrices = ProtogenHeadMatrices::make();
+	if(protogen_head_matrices.has_value()) {
+		std::cout << "Video device found: Protogen Head Matrices." << std::endl;
+	}
+
+	// As a fallback, use a fake surface.
+	std::cout << "Video device not found. You will have no way to visualize the imagery." << std::endl;
+	return std::unique_ptr<IRenderSurface>(new FakeRenderSurface());
+}
+
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	Magick::InitializeMagick(*argv);
 	
@@ -176,13 +189,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
 	std::thread protogen_mouth_sync_thread(protogen_mouth_sync_thread_function, app_state, std::move(mouth_openness_provider));
 
-	auto data_viewer = ProtogenHeadMatrices();
+	auto data_viewer = getRenderSurface();
 
 	int FPS;
 	while(!interrupt_received) {
 		FPS = app_state->frameRate();
 		
-		data_viewer.drawFrame([&](rgb_matrix::Canvas& canvas) {
+		data_viewer->drawFrame([&](rgb_matrix::Canvas& canvas) {
 			renderer.render(*app_state, canvas);
 		});
 

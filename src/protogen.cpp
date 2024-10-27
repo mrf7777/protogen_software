@@ -20,13 +20,27 @@ ProtogenHeadMatrices::ProtogenHeadMatrices()
             options, runtime_opts
         )
     );
+    if(m_matrix.get() == nullptr) {
+        throw ConstructorException();
+    }
+
     m_matrix->Clear();
 
     m_protogenFrameBuffer0 = m_matrix->CreateFrameCanvas();
     m_protogenFrameBuffer1 = m_matrix->CreateFrameCanvas();
 };
 
-ProtogenHeadMatrices::~ProtogenHeadMatrices() {
+std::optional<std::unique_ptr<ProtogenHeadMatrices>> ProtogenHeadMatrices::make()
+{
+    try {
+        return {std::unique_ptr<ProtogenHeadMatrices>(new ProtogenHeadMatrices())};
+    } catch(const ConstructorException&) {
+        return {};
+    }
+}
+
+ProtogenHeadMatrices::~ProtogenHeadMatrices()
+{
     m_matrix->Clear();
 }
 

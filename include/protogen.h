@@ -1,7 +1,9 @@
 #ifndef PROTOGEN_H
 #define PROTOGEN_H
 
+#include <stdexcept>
 #include <memory>
+#include <optional>
 #include <mutex>
 #include <tuple>
 #include <functional>
@@ -12,11 +14,16 @@
 
 class ProtogenHeadMatrices final : public IRenderSurface {
 public:
-	ProtogenHeadMatrices();
+	static std::optional<std::unique_ptr<ProtogenHeadMatrices>> make();
 	~ProtogenHeadMatrices();
 
 	void drawFrame(const std::function<void(rgb_matrix::Canvas&)>& drawer) override;
 private:
+	class ConstructorException : public std::exception {
+	public:
+		ConstructorException() : std::exception() {}
+	};
+	ProtogenHeadMatrices();
 	rgb_matrix::FrameCanvas * getNextProtogenFrameBuffer();
 
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;

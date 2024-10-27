@@ -11,4 +11,9 @@ public:
     virtual void drawFrame(const std::function<void(rgb_matrix::Canvas&)>& drawer) = 0;
 };
 
+class FakeRenderSurface : public IRenderSurface{
+public:
+    void drawFrame(const std::function<void(rgb_matrix::Canvas&)>&) {}
+};
+
 #endif
