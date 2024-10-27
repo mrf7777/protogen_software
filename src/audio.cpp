@@ -52,6 +52,13 @@ PcbArtistsDecibelMeter::PcbArtistsDecibelMeter()
         throw ConstructionException();
     }
 
+    // Do a test read to see if the I2C device is usable.
+    const auto read_attempt = readI2cByte(*m_i2cFile, I2C_DECIBEL_REGISTER);
+    if(!read_attempt.has_value()) {
+        std::cerr << "It seems that the I2C device found is not a PCB Artist's Decibel Meter." << std::endl;
+        throw ConstructionException();
+    }
+
     setTimeAverageMilliseconds(17);
 }
 
