@@ -176,8 +176,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
 	std::thread protogen_mouth_sync_thread(protogen_mouth_sync_thread_function, app_state, std::move(mouth_openness_provider));
 
-	// Is seems that any file or directory reading after initializing this results in a permission denied error.
-	// I wonder if its related to the runtime options in the constructor of ProtogenHeadMatrices.
 	auto data_viewer = ProtogenHeadMatrices();
 
 	int FPS;
