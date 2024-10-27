@@ -13,6 +13,7 @@ ProtogenHeadMatrices::ProtogenHeadMatrices()
     options.led_rgb_sequence = "RBG";
 
     rgb_matrix::RuntimeOptions runtime_opts;
+    runtime_opts.drop_privileges = -1;
 
     m_matrix = std::unique_ptr<rgb_matrix::RGBMatrix>(
         rgb_matrix::RGBMatrix::CreateFromOptions(
