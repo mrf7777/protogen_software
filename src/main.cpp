@@ -112,6 +112,18 @@ void setup_signal_handlers() {
 	signal(SIGABRT, interrupt_handler);
 }
 
+std::string red(const std::string& s) {
+	return "\033[31m" + s + "\033[0m";
+}
+
+std::string yellow(const std::string& s) {
+	return "\033[93m" + s + "\033[0m";
+}
+
+std::string green(const std::string& s) {
+	return "\033[92m" + s + "\033[0m";
+}
+
 void printServiceLocationHeader(const std::string& title) {
 	std::cout << "--- " << title << " ---" << std::endl;
 }
@@ -124,26 +136,30 @@ void printServiceLocationFooter() {
 	std::cout << std::endl;
 }
 
+void printNotFound() {
+	std::cout << yellow("Not found.") << std::endl;
+}
+
 std::optional<std::filesystem::path> getResourcesDir() {
 	// Try local resources directory first.
 	printServiceLocationSubsection("Local resources");
 	const auto current_directory = std::filesystem::current_path();
 	const auto local_resources_dir = current_directory / std::filesystem::path("resources");
 	if(std::filesystem::is_directory(local_resources_dir)) {
-		std::cout << "\033[92m" << "Found 'resources' locally at: " << local_resources_dir << "\033[0m" << std::endl;
+		std::cout << green("Found 'resources' locally at: " + local_resources_dir.string()) << std::endl;
 		return {local_resources_dir};
 	} else {
-		std::cout << "Not found." << std::endl;
+		printNotFound();
 	}
 
 	// Try installed resources.
 	printServiceLocationSubsection("Installed resources");
 	const auto installed_resources_dir = std::filesystem::path(std::string(PROTOGEN_RESOURCES_INSTALL_DIR));
 	if(std::filesystem::is_directory(installed_resources_dir)) {
-		std::cout << "\033[92m" << "Found 'resources' installed at: " << installed_resources_dir << "\033[0m" << std::endl;
+		std::cout << green("Found 'resources' installed at: " + installed_resources_dir.string()) << "\033[0m" << std::endl;
 		return {installed_resources_dir};
 	} else {
-		std::cout << "Not found." << std::endl;
+		printNotFound();
 	}
 
 	return {};
@@ -154,14 +170,14 @@ std::unique_ptr<audio::IProportionProvider> getMouthProportionProvider() {
 	printServiceLocationSubsection("PCB Artist's Decibel Meter");
 	auto potential_pcb_artists_decibel_meter = audio::PcbArtistsDecibelMeter::make();
 	if(potential_pcb_artists_decibel_meter.has_value()) {
-		std::cout << "\033[92m" << "Audio device found: PCB Artist's Decibel Meter." << "\033[0m" << std::endl;
+		std::cout << green("Audio device found: PCB Artist's Decibel Meter.") << std::endl;
 		return std::unique_ptr<audio::IProportionProvider>(new audio::AudioToProportionAdapter(std::move(potential_pcb_artists_decibel_meter.value())));
 	} else {
-		std::cout << "Not found." << std::endl;
+		printNotFound();
 	}
 
 	// As a fallback, use a static mouth proportion provider.
-	std::cout << "\033[31m" << "Audio device not found. Mouth will be closed at all times." << "\033[0m" << std::endl;
+	std::cout << red("Audio device not found. Mouth will be closed at all times.") << std::endl;
 	return std::unique_ptr<audio::IProportionProvider>(new audio::ConstantProportionProvider());
 }
 
@@ -170,14 +186,14 @@ std::unique_ptr<IRenderSurface> getRenderSurface() {
 	printServiceLocationSubsection("HUB75 interface LED Matrices");
 	auto protogen_head_matrices = ProtogenHeadMatrices::make();
 	if(protogen_head_matrices.has_value()) {
-		std::cout << "\033[92m" << "Video device found: Protogen Head Matrices." << "\033[0m" << std::endl;
+		std::cout << green("Video device found: Protogen Head Matrices.") << std::endl;
 		return std::move(protogen_head_matrices.value());
 	} else {
-		std::cout << "Not found." << std::endl;
+		printNotFound();
 	}
 
 	// As a fallback, use a fake surface.
-	std::cout << "\033[31m" << "Video device not found. You will have no way to visualize the imagery." << "\033[0m" << std::endl;
+	std::cout << red("Video device not found. You will have no way to visualize the imagery.") << std::endl;
 	return std::unique_ptr<IRenderSurface>(new FakeRenderSurface());
 }
 
@@ -187,7 +203,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	printServiceLocationHeader("Resources");
 	const auto potential_resources_dir = getResourcesDir();
 	if(!potential_resources_dir.has_value()) {
-		std::cerr << "\033[31m" << "Could not find either your local or installed 'resources' directory." << "\033[0m" << std::endl;
+		std::cerr << red("Could not find either your local or installed 'resources' directory.") << std::endl;
 		exit(1);
 	}
 	printServiceLocationFooter();
