@@ -112,20 +112,38 @@ void setup_signal_handlers() {
 	signal(SIGABRT, interrupt_handler);
 }
 
+void printServiceLocationHeader(const std::string& title) {
+	std::cout << "--- " << title << " ---" << std::endl;
+}
+
+void printServiceLocationSubsection(const std::string& title) {
+	std::cout << "- " << title << " -" << std::endl;
+}
+
+void printServiceLocationFooter() {
+	std::cout << std::endl;
+}
+
 std::optional<std::filesystem::path> getResourcesDir() {
 	// Try local resources directory first.
+	printServiceLocationSubsection("Local resources");
 	const auto current_directory = std::filesystem::current_path();
 	const auto local_resources_dir = current_directory / std::filesystem::path("resources");
 	if(std::filesystem::is_directory(local_resources_dir)) {
-		std::cout << "Found 'resources' locally at: " << local_resources_dir << std::endl;
+		std::cout << "\033[92m" << "Found 'resources' locally at: " << local_resources_dir << "\033[0m" << std::endl;
 		return {local_resources_dir};
+	} else {
+		std::cout << "Not found." << std::endl;
 	}
 
 	// Try installed resources.
+	printServiceLocationSubsection("Installed resources");
 	const auto installed_resources_dir = std::filesystem::path(std::string(PROTOGEN_RESOURCES_INSTALL_DIR));
 	if(std::filesystem::is_directory(installed_resources_dir)) {
-		std::cout << "Found 'resources' installed at: " << installed_resources_dir << std::endl;
+		std::cout << "\033[92m" << "Found 'resources' installed at: " << installed_resources_dir << "\033[0m" << std::endl;
 		return {installed_resources_dir};
+	} else {
+		std::cout << "Not found." << std::endl;
 	}
 
 	return {};
@@ -133,38 +151,55 @@ std::optional<std::filesystem::path> getResourcesDir() {
 
 std::unique_ptr<audio::IProportionProvider> getMouthProportionProvider() {
 	// Try using I2C PCB artists decibel meter.
+	printServiceLocationSubsection("PCB Artist's Decibel Meter");
 	auto potential_pcb_artists_decibel_meter = audio::PcbArtistsDecibelMeter::make();
 	if(potential_pcb_artists_decibel_meter.has_value()) {
-		std::cout << "Audio device found: PCB Artist's Decibel Meter." << std::endl;
+		std::cout << "\033[92m" << "Audio device found: PCB Artist's Decibel Meter." << "\033[0m" << std::endl;
 		return std::unique_ptr<audio::IProportionProvider>(new audio::AudioToProportionAdapter(std::move(potential_pcb_artists_decibel_meter.value())));
+	} else {
+		std::cout << "Not found." << std::endl;
 	}
 
 	// As a fallback, use a static mouth proportion provider.
-	std::cout << "Audio device not found. Mouth will be closed at all times." << std::endl;
+	std::cout << "\033[31m" << "Audio device not found. Mouth will be closed at all times." << "\033[0m" << std::endl;
 	return std::unique_ptr<audio::IProportionProvider>(new audio::ConstantProportionProvider());
 }
 
 std::unique_ptr<IRenderSurface> getRenderSurface() {
 	// Try Hub75 type led matrices.
+	printServiceLocationSubsection("HUB75 interface LED Matrices");
 	auto protogen_head_matrices = ProtogenHeadMatrices::make();
 	if(protogen_head_matrices.has_value()) {
-		std::cout << "Video device found: Protogen Head Matrices." << std::endl;
+		std::cout << "\033[92m" << "Video device found: Protogen Head Matrices." << "\033[0m" << std::endl;
 		return std::move(protogen_head_matrices.value());
+	} else {
+		std::cout << "Not found." << std::endl;
 	}
 
 	// As a fallback, use a fake surface.
-	std::cout << "Video device not found. You will have no way to visualize the imagery." << std::endl;
+	std::cout << "\033[31m" << "Video device not found. You will have no way to visualize the imagery." << "\033[0m" << std::endl;
 	return std::unique_ptr<IRenderSurface>(new FakeRenderSurface());
 }
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	Magick::InitializeMagick(*argv);
 	
+	printServiceLocationHeader("Resources");
 	const auto potential_resources_dir = getResourcesDir();
 	if(!potential_resources_dir.has_value()) {
-		std::cerr << "Could not find either your local or installed 'resources' directory." << std::endl;
+		std::cerr << "\033[31m" << "Could not find either your local or installed 'resources' directory." << "\033[0m" << std::endl;
 		exit(1);
 	}
+	printServiceLocationFooter();
+
+	printServiceLocationHeader("Mouth Movement Device");
+	auto mouth_openness_provider = getMouthProportionProvider();
+	printServiceLocationFooter();
+
+	printServiceLocationHeader("Display Device");
+	auto data_viewer = getRenderSurface();
+	printServiceLocationFooter();
+
 	const std::string resources_dir = potential_resources_dir.value();
 	const std::string static_web_resources_dir = (std::filesystem::path(resources_dir) / std::filesystem::path("static")).generic_string();
 	const std::string html_files_dir = std::filesystem::path(resources_dir).generic_string();
@@ -175,8 +210,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	auto app_state = std::shared_ptr<AppState>(new AppState());
 
 	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
-	
-	auto mouth_openness_provider = getMouthProportionProvider();
 
 	auto emotion_drawer = render::EmotionDrawer(protogen_emotions_dir);
 	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");
@@ -190,7 +223,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
 	std::thread protogen_mouth_sync_thread(protogen_mouth_sync_thread_function, app_state, std::move(mouth_openness_provider));
 
-	auto data_viewer = getRenderSurface();
+
 
 	int FPS;
 	while(!interrupt_received) {
