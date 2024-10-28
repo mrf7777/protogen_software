@@ -39,3 +39,12 @@ To **disable**, at the root of this repository, run `sh scripts/for_server/disab
 ## Resources (for developers)
 How to use a small MEMS mic and I2C sound sensor module to measure loudness:
 https://pcbartists.com/product-documentation/accurate-raspberry-pi-decibel-meter/
+
+## New feature ideas
+- SDL for seeing imagery on desktop environment.
+- Party games: trivia, battleship, guess the e621 tag, etc.
+- Vowel detection and switching between mouth-frame sets based on vowel sound.
+- Protogen-to-Protogen interaction/communication.
+  - If connected to internet and have gps-like module, each protogen can publish their lat/lon continuously. 
+  - If protogen has some kind of NFC or bluetooth-like connectivity, maybe that could work.
+- Voice-modification with mic and speaker.
