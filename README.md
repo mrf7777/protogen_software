@@ -29,7 +29,7 @@ To test if your install worked, try running `sudo protogen`. If changes are made
 
 ## How to run on device boot
 Often, one just wants the protogen software to start when the device is booted.
-This repository has scripts to manage just that
+This repository has scripts to manage just that.
 
 ### Enable/disable start on device boot.
 To **enable**, at the root of this repository, run `sh scripts/for_server/enable_protogen_service.sh`.
