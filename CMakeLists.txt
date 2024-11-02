@@ -54,6 +54,7 @@ target_link_libraries(protogen PRIVATE
 # protogen project
 target_include_directories(protogen PRIVATE 
     "${PROJECT_SOURCE_DIR}/include"
+    "${PROJECT_SOURCE_DIR}/installable_includes"
 )
 target_precompile_headers(protogen PRIVATE
     "${PROJECT_SOURCE_DIR}/include/common_headers.hpp"
