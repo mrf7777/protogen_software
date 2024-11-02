@@ -32,6 +32,7 @@
 #include <web_server.h>
 #include <render_surface.h>
 #include <cmake_config.h>
+#include <sdl_render_surface.h>
 
 volatile bool interrupt_received = false;
 static void interrupt_handler([[maybe_unused]] int signal) {
@@ -189,6 +190,17 @@ std::unique_ptr<IRenderSurface> getRenderSurface() {
 	if(protogen_head_matrices.has_value()) {
 		std::cout << green("Video device found: Protogen Head Matrices.") << std::endl;
 		return std::move(protogen_head_matrices.value());
+	} else {
+		printNotFound();
+	}
+
+	// Try using SDL to display imagery. This will usually be
+	// in a window in a desktop environment.
+	printServiceLocationSubsection("SDL Video");
+	auto sdl_device = SdlRenderSurface::make();
+	if(sdl_device.has_value()) {
+		std::cout << green("Video device found: SDL");
+		return std::move(sdl_device.value());
 	} else {
 		printNotFound();
 	}

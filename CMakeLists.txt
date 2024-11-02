@@ -16,6 +16,7 @@ set(PROTOGEN_SOURCES
     "${PROJECT_SOURCE_DIR}/src/web_server.cpp"
     "${PROJECT_SOURCE_DIR}/src/protogen.cpp"
     "${PROJECT_SOURCE_DIR}/src/renderer.cpp"
+    "${PROJECT_SOURCE_DIR}/src/sdl_render_surface.cpp"
 )
 add_executable(protogen ${PROTOGEN_SOURCES})
 target_compile_options(protogen PRIVATE -Wall -Wextra -Wpedantic -Werror)
@@ -49,6 +50,13 @@ target_include_directories(protogen PRIVATE
 )
 target_link_libraries(protogen PRIVATE
     "$ENV{HOME}/rpi-rgb-led-matrix/lib/librgbmatrix.a"
+)
+
+# SDL
+find_package(SDL2 REQUIRED)
+target_include_directories(protogen PRIVATE ${SDL2_INCLUDE_DIRS})
+target_link_libraries(protogen PRIVATE
+    ${SDL2_LIBRARIES}
 )
 
 # protogen project
