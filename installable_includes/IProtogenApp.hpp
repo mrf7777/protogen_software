@@ -66,6 +66,11 @@ public:
      * etc. Only use lowercase alphanumeric characters.
      */
     virtual std::string id() const = 0;
+    /**
+     * A human-readable description of your app.
+     * Keep it short and simple. A sentence or two will be fine.
+     */
+    virtual std::string description() const = 0;
 
     /**
      * If you need something before you are set to active, this is the
@@ -73,7 +78,9 @@ public:
      * Return false if something is wrong and write to `errorMessage`
      * what went wrong and what could be done to fix it if possible.
      */
-    virtual bool sanityCheck(std::string& errorMessage) const = 0;
+    virtual bool sanityCheck(std::string& errorMessage) const {
+        return true;
+    };
     /**
      * When called with true, this app should be ready to go.
      * This is the time to start or resume any background threads or
@@ -90,14 +97,15 @@ public:
         Get, Post, Put, Delete, Options, Patch,
     };
     /**
-     * A relative path and method to access some handler.
+     * A relative path and http method to access some handler.
      * Be aware that the `relativePath` is relative to the
-     * base url: `/plugins/{id}` where `{id}` refers to what your
+     * base url: `/apps/{id}` where `{id}` refers to what your
      * `id` method returns.
      * 
      * For example, if your `id` method returns "test",
      * `relativePath` is "hello", and method is `Get`, then
-     * this endpoint struct represents the url path "/plugins/test/hello".
+     * this endpoint struct represents the url path "/apps/test/hello"
+     * which can be accessed through a http Get request.
      */
     struct Endpoint {
         HttpMethod method;
@@ -116,14 +124,45 @@ public:
      */
     virtual Endpoints serverEndpoints() const = 0;
     /**
-     * 
+     * Relative URL path to the home page of your app.
+     * This is what the user will see when they click on your app through
+     * the web interface. URL path is relative to "/apps/{id}"
      */
-    virtual std::string staticResourcesDirectory() const = 0;
+    virtual std::string homePage() const = 0;
+    /**
+     * Can return empty string if you do not want to host static files.
+     * 
+     * Returns a relative directory path to your static files that you
+     * want the webserver to host. Example: returning "/static_files"
+     * will make the webserver host files located at directory
+     * "resources/static_files". The "resources" directory is owned by your app,
+     * please reference the app directory structure.
+     * 
+     * Use `staticFilesPath` to specify how access your static files through
+     * a URL.
+     */
+    virtual std::string staticFilesDirectory() const {
+        return std::string("");
+    };
+    /**
+     * How to reach the static files through a URL. Example: if this returns
+     * "static", you can access your app's static files at URL path: "/apps/{id}/static"
+     * where {id} is your app's id.
+     * 
+     * Assume that there is a file named "image.png" located at "resources/static_files/image.png".
+     * If this method returns "static" and `staticFilesDirectory` return "static_files", the image
+     * file can be access through the URL path: "/apps/{id}/static/image.png".
+     * 
+     * Ignored if `staticFilesDirectory` returns empty string.
+     */
+    virtual std::string staticFilesPath() const {
+        return std::string("");
+    };
 
     /**
      * Given a blank canvas, draw the current frame. What you draw will be shown
      * on a video display device, usually a protogen head. The frequency of calls
-     * to this method is dictated by what your `framerate` method returns.
+     * to this method is dictated in part by what your `framerate` method returns.
      */
     virtual void render(const ICanvas& canvas) = 0;
     /**
