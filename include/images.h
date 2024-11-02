@@ -10,6 +10,7 @@
 #include <Magick++.h>
 #include <magick/image.h>
 
+#include <ICanvas.hpp>
 #include <utils.h>
 #include <proportion.h>
 
@@ -51,7 +52,7 @@ private:
 class StaticImageDrawer final {
 public:
 	StaticImageDrawer(const std::string& image_path);
-	void drawToCanvas(rgb_matrix::Canvas& canvas);
+	void drawToCanvas(ICanvas& canvas);
 private:
 	Magick::Image m_image;
 };

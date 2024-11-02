@@ -9,15 +9,32 @@
 #include <functional>
 
 #include <render_surface.h>
+#include <ICanvas.hpp>
 
 #include <led-matrix.h>
+
+/**
+ * Adapter for rgb_matrix::Canvas to ICanvas.
+ * Does NOT take ownership of rgb_matrix::Canvas.
+ */
+class RgbMatrixCanvasToICanvasAdapter : public ICanvas {
+public:
+	RgbMatrixCanvasToICanvasAdapter(rgb_matrix::Canvas * canvas);
+	int width() const override;
+	int height() const override;
+	void setPixel(int x, int y, uint8_t red, uint8_t green, uint8_t blue) override;
+	void clear() override;
+	void fill(uint8_t red, uint8_t green, uint8_t blue) override;
+private:
+	rgb_matrix::Canvas * mCanvas;
+};
 
 class ProtogenHeadMatrices final : public IRenderSurface {
 public:
 	static std::optional<std::unique_ptr<ProtogenHeadMatrices>> make();
 	~ProtogenHeadMatrices();
 
-	void drawFrame(const std::function<void(rgb_matrix::Canvas&)>& drawer) override;
+	void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
 private:
 	class ConstructorException : public std::exception {
 	public:

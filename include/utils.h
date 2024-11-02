@@ -11,6 +11,7 @@
 #include <chrono>
 #include <mutex>
 
+#include <ICanvas.hpp>
 #include <graphics.h>
 #include <canvas.h>
 #include <led-matrix.h>
@@ -24,7 +25,7 @@ public:
 	virtual std::string toString() const = 0;
 };
 
-void writeImageToCanvas(const Magick::Image &img, rgb_matrix::Canvas* canvas);
+void writeImageToCanvas(const Magick::Image &img, ICanvas* canvas);
 
 class RGBColor : public IToString {
 public:

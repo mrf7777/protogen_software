@@ -23,6 +23,7 @@
 
 #include <Magick++.h>
 
+#include <ICanvas.hpp>
 #include <images.h>
 #include <audio.h>
 #include <utils.h>
@@ -243,7 +244,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	while(!interrupt_received) {
 		FPS = app_state->frameRate();
 		
-		data_viewer->drawFrame([&](rgb_matrix::Canvas& canvas) {
+		data_viewer->drawFrame([&](ICanvas& canvas) {
 			renderer.render(*app_state, canvas);
 		});
 

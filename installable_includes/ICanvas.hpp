@@ -1,3 +1,6 @@
+#ifndef PROTOGEN_ICANVAS_H
+#define PROTOGEN_ICANVAS_H
+
 #include <cstdint>
 
 /**
@@ -29,3 +32,5 @@ public:
      */
     virtual void fill(uint8_t red, uint8_t green, uint8_t blue) = 0;
 };
+
+#endif

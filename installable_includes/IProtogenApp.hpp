@@ -1,3 +1,6 @@
+#ifndef PROTOGEN_IPROTOGENAPP_H
+#define PROTOGEN_IPROTOGENAPP_H
+
 #include <string>
 #include <unordered_map>
 #include <functional>
@@ -135,3 +138,5 @@ public:
      */
     virtual float framerate() const = 0;
 };
+
+#endif

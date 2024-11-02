@@ -56,10 +56,41 @@ rgb_matrix::FrameCanvas * ProtogenHeadMatrices::getNextProtogenFrameBuffer() {
     }
 }
 
-void ProtogenHeadMatrices::drawFrame(const std::function<void(rgb_matrix::Canvas&)>& drawer) {
+void ProtogenHeadMatrices::drawFrame(const std::function<void(ICanvas&)>& drawer) {
     std::lock_guard<std::mutex> lock(m_mutex);
     auto frame = getNextProtogenFrameBuffer();
     frame->Clear();
-    drawer(*frame);
+    RgbMatrixCanvasToICanvasAdapter canvas(frame);
+    drawer(canvas);
     m_matrix->SwapOnVSync(frame);
+}
+
+RgbMatrixCanvasToICanvasAdapter::RgbMatrixCanvasToICanvasAdapter(rgb_matrix::Canvas *canvas)
+    : mCanvas(canvas)
+{
+}
+
+int RgbMatrixCanvasToICanvasAdapter::width() const
+{
+    return mCanvas->width();
+}
+
+int RgbMatrixCanvasToICanvasAdapter::height() const
+{
+    return mCanvas->height();
+}
+
+void RgbMatrixCanvasToICanvasAdapter::setPixel(int x, int y, uint8_t red, uint8_t green, uint8_t blue)
+{
+    mCanvas->SetPixel(x, y, red, green, blue);
+}
+
+void RgbMatrixCanvasToICanvasAdapter::clear()
+{
+    mCanvas->Clear();
+}
+
+void RgbMatrixCanvasToICanvasAdapter::fill(uint8_t red, uint8_t green, uint8_t blue)
+{
+    mCanvas->Fill(red, green, blue);
 }
