@@ -5,6 +5,9 @@
 
 #include <led-matrix.h>
 
+/**
+ * Represents a physical imagery display device.
+ */
 class IRenderSurface {
 public:
     virtual ~IRenderSurface() = default;

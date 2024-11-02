@@ -239,8 +239,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
 	std::thread protogen_mouth_sync_thread(protogen_mouth_sync_thread_function, app_state, std::move(mouth_openness_provider));
 
-
-
 	int FPS;
 	while(!interrupt_received) {
 		FPS = app_state->frameRate();
