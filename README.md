@@ -41,6 +41,9 @@ How to use a small MEMS mic and I2C sound sensor module to measure loudness:
 https://pcbartists.com/product-documentation/accurate-raspberry-pi-decibel-meter/
 
 ## New feature ideas
+- Plugin feature that allows other developers to develop apps for the protogen.
+  - This would use shared libraries and resources that are then installed in a specific directory.
+  - Plugins will add the following: new http endpoints, state, and static resources.
 - SDL for seeing imagery on desktop environment.
 - Party games: trivia, battleship, guess the e621 tag, etc.
 - Vowel detection and switching between mouth-frame sets based on vowel sound.
