@@ -23,9 +23,9 @@
 
 #include <Magick++.h>
 
-#include <ICanvas.hpp>
-#include <Proportion.hpp>
-#include <IProportionProvider.hpp>
+#include <protogen/ICanvas.hpp>
+#include <protogen/Proportion.hpp>
+#include <protogen/IProportionProvider.hpp>
 #include <images.h>
 #include <audio.h>
 #include <utils.h>

@@ -9,7 +9,7 @@
 #include <functional>
 
 #include <render_surface.h>
-#include <ICanvas.hpp>
+#include <protogen/ICanvas.hpp>
 
 #include <led-matrix.h>
 

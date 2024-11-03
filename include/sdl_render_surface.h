@@ -7,7 +7,7 @@
 #include <SDL2/SDL.h>
 
 #include <render_surface.h>
-#include <ICanvas.hpp>
+#include <protogen/ICanvas.hpp>
 
 /**
  * Takes an SDL_Renderer and adapts it to the ICanvas interface.

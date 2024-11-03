@@ -1,7 +1,7 @@
 #ifndef IPROPORTIONPROVIDER_H
 #define IPROPORTIONPROVIDER_H
 
-#include <Proportion.hpp>
+#include <protogen/Proportion.hpp>
 
 namespace audio {
 

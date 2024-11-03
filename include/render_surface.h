@@ -5,7 +5,7 @@
 
 #include <led-matrix.h>
 
-#include <ICanvas.hpp>
+#include <protogen/ICanvas.hpp>
 
 /**
  * Represents a physical imagery display device.

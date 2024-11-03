@@ -11,7 +11,7 @@
 #include <chrono>
 #include <mutex>
 
-#include <ICanvas.hpp>
+#include <protogen/ICanvas.hpp>
 #include <graphics.h>
 #include <canvas.h>
 #include <led-matrix.h>

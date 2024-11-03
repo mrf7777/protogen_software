@@ -5,8 +5,8 @@
 #include <unordered_map>
 #include <functional>
 
-#include <ICanvas.hpp>
-#include <IProportionProvider.hpp>
+#include <protogen/ICanvas.hpp>
+#include <protogen/IProportionProvider.hpp>
 
 #include <httplib.h>
 

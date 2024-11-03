@@ -11,8 +11,8 @@
 
 #include <httplib.h>
 
-#include <Proportion.hpp>
-#include <IProportionProvider.hpp>
+#include <protogen/Proportion.hpp>
+#include <protogen/IProportionProvider.hpp>
 
 namespace audio {
 

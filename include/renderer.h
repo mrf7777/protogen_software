@@ -8,11 +8,11 @@
 
 #include <canvas.h>
 
-#include <ICanvas.hpp>
+#include <protogen/ICanvas.hpp>
 #include <audio.h>
 #include <images.h>
 #include <app_state.h>
-#include <Proportion.hpp>
+#include <protogen/Proportion.hpp>
 
 namespace render
 {

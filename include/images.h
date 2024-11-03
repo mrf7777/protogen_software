@@ -10,9 +10,9 @@
 #include <Magick++.h>
 #include <magick/image.h>
 
-#include <ICanvas.hpp>
+#include <protogen/ICanvas.hpp>
 #include <utils.h>
-#include <Proportion.hpp>
+#include <protogen/Proportion.hpp>
 
 namespace image {
 
