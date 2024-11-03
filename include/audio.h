@@ -11,7 +11,8 @@
 
 #include <httplib.h>
 
-#include <proportion.h>
+#include <Proportion.hpp>
+#include <IProportionProvider.hpp>
 
 namespace audio {
 
@@ -23,11 +24,6 @@ public:
 	virtual double max() const = 0;
 };
 
-class IProportionProvider {
-public:
-	virtual ~IProportionProvider() = default;
-	virtual Proportion proportion() const = 0;
-};
 
 class ConstantProportionProvider : public IProportionProvider {
 public:

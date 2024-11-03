@@ -12,7 +12,7 @@
 
 #include <ICanvas.hpp>
 #include <utils.h>
-#include <proportion.h>
+#include <Proportion.hpp>
 
 namespace image {
 

@@ -23,5 +23,4 @@ private:
 	double m_value;
 };
 
-
 #endif

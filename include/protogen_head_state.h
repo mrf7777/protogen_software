@@ -6,7 +6,7 @@
 #include <mutex>
 
 #include <utils.h>
-#include <proportion.h>
+#include <Proportion.hpp>
 
 class ProtogenHeadState final : public IToString {
 public:

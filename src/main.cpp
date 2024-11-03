@@ -24,6 +24,8 @@
 #include <Magick++.h>
 
 #include <ICanvas.hpp>
+#include <Proportion.hpp>
+#include <IProportionProvider.hpp>
 #include <images.h>
 #include <audio.h>
 #include <utils.h>

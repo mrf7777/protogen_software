@@ -12,7 +12,7 @@
 #include <audio.h>
 #include <images.h>
 #include <app_state.h>
-#include <proportion.h>
+#include <Proportion.hpp>
 
 namespace render
 {
