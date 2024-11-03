@@ -1,4 +1,4 @@
-#include <sdl_render_surface.h>
+#include "sdl_render_surface.h"
 
 #include <SDL2/SDL.h>
 
@@ -34,8 +34,8 @@ SdlRenderSurface::SdlRenderSurface()
             "Protogen Head",
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
-            128,
-            32,
+            128 * 8,
+            32 * 8,
             SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
         );
         if(window == NULL) {
@@ -51,6 +51,10 @@ SdlRenderSurface::SdlRenderSurface()
             SDL_RENDERER_ACCELERATED
         );
         if(renderer == NULL) {
+            throw ConstructorException(SDL_GetError());
+        }
+        const auto set_logical_size_result = SDL_RenderSetLogicalSize(renderer, 128, 32);
+        if(set_logical_size_result) {
             throw ConstructorException(SDL_GetError());
         }
         m_renderer = std::unique_ptr<SDL_Renderer, RendererDestroyer>(renderer);
