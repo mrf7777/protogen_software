@@ -6,6 +6,7 @@
 #include <functional>
 
 #include <ICanvas.hpp>
+#include <IProportionProvider.hpp>
 
 #include <httplib.h>
 
@@ -176,6 +177,12 @@ public:
      * on framerate that you provide for other implementation details if possible.
      */
     virtual float framerate() const = 0;
+
+    /**
+     * This is called with the mouth proportion provider. If you want access to
+     * the device which moves the mouth, this is the method to implement.
+     */
+    virtual void setMouthProportionProvider(std::shared_ptr<audio::IProportionProvider> provider) {};
 };
 
 #endif
