@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-namespace image {
+namespace protogen {
 
 std::optional<Magick::Image> loadImage(const std::string& filename) {
 	Magick::Image image;
@@ -99,7 +99,7 @@ std::vector<Magick::Image> ImageSpectrum::images() const {
 }
 
 StaticImageDrawer::StaticImageDrawer(const std::string& image_path) {
-    auto image_result = image::loadImage(image_path);
+    auto image_result = loadImage(image_path);
     if(image_result.has_value()) {
         m_image = image_result.value();
     }
@@ -109,4 +109,4 @@ void StaticImageDrawer::drawToCanvas(ICanvas& canvas) {
     writeImageToCanvas(m_image, &canvas);
 }
 
-}
+}   // protogen

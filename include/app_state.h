@@ -5,6 +5,8 @@
 #include <minecraft_state.h>
 #include <protogen_head_state.h>
 
+namespace protogen {
+
 class AppState final : public IToString {
 public:
 	enum class Mode {
@@ -31,5 +33,7 @@ private:
 	ProtogenHeadState m_protogenHeadState;
 	MinecraftState m_minecraftState;
 };
+
+}	// namespace
 
 #endif

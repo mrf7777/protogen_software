@@ -1,5 +1,7 @@
 #include <web_server.h>
 
+namespace protogen {
+
 void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const std::string& static_files_dir) {
 	srv->set_logger([=](const auto&, auto&){
 	});
@@ -72,7 +74,7 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 	});
 	srv->Put("/protogen/minecraft/world/generate", [app_state](const auto& req, auto&){
 		const std::size_t seed = std::hash<std::string>{}(req.body);
-		const auto world = mc::BlockMatrixGenerator(32, 128).generate(seed);
+		const auto world = BlockMatrixGenerator(32, 128).generate(seed);
 		app_state->minecraftState().blockMatrix() = world;
 	});
 	
@@ -95,7 +97,7 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 	srv->Post("/protogen/minecraft/players/:player/place_block", [app_state](const auto& req, auto&){
 		const auto player_id = req.path_params.at("player");
 		MinecraftPlayerState::CursorPos player_cursor;
-		mc::Block player_block;
+		Block player_block;
 		app_state->minecraftState().accessPlayer(player_id, [&player_cursor, &player_block](MinecraftPlayerState& player_state){
 			player_cursor = player_state.cursor();
 			player_block = player_state.selectedBlock();
@@ -108,19 +110,21 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 	});
 	srv->Put("/protogen/minecraft/players/:player/block", [app_state](const auto& req, auto&){
 		const auto player_id = req.path_params.at("player");
-		const auto block = mc::Block::fromString(req.body);
+		const auto block = Block::fromString(req.body);
 		app_state->minecraftState().accessPlayer(player_id, [block](MinecraftPlayerState& player_state){
 			player_state.setSelectedBlock(block);
 		});
 	});
 
 	srv->Get("/protogen/minecraft/blocks", [app_state](const auto&, auto& res){
-		res.set_content(mc::Block::allBlocksSeparatedByNewline(), "text/plain");
+		res.set_content(Block::allBlocksSeparatedByNewline(), "text/plain");
 	});
 	srv->Get("/protogen/minecraft/blocks/:block/color", [app_state](const auto& req, auto& res){
-		const auto block = mc::Block::fromString(req.path_params.at("block"));
+		const auto block = Block::fromString(req.path_params.at("block"));
 		const auto block_color = app_state->minecraftState().blockColorProfile()(block);
-		const auto color_hex = mc::colorHexCodeFromColor(block_color);
+		const auto color_hex = colorHexCodeFromColor(block_color);
 		res.set_content(color_hex, "text/plain");
 	});
 }
+
+}	// namespace

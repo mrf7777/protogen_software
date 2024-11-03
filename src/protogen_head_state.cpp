@@ -1,5 +1,7 @@
 #include <protogen_head_state.h>
 
+namespace protogen {
+
 std::vector<ProtogenHeadState::Emotion> ProtogenHeadState::allEmotions() {
     // TODO: scan resources directory and deduce.
     return {
@@ -151,3 +153,5 @@ std::string ProtogenHeadState::toString() const {
     const auto blank_string = m_blank ? "true" : "false";
     return "ProtogenHeadState{emotion: " + m_emotion + ", forceBlink: " + force_blink_string + ", blank: " + blank_string + "}";
 }
+
+}   // namespace

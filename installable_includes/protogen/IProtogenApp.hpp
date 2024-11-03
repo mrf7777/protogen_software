@@ -10,6 +10,8 @@
 
 #include <httplib.h>
 
+namespace protogen {
+
 /**
  * An interface which represents an app for a protogen.
  * 
@@ -182,7 +184,9 @@ public:
      * This is called with the mouth proportion provider. If you want access to
      * the device which moves the mouth, this is the method to implement.
      */
-    virtual void setMouthProportionProvider(std::shared_ptr<audio::IProportionProvider> provider) {};
+    virtual void setMouthProportionProvider(std::shared_ptr<IProportionProvider> provider) {};
 };
+
+}   // namespace
 
 #endif

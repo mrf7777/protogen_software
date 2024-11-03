@@ -8,6 +8,8 @@
 #include <utils.h>
 #include <protogen/Proportion.hpp>
 
+namespace protogen {
+
 class ProtogenHeadState final : public IToString {
 public:
 	using Emotion = std::string;
@@ -53,5 +55,7 @@ private:
 	// Cant be static, wont compile.
 	const Emotion FORCE_BLINK_EMOTION = "blink";
 };
+
+}	// namespace
 
 #endif

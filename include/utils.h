@@ -19,6 +19,8 @@
 
 #include <Magick++.h>
 
+namespace protogen {
+
 class IToString {
 public:
 	~IToString() = default;
@@ -43,5 +45,7 @@ private:
 };
 
 std::string read_file_to_str(const std::string& filename);
+
+}      // namespace
 
 #endif

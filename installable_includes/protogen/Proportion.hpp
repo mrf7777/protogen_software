@@ -3,6 +3,8 @@
 
 #include <optional>
 
+namespace protogen {
+
 /**
  * A floating value between in the closed interval [0, 1].
  */
@@ -22,5 +24,7 @@ private:
 	Proportion(double x) : m_value{x} {}
 	double m_value;
 };
+
+}	// namespace
 
 #endif

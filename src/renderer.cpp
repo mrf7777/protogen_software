@@ -1,6 +1,6 @@
 #include <renderer.h>
 
-namespace render {
+namespace protogen {
 
 EmotionDrawer::EmotionDrawer(const std::string& emotions_directory)
     : m_emotionsDirectory(emotions_directory)
@@ -10,7 +10,7 @@ EmotionDrawer::EmotionDrawer(const std::string& emotions_directory)
         const auto emotion_images_dir = emotions_directory + "/" + emotion;
         m_emotionImageSpectrums.insert({
             emotion,
-            image::ImageSpectrum(emotion_images_dir)
+            ImageSpectrum(emotion_images_dir)
         });
     }
 }
@@ -28,7 +28,7 @@ void EmotionDrawer::configWebServerToHostEmotionImages(
 
 ProtogenHeadFrameProvider::ProtogenHeadFrameProvider() {}
 
-void ProtogenHeadFrameProvider::draw(ICanvas& canvas, ProtogenHeadState::Emotion emotion, Proportion mouth_openness, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer, bool blank, Proportion eye_openness) {
+void ProtogenHeadFrameProvider::draw(ICanvas& canvas, ProtogenHeadState::Emotion emotion, Proportion mouth_openness, EmotionDrawer& emotion_drawer, ImageSpectrum& mouth_images, StaticImageDrawer& static_drawer, bool blank, Proportion eye_openness) {
     if(!blank) {
         // mouth
         auto mouth_image = mouth_images.imageForValue(mouth_openness);
@@ -48,7 +48,7 @@ void MinecraftDrawer::draw(ICanvas& canvas, const MinecraftState& state) const {
     drawPlayers(canvas, state);
 }
 
-void MinecraftDrawer::drawWorld(ICanvas& canvas, const mc::BlockMatrix& block_matrix, const mc::BlockColorProfile& color_profile) {
+void MinecraftDrawer::drawWorld(ICanvas& canvas, const BlockMatrix& block_matrix, const BlockColorProfile& color_profile) {
     for(std::size_t r = 0; r < block_matrix.rows(); r++)
     {
         for(std::size_t c = 0; c < block_matrix.cols(); c++)
@@ -68,7 +68,7 @@ void MinecraftDrawer::drawPlayers(ICanvas& canvas, const MinecraftState& state) 
     }
 }
 
-void MinecraftDrawer::drawPlayer(ICanvas& canvas, const MinecraftPlayerState& player_state, const mc::BlockColorProfile& color_profile) {
+void MinecraftDrawer::drawPlayer(ICanvas& canvas, const MinecraftPlayerState& player_state, const BlockColorProfile& color_profile) {
     const auto color = color_profile(player_state.selectedBlock());
     const auto cursor = player_state.cursor();
     canvas.setPixel(cursor.second, cursor.first, std::get<0>(color), std::get<1>(color), std::get<2>(color));
@@ -112,4 +112,4 @@ void Renderer::viewMinecraftData(const MinecraftState& data, ICanvas& canvas) {
     m_minecraftDrawer.draw(canvas, data);
 }
 
-}
+}   // namespace

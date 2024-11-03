@@ -14,8 +14,7 @@
 #include <app_state.h>
 #include <protogen/Proportion.hpp>
 
-namespace render
-{
+namespace protogen {
 
 class EmotionDrawer final {
 public:
@@ -23,14 +22,14 @@ public:
 	void draw(ICanvas& canvas, ProtogenHeadState::Emotion emotion, Proportion eye_openness) const;
 	void configWebServerToHostEmotionImages(httplib::Server& srv, const std::string& base_url_path);
 private:
-	std::unordered_map<ProtogenHeadState::Emotion, image::ImageSpectrum> m_emotionImageSpectrums;
+	std::unordered_map<ProtogenHeadState::Emotion, ImageSpectrum> m_emotionImageSpectrums;
 	std::string m_emotionsDirectory;
 };
 
 class ProtogenHeadFrameProvider final {
 public:
 	ProtogenHeadFrameProvider();
-	void draw(ICanvas& canvas, ProtogenHeadState::Emotion emotion, Proportion mouth_openness, EmotionDrawer& emotion_drawer, image::ImageSpectrum& mouth_images, image::StaticImageDrawer& static_drawer, bool blank, Proportion eye_openness);
+	void draw(ICanvas& canvas, ProtogenHeadState::Emotion emotion, Proportion mouth_openness, EmotionDrawer& emotion_drawer, ImageSpectrum& mouth_images, StaticImageDrawer& static_drawer, bool blank, Proportion eye_openness);
 };
 
 class MinecraftDrawer final {
@@ -38,9 +37,9 @@ public:
 	MinecraftDrawer();
 	void draw(ICanvas& canvas, const MinecraftState& state) const;
 private:
-	static void drawWorld(ICanvas& canvas, const mc::BlockMatrix& block_matrix, const mc::BlockColorProfile& color_profile);
+	static void drawWorld(ICanvas& canvas, const BlockMatrix& block_matrix, const BlockColorProfile& color_profile);
 	static void drawPlayers(ICanvas& canvas, const MinecraftState& state);
-	static void drawPlayer(ICanvas& canvas, const MinecraftPlayerState& player_state, const mc::BlockColorProfile& color_profile);
+	static void drawPlayer(ICanvas& canvas, const MinecraftPlayerState& player_state, const BlockColorProfile& color_profile);
 };
 
 class IRender {
@@ -60,12 +59,12 @@ private:
 
     EmotionDrawer m_emotionDrawer;
     MinecraftDrawer m_minecraftDrawer;
-    image::StaticImageDrawer m_staticImageDrawer;
-    image::ImageSpectrum m_headImages;
+    StaticImageDrawer m_staticImageDrawer;
+    ImageSpectrum m_headImages;
     ProtogenHeadFrameProvider m_protogenHeadFrameProvider;
     mutable std::mutex m_mutex;
 };
 
-}
+}	// namespace
 
 #endif

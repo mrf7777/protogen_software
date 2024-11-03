@@ -14,7 +14,7 @@
 #include <protogen/Proportion.hpp>
 #include <protogen/IProportionProvider.hpp>
 
-namespace audio {
+namespace protogen {
 
 class IAudioProvider {
 public:
@@ -88,6 +88,6 @@ private:
 	static constexpr uint8_t I2C_TAVG_LOW_BYTE_REGISTER = 0x08;
 };
 
-}
+}	// namespace
 
 #endif

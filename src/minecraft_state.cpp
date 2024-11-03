@@ -1,5 +1,7 @@
 #include <minecraft_state.h>
 
+namespace protogen {
+
 MinecraftPlayerState::CursorDirection MinecraftPlayerState::stringToCursorDirection(const std::string& cd) {
     if(cd == "up")
         return CursorDirection::Up;
@@ -17,16 +19,16 @@ MinecraftPlayerState::MinecraftPlayerState(std::size_t start_row, std::size_t st
     : m_cursor{start_row, start_col},
     m_maxRow{max_row},
     m_maxCol{max_col},
-    m_selectedBlock(mc::Block(mc::DirtBlock()))
+    m_selectedBlock(Block(DirtBlock()))
 {
     correctCursor();
 }
 
-mc::Block MinecraftPlayerState::selectedBlock() const {
+Block MinecraftPlayerState::selectedBlock() const {
     return m_selectedBlock;
 }
 
-void MinecraftPlayerState::setSelectedBlock(const mc::Block& b) {
+void MinecraftPlayerState::setSelectedBlock(const Block& b) {
     m_selectedBlock = b;
 }
 
@@ -65,15 +67,15 @@ void MinecraftPlayerState::correctCursor() {
 
 MinecraftState::MinecraftState()
     : m_blockMatrix(32, 128),
-    m_blockColorProfile(mc::defaultBlockColorProfile),
+    m_blockColorProfile(defaultBlockColorProfile),
     m_players()
 {}
 
-const mc::BlockMatrix& MinecraftState::blockMatrix() const { return m_blockMatrix; }
+const BlockMatrix& MinecraftState::blockMatrix() const { return m_blockMatrix; }
 
-mc::BlockMatrix& MinecraftState::blockMatrix() { return m_blockMatrix; }
+BlockMatrix& MinecraftState::blockMatrix() { return m_blockMatrix; }
 
-const mc::BlockColorProfile MinecraftState::blockColorProfile() const { return m_blockColorProfile; }
+const BlockColorProfile MinecraftState::blockColorProfile() const { return m_blockColorProfile; }
 
 bool MinecraftState::addNewPlayer(const PlayerId& id) {
     std::lock_guard<std::mutex> lock(m_playerMutex);
@@ -137,3 +139,5 @@ std::vector<MinecraftState::PlayerId> MinecraftState::_players() const {
     }
     return players;
 }
+
+}   // namespace

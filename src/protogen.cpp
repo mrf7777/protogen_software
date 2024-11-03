@@ -1,5 +1,6 @@
 #include <protogen.h>
 
+namespace protogen {
 
 ProtogenHeadMatrices::ProtogenHeadMatrices()
     : m_whichProtogenFrameBufferIsUsed(0)
@@ -94,3 +95,5 @@ void RgbMatrixCanvasToICanvasAdapter::fill(uint8_t red, uint8_t green, uint8_t b
 {
     mCanvas->Fill(red, green, blue);
 }
+
+}   // namespace

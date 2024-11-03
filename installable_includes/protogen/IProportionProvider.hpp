@@ -3,7 +3,7 @@
 
 #include <protogen/Proportion.hpp>
 
-namespace audio {
+namespace protogen {
 
 class IProportionProvider {
 public:
@@ -11,6 +11,6 @@ public:
 	virtual Proportion proportion() const = 0;
 };
 
-}
+}	// namespace
 
 #endif

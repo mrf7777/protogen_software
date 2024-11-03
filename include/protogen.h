@@ -13,6 +13,8 @@
 
 #include <led-matrix.h>
 
+namespace protogen {
+
 /**
  * Adapter for rgb_matrix::Canvas to ICanvas.
  * Does NOT take ownership of rgb_matrix::Canvas.
@@ -49,5 +51,7 @@ private:
 	unsigned int m_whichProtogenFrameBufferIsUsed;
 	mutable std::mutex m_mutex;
 };
+
+}	// namespace
 
 #endif

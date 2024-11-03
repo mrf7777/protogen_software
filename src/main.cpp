@@ -36,6 +36,8 @@
 #include <cmake_config.h>
 #include <sdl_render_surface.h>
 
+using namespace protogen;
+
 volatile bool interrupt_received = false;
 static void interrupt_handler([[maybe_unused]] int signal) {
 	interrupt_received = true;
@@ -100,7 +102,7 @@ void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 	}
 }
 
-void protogen_mouth_sync_thread_function(std::shared_ptr<AppState> app_state, std::unique_ptr<audio::IProportionProvider> mouth_openness_provider) {
+void protogen_mouth_sync_thread_function(std::shared_ptr<AppState> app_state, std::unique_ptr<IProportionProvider> mouth_openness_provider) {
 	// TODO: only run loop when the protogen is the active mode.
 	int framerate = app_state->frameRate();
 	while(!interrupt_received) {
@@ -169,20 +171,20 @@ std::optional<std::filesystem::path> getResourcesDir() {
 	return {};
 }
 
-std::unique_ptr<audio::IProportionProvider> getMouthProportionProvider() {
+std::unique_ptr<IProportionProvider> getMouthProportionProvider() {
 	// Try using I2C PCB artists decibel meter.
 	printServiceLocationSubsection("PCB Artist's Decibel Meter");
-	auto potential_pcb_artists_decibel_meter = audio::PcbArtistsDecibelMeter::make();
+	auto potential_pcb_artists_decibel_meter = PcbArtistsDecibelMeter::make();
 	if(potential_pcb_artists_decibel_meter.has_value()) {
 		std::cout << green("Audio device found: PCB Artist's Decibel Meter.") << std::endl;
-		return std::unique_ptr<audio::IProportionProvider>(new audio::AudioToProportionAdapter(std::move(potential_pcb_artists_decibel_meter.value())));
+		return std::unique_ptr<IProportionProvider>(new AudioToProportionAdapter(std::move(potential_pcb_artists_decibel_meter.value())));
 	} else {
 		printNotFound();
 	}
 
 	// As a fallback, use a static mouth proportion provider.
 	std::cout << red("Audio device not found. Mouth will be closed at all times.") << std::endl;
-	return std::unique_ptr<audio::IProportionProvider>(new audio::ConstantProportionProvider());
+	return std::unique_ptr<IProportionProvider>(new ConstantProportionProvider());
 }
 
 std::unique_ptr<IRenderSurface> getRenderSurface() {
@@ -242,10 +244,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
 
-	auto emotion_drawer = render::EmotionDrawer(protogen_emotions_dir);
+	auto emotion_drawer = EmotionDrawer(protogen_emotions_dir);
 	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");
 
-	auto renderer = render::Renderer(emotion_drawer, render::MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
+	auto renderer = Renderer(emotion_drawer, MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
 
 	setup_web_server(srv, app_state, html_files_dir, static_web_resources_dir);
 	setup_signal_handlers();

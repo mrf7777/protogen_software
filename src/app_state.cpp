@@ -1,5 +1,7 @@
 #include <app_state.h>
 
+namespace protogen {
+
 std::string AppState::modeToString(Mode m) {
     switch(m) {
     case Mode::ProtogenHead:
@@ -53,3 +55,5 @@ const MinecraftState& AppState::minecraftState() const { return m_minecraftState
 std::string AppState::toString() const {
     return "AppState{protogenHeadState: " + m_protogenHeadState.toString() + "}";
 }
+
+}   // namespace

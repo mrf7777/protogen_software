@@ -14,7 +14,7 @@
 // Server-Sent Events server implementation.
 // For usage, see GitHub project "cpp httplib" and look for the server-sent events example in the README docs.
 
-namespace sse {
+namespace protogen {
 
 class Event final {
 public:
@@ -67,7 +67,6 @@ private:
 	std::string m_message;
 };
 
-
-}
+}	// namespace
 
 #endif

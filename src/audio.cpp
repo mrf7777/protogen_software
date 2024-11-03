@@ -6,7 +6,7 @@
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
 
-namespace audio
+namespace protogen
 {
 
 WebsiteAudioProvider::WebsiteAudioProvider(httplib::Server& srv, const std::string& url_path) : m_currentLevel(0.0) {
@@ -153,4 +153,4 @@ Proportion ConstantProportionProvider::proportion() const
     return Proportion::make(0.0).value();
 }
 
-}
+}   // namespace

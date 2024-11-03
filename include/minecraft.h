@@ -14,124 +14,127 @@
 
 #include <visitor_helper.h>
 
-namespace mc
+namespace protogen
 {
-    class AirBlock final
-    {
-    };
 
-    class StoneBlock final
-    {
-    };
+class AirBlock final
+{
+};
 
-    class DirtBlock final
-    {
-    };
+class StoneBlock final
+{
+};
 
-    class WoodBlock final
-    {
-    };
+class DirtBlock final
+{
+};
 
-    class GrassBlock final
-    {
-    };
+class WoodBlock final
+{
+};
 
-    class SandBlock final
-    {
-    };
+class GrassBlock final
+{
+};
 
-    class WaterBlock final
-    {
-    };
+class SandBlock final
+{
+};
 
-    class Block final
-    {
-    public:
-        using BlockVariant = std::variant<AirBlock, StoneBlock, DirtBlock, WoodBlock, GrassBlock, SandBlock, WaterBlock>;
-        Block();
-        explicit Block(const BlockVariant &variant);
-        BlockVariant block() const;
-        static Block fromString(const std::string& s);
-        static std::vector<std::string> allBlockStrings();
-        static std::string allBlocksSeparatedByNewline();
+class WaterBlock final
+{
+};
 
-    private:
-        BlockVariant m_block;
-    };
+class Block final
+{
+public:
+    using BlockVariant = std::variant<AirBlock, StoneBlock, DirtBlock, WoodBlock, GrassBlock, SandBlock, WaterBlock>;
+    Block();
+    explicit Block(const BlockVariant &variant);
+    BlockVariant block() const;
+    static Block fromString(const std::string& s);
+    static std::vector<std::string> allBlockStrings();
+    static std::string allBlocksSeparatedByNewline();
 
-    // A function type mapping from block to RGB color tuple.
-    using BlockColorProfile = std::function<std::tuple<uint8_t, uint8_t, uint8_t>(const Block&)>;
+private:
+    BlockVariant m_block;
+};
 
-    std::tuple<uint8_t, uint8_t, uint8_t> defaultBlockColorProfile(const Block& b);
+// A function type mapping from block to RGB color tuple.
+using BlockColorProfile = std::function<std::tuple<uint8_t, uint8_t, uint8_t>(const Block&)>;
 
-    std::string colorHexCodeFromColor(const std::tuple<uint8_t, uint8_t, uint8_t>& color);
+std::tuple<uint8_t, uint8_t, uint8_t> defaultBlockColorProfile(const Block& b);
 
-    class BlockMatrix
-    {
-    public:
-        BlockMatrix(std::size_t rows, std::size_t cols);
-        std::optional<Block> get(std::size_t r, std::size_t c) const;
-        bool set(std::size_t r, std::size_t c, Block b);
-        std::size_t rows() const;
-        std::size_t cols() const;
-        BlockMatrix slice(std::size_t row, std::size_t col, std::size_t rows, std::size_t cols) const;
-        template <typename BlockVariant>
-        bool isAll() const {
-            for(const auto& block : m_blocks)
-            {
-                if(!std::holds_alternative<BlockVariant>(block.block()))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
+std::string colorHexCodeFromColor(const std::tuple<uint8_t, uint8_t, uint8_t>& color);
 
-    private:
-        std::size_t rowColToIndex(std::size_t r, std::size_t c) const;
-        bool rowColValid(std::size_t r, std::size_t c) const;
-
-        std::size_t m_rows;
-        std::size_t m_cols;
-        std::vector<Block> m_blocks;
-    };
-
-    BlockMatrix evolveBlockMatrix(const BlockMatrix &a);
-
-    class BlockMatrixGenerator
-    {
-    public:
-        BlockMatrixGenerator(std::size_t rows, std::size_t cols);
-
-        BlockMatrix generate(std::size_t seed) const;
-
-    public:
-        static void fillBlocksColumn(BlockMatrix &bm, const Block &b, std::size_t column, std::size_t row_start, std::size_t row_end);
-        static void generateStructures(BlockMatrix &bm, std::size_t seed);
-        static void generateDungeons(BlockMatrix &bm, std::size_t seed);
-        static void tryGenerateDungeon(BlockMatrix &bm, std::size_t row, std::size_t col, std::size_t chess_relative_col);
-        std::vector<std::size_t> generateRowMap(std::size_t seed) const;
-        static std::vector<double> movingAverage(const std::vector<double> &vec);
-
-        template <typename T, typename U>
-        static std::vector<T> castVector(const std::vector<U> &u)
+class BlockMatrix
+{
+public:
+    BlockMatrix(std::size_t rows, std::size_t cols);
+    std::optional<Block> get(std::size_t r, std::size_t c) const;
+    bool set(std::size_t r, std::size_t c, Block b);
+    std::size_t rows() const;
+    std::size_t cols() const;
+    BlockMatrix slice(std::size_t row, std::size_t col, std::size_t rows, std::size_t cols) const;
+    template <typename BlockVariant>
+    bool isAll() const {
+        for(const auto& block : m_blocks)
         {
-            std::vector<T> t;
-            for (const auto &item : u)
+            if(!std::holds_alternative<BlockVariant>(block.block()))
             {
-                t.push_back(static_cast<T>(item));
+                return false;
             }
-            return t;
         }
+        return true;
+    }
 
-        std::size_t m_rows;
-        std::size_t m_cols;
-        double m_rowVelocityMax;
-        double m_rowVelocityMin;
-        std::size_t m_maxRow;
-        std::size_t m_minRow;
-        std::size_t m_seaLevel;
-    };
-}
+private:
+    std::size_t rowColToIndex(std::size_t r, std::size_t c) const;
+    bool rowColValid(std::size_t r, std::size_t c) const;
+
+    std::size_t m_rows;
+    std::size_t m_cols;
+    std::vector<Block> m_blocks;
+};
+
+BlockMatrix evolveBlockMatrix(const BlockMatrix &a);
+
+class BlockMatrixGenerator
+{
+public:
+    BlockMatrixGenerator(std::size_t rows, std::size_t cols);
+
+    BlockMatrix generate(std::size_t seed) const;
+
+public:
+    static void fillBlocksColumn(BlockMatrix &bm, const Block &b, std::size_t column, std::size_t row_start, std::size_t row_end);
+    static void generateStructures(BlockMatrix &bm, std::size_t seed);
+    static void generateDungeons(BlockMatrix &bm, std::size_t seed);
+    static void tryGenerateDungeon(BlockMatrix &bm, std::size_t row, std::size_t col, std::size_t chess_relative_col);
+    std::vector<std::size_t> generateRowMap(std::size_t seed) const;
+    static std::vector<double> movingAverage(const std::vector<double> &vec);
+
+    template <typename T, typename U>
+    static std::vector<T> castVector(const std::vector<U> &u)
+    {
+        std::vector<T> t;
+        for (const auto &item : u)
+        {
+            t.push_back(static_cast<T>(item));
+        }
+        return t;
+    }
+
+    std::size_t m_rows;
+    std::size_t m_cols;
+    double m_rowVelocityMax;
+    double m_rowVelocityMin;
+    std::size_t m_maxRow;
+    std::size_t m_minRow;
+    std::size_t m_seaLevel;
+};
+
+}   // namespace
+
 
 #endif

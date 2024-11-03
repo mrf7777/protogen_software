@@ -1,5 +1,7 @@
 #include <utils.h>
 
+namespace protogen {
+
 void writeImageToCanvas(const Magick::Image &img, ICanvas* canvas) {
         const unsigned int width = img.columns();
         const unsigned int height = img.rows();
@@ -42,3 +44,5 @@ std::string read_file_to_str(const std::string& filename) {
         buffer << file.rdbuf();
         return buffer.str();
 }
+
+}       // namespace

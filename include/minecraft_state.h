@@ -8,6 +8,8 @@
 
 #include <minecraft.h>
 
+namespace protogen {
+
 class MinecraftPlayerState final {
 public:
 
@@ -20,8 +22,8 @@ public:
 	
 	MinecraftPlayerState(std::size_t start_row, std::size_t start_col, std::size_t max_row, std::size_t max_col);
 
-	mc::Block selectedBlock() const; 
-	void setSelectedBlock(const mc::Block& b);
+	Block selectedBlock() const; 
+	void setSelectedBlock(const Block& b);
 	CursorPos cursor() const;
 	void moveCursor(CursorDirection direction);
 private:
@@ -30,7 +32,7 @@ private:
 	CursorPos m_cursor;
 	std::size_t m_maxRow;
 	std::size_t m_maxCol;
-	mc::Block m_selectedBlock;
+	Block m_selectedBlock;
 };
 
 class MinecraftState final {
@@ -38,9 +40,9 @@ public:
 	using PlayerId = std::string;
 
 	MinecraftState();
-	const mc::BlockMatrix& blockMatrix() const;
-	mc::BlockMatrix& blockMatrix();
-	const mc::BlockColorProfile blockColorProfile() const;
+	const BlockMatrix& blockMatrix() const;
+	BlockMatrix& blockMatrix();
+	const BlockColorProfile blockColorProfile() const;
 	bool addNewPlayer(const PlayerId& id);
 	void removePlayer(const PlayerId& id);
 	bool accessPlayer(const PlayerId& id, std::function<void(MinecraftPlayerState&)> accessor);
@@ -50,10 +52,12 @@ public:
 private:
 	std::vector<PlayerId> _players() const;
 
-	mc::BlockMatrix m_blockMatrix;
-	mc::BlockColorProfile m_blockColorProfile;
+	BlockMatrix m_blockMatrix;
+	BlockColorProfile m_blockColorProfile;
 	mutable std::mutex m_playerMutex;
 	std::map<PlayerId, MinecraftPlayerState> m_players;
 };
+
+}	// namespace
 
 #endif

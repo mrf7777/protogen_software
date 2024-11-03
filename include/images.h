@@ -14,7 +14,7 @@
 #include <utils.h>
 #include <protogen/Proportion.hpp>
 
-namespace image {
+namespace protogen {
 
 std::optional<Magick::Image> loadImage(const std::string& filename);
 
@@ -57,6 +57,6 @@ private:
 	Magick::Image m_image;
 };
 
-}
+}	// namespace
 
 #endif

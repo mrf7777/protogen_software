@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+namespace protogen {
+
 /**
  * Represents a surface to draw imagery.
  */
@@ -32,5 +34,7 @@ public:
      */
     virtual void fill(uint8_t red, uint8_t green, uint8_t blue) = 0;
 };
+
+}   // namespace
 
 #endif

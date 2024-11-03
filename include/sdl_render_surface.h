@@ -9,6 +9,8 @@
 #include <render_surface.h>
 #include <protogen/ICanvas.hpp>
 
+namespace protogen {
+
 /**
  * Takes an SDL_Renderer and adapts it to the ICanvas interface.
  * Does NOT take ownership of SDL_Renderer.
@@ -49,5 +51,7 @@ private:
     std::unique_ptr<SDL_Window, WindowDestroyer> m_window;
     std::unique_ptr<SDL_Renderer, RendererDestroyer> m_renderer;
 };
+
+}   // namespace
 
 #endif

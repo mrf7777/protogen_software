@@ -7,6 +7,8 @@
 
 #include <protogen/ICanvas.hpp>
 
+namespace protogen {
+
 /**
  * Represents a physical imagery display device.
  */
@@ -20,5 +22,7 @@ class FakeRenderSurface : public IRenderSurface{
 public:
     void drawFrame(const std::function<void(ICanvas&)>&) {}
 };
+
+}   // namespace
 
 #endif

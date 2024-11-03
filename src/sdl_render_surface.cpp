@@ -2,6 +2,8 @@
 
 #include <SDL2/SDL.h>
 
+namespace protogen {
+
 std::optional<std::unique_ptr<SdlRenderSurface>> SdlRenderSurface::make()
 {
     return std::optional<std::unique_ptr<SdlRenderSurface>>(new SdlRenderSurface());
@@ -91,3 +93,5 @@ void SdlRendererToICanvasAdapter::fill(uint8_t red, uint8_t green, uint8_t blue)
     SDL_SetRenderDrawColor(m_renderer, red, green, blue, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(m_renderer);
 }
+
+}   // namespace
