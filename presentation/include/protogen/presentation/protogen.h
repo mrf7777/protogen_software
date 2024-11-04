@@ -8,7 +8,7 @@
 #include <tuple>
 #include <functional>
 
-#include <render_surface.h>
+#include <protogen/presentation/render_surface.h>
 #include <protogen/ICanvas.hpp>
 
 #include <led-matrix.h>

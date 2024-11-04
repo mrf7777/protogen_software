@@ -6,7 +6,7 @@
 
 #include <SDL2/SDL.h>
 
-#include <render_surface.h>
+#include <protogen/presentation/render_surface.h>
 #include <protogen/ICanvas.hpp>
 
 namespace protogen {

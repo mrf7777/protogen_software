@@ -25,11 +25,11 @@
 #include <protogen/rendering/renderer.h>
 #include <protogen/mouth/audio.h>
 #include <protogen/utils/utils.h>
-#include <protogen.h>
+#include <protogen/presentation/protogen.h>
+#include <protogen/presentation/render_surface.h>
+#include <protogen/presentation/sdl_render_surface.h>
 #include <web_server.h>
-#include <render_surface.h>
 #include <cmake_config.h>
-#include <sdl_render_surface.h>
 
 using namespace protogen;
 
