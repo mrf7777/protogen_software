@@ -31,11 +31,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ${GraphicsMagick_LIBS}
 )
 
-# cpp-httplib
-target_include_directories(${PROJECT_NAME} PRIVATE 
-    ${CMAKE_SOURCE_DIR}/cpp-httplib
-)
-
 # rpi rgb led matrix library
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE 
     "$ENV{HOME}/rpi-rgb-led-matrix/include"
