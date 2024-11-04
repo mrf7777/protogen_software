@@ -12,10 +12,6 @@
 #include <mutex>
 
 #include <protogen/ICanvas.hpp>
-#include <graphics.h>
-#include <canvas.h>
-#include <led-matrix.h>
-#include <pixel-mapper.h>
 
 #include <Magick++.h>
 
