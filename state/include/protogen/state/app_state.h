@@ -2,8 +2,8 @@
 #define APP_STATE_H
 
 #include <protogen/utils/utils.h>
-#include <minecraft_state.h>
-#include <protogen_head_state.h>
+#include <protogen/state/minecraft_state.h>
+#include <protogen/state/protogen_head_state.h>
 
 namespace protogen {
 

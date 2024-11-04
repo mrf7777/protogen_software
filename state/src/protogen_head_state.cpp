@@ -1,4 +1,4 @@
-#include <protogen_head_state.h>
+#include <protogen/state/protogen_head_state.h>
 
 namespace protogen {
 

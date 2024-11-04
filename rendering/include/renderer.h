@@ -11,7 +11,7 @@
 #include <protogen/ICanvas.hpp>
 #include <audio.h>
 #include <images.h>
-#include <app_state.h>
+#include <protogen/state/app_state.h>
 #include <protogen/Proportion.hpp>
 
 namespace protogen {
