@@ -13,11 +13,6 @@
 #include <signal.h>
 #include <cmath>
 
-#include <graphics.h>
-#include <canvas.h>
-#include <led-matrix.h>
-#include <pixel-mapper.h>
-
 #include <httplib.h>
 
 #include <Magick++.h>

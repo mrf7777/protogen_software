@@ -13,6 +13,4 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/installab
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 # cpp-httplib
-target_include_directories(${PROJECT_NAME} PRIVATE 
-    ${CMAKE_SOURCE_DIR}/cpp-httplib
-)
+target_link_libraries(${PROJECT_NAME} PUBLIC httplib)

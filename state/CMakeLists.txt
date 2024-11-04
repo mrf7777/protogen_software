@@ -18,21 +18,3 @@ target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_link_libraries(${PROJECT_NAME} PUBLIC
     utils
 )
-
-# GraphicsMagick
-execute_process(
-    COMMAND GraphicsMagick++-config --cppflags
-    OUTPUT_VARIABLE GraphicsMagick_CPP_FLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(
-    COMMAND GraphicsMagick++-config --ldflags --libs
-    OUTPUT_VARIABLE GraphicsMagick_LIBS_RAW
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-string(REPLACE "\n" " " GraphicsMagick_LIBS "${GraphicsMagick_LIBS_RAW}")
-separate_arguments(GraphicsMagick_LIBS)
-target_compile_options(${PROJECT_NAME} PRIVATE ${GraphicsMagick_CPP_FLAGS})
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    ${GraphicsMagick_LIBS}
-)

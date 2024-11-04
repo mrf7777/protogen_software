@@ -19,40 +19,5 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     state
 )
 
-# GraphicsMagick
-execute_process(
-    COMMAND GraphicsMagick++-config --cppflags
-    OUTPUT_VARIABLE GraphicsMagick_CPP_FLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(
-    COMMAND GraphicsMagick++-config --ldflags --libs
-    OUTPUT_VARIABLE GraphicsMagick_LIBS_RAW
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-string(REPLACE "\n" " " GraphicsMagick_LIBS "${GraphicsMagick_LIBS_RAW}")
-separate_arguments(GraphicsMagick_LIBS)
-target_compile_options(${PROJECT_NAME} PRIVATE ${GraphicsMagick_CPP_FLAGS})
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    ${GraphicsMagick_LIBS}
-)
-
-# cpp-httplib
-target_include_directories(${PROJECT_NAME} PRIVATE 
-    ${CMAKE_SOURCE_DIR}/cpp-httplib
-)
-
-# rpi rgb led matrix library
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE 
-    "$ENV{HOME}/rpi-rgb-led-matrix/include"
-)
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    "$ENV{HOME}/rpi-rgb-led-matrix/lib/librgbmatrix.a"
-)
-
-# SDL
-find_package(SDL2 REQUIRED)
-target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    ${SDL2_LIBRARIES}
-)
+target_link_libraries(${PROJECT_NAME} PUBLIC graphics_magick)
+target_link_libraries(${PROJECT_NAME} PUBLIC rpi_rgb_led_matrix)
