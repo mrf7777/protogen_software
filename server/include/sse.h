@@ -9,7 +9,7 @@
 
 #include <httplib.h>
 
-#include "utils.h"
+#include <protogen/utils/utils.h>
 
 // Server-Sent Events server implementation.
 // For usage, see GitHub project "cpp httplib" and look for the server-sent events example in the README docs.

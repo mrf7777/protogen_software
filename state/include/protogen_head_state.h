@@ -5,7 +5,7 @@
 #include <vector>
 #include <mutex>
 
-#include <utils.h>
+#include <protogen/utils/utils.h>
 #include <protogen/Proportion.hpp>
 
 namespace protogen {

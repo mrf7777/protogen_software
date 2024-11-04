@@ -1,7 +1,7 @@
 #ifndef APP_STATE_H
 #define APP_STATE_H
 
-#include <utils.h>
+#include <protogen/utils/utils.h>
 #include <minecraft_state.h>
 #include <protogen_head_state.h>
 

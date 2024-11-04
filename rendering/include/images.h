@@ -10,8 +10,8 @@
 #include <Magick++.h>
 #include <magick/image.h>
 
+#include <protogen/utils/utils.h>
 #include <protogen/ICanvas.hpp>
-#include <utils.h>
 #include <protogen/Proportion.hpp>
 
 namespace protogen {

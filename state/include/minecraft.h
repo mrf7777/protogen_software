@@ -12,7 +12,7 @@
 #include <random>
 #include <algorithm>
 
-#include <visitor_helper.h>
+#include <protogen/utils/visitor_helper.h>
 
 namespace protogen
 {
