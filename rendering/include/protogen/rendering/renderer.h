@@ -10,7 +10,7 @@
 
 #include <protogen/ICanvas.hpp>
 #include <audio.h>
-#include <images.h>
+#include <protogen/rendering/images.h>
 #include <protogen/state/app_state.h>
 #include <protogen/Proportion.hpp>
 

@@ -1,4 +1,4 @@
-#include <images.h>
+#include <protogen/rendering/images.h>
 
 #include <stdexcept>
 

@@ -21,11 +21,11 @@
 #include <protogen/ICanvas.hpp>
 #include <protogen/Proportion.hpp>
 #include <protogen/IProportionProvider.hpp>
-#include <images.h>
+#include <protogen/rendering/images.h>
+#include <protogen/rendering/renderer.h>
 #include <audio.h>
 #include <protogen/utils/utils.h>
 #include <protogen.h>
-#include <renderer.h>
 #include <web_server.h>
 #include <render_surface.h>
 #include <cmake_config.h>
