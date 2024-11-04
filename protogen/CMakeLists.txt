@@ -34,6 +34,3 @@ target_link_libraries(${PROJECT_NAME} PRIVATE httplib)
 install(TARGETS protogen
     DESTINATION bin
 )
-install(DIRECTORY resources/
-    DESTINATION share/protogen/resources
-)

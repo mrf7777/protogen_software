@@ -48,3 +48,7 @@ add_subdirectory(utils)
 # Copy resources to build so one can run current build
 # with resources without installing resources to system.
 file(COPY "${PROJECT_SOURCE_DIR}/resources" DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+
+install(DIRECTORY resources/
+    DESTINATION share/protogen/resources
+)
