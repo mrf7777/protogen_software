@@ -1,86 +1,17 @@
 cmake_minimum_required(VERSION 3.16)
-project(Protogen)
+project(protogen_project)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(PROTOGEN_SOURCES
-    "${PROJECT_SOURCE_DIR}/src/main.cpp"
-    "${PROJECT_SOURCE_DIR}/src/images.cpp"
-    "${PROJECT_SOURCE_DIR}/src/minecraft.cpp"
-    "${PROJECT_SOURCE_DIR}/src/utils.cpp"
-    "${PROJECT_SOURCE_DIR}/src/audio.cpp"
-    "${PROJECT_SOURCE_DIR}/src/app_state.cpp"
-    "${PROJECT_SOURCE_DIR}/src/minecraft_state.cpp"
-    "${PROJECT_SOURCE_DIR}/src/protogen_head_state.cpp"
-    "${PROJECT_SOURCE_DIR}/src/web_server.cpp"
-    "${PROJECT_SOURCE_DIR}/src/protogen.cpp"
-    "${PROJECT_SOURCE_DIR}/src/renderer.cpp"
-    "${PROJECT_SOURCE_DIR}/src/sdl_render_surface.cpp"
-)
-add_executable(protogen ${PROTOGEN_SOURCES})
-target_compile_options(protogen PRIVATE -Wall -Wextra -Wpedantic -Werror)
-
-# GraphicsMagick
-execute_process(
-    COMMAND GraphicsMagick++-config --cppflags
-    OUTPUT_VARIABLE GraphicsMagick_CPP_FLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(
-    COMMAND GraphicsMagick++-config --ldflags --libs
-    OUTPUT_VARIABLE GraphicsMagick_LIBS_RAW
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-string(REPLACE "\n" " " GraphicsMagick_LIBS "${GraphicsMagick_LIBS_RAW}")
-separate_arguments(GraphicsMagick_LIBS)
-target_compile_options(protogen PRIVATE ${GraphicsMagick_CPP_FLAGS})
-target_link_libraries(protogen PRIVATE
-    ${GraphicsMagick_LIBS}
-)
-
-# cpp-httplib
-target_include_directories(protogen PRIVATE 
-    ${PROJECT_SOURCE_DIR}/cpp-httplib
-)
-
-# rpi rgb led matrix library
-target_include_directories(protogen PRIVATE 
-    "$ENV{HOME}/rpi-rgb-led-matrix/include"
-)
-target_link_libraries(protogen PRIVATE
-    "$ENV{HOME}/rpi-rgb-led-matrix/lib/librgbmatrix.a"
-)
-
-# SDL
-find_package(SDL2 REQUIRED)
-target_include_directories(protogen PRIVATE ${SDL2_INCLUDE_DIRS})
-target_link_libraries(protogen PRIVATE
-    ${SDL2_LIBRARIES}
-)
-
-# protogen project
-target_include_directories(protogen PRIVATE 
-    "${PROJECT_SOURCE_DIR}/include"
-    "${PROJECT_SOURCE_DIR}/installable_includes"
-)
-target_precompile_headers(protogen PRIVATE
-    "${PROJECT_SOURCE_DIR}/include/common_headers.hpp"
-)
+add_subdirectory(mouth)
+add_subdirectory(presentation)
+add_subdirectory(protogen)
+add_subdirectory(rendering)
+add_subdirectory(server)
+add_subdirectory(state)
+add_subdirectory(utils)
 
 # Copy resources to build so one can run current build
 # with resources without installing resources to system.
 file(COPY "${PROJECT_SOURCE_DIR}/resources" DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
-
-set(PROTOGEN_BINARY_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/bin")
-set(PROTOGEN_RESOURCES_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/protogen/resources")
-
-configure_file("include/cmake_config.h.in" "cmake_config.h")
-target_include_directories(protogen PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
-
-install(TARGETS protogen
-    DESTINATION ${PROTOGEN_BINARY_INSTALL_DIR}
-)
-install(DIRECTORY resources/
-    DESTINATION ${PROTOGEN_RESOURCES_INSTALL_DIR}
-)
