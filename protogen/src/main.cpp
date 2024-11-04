@@ -23,7 +23,7 @@
 #include <protogen/IProportionProvider.hpp>
 #include <protogen/rendering/images.h>
 #include <protogen/rendering/renderer.h>
-#include <audio.h>
+#include <protogen/mouth/audio.h>
 #include <protogen/utils/utils.h>
 #include <protogen.h>
 #include <web_server.h>

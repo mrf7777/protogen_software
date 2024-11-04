@@ -8,8 +8,9 @@
 
 #include <canvas.h>
 
+#include <httplib.h>
+
 #include <protogen/ICanvas.hpp>
-#include <audio.h>
 #include <protogen/rendering/images.h>
 #include <protogen/state/app_state.h>
 #include <protogen/Proportion.hpp>
