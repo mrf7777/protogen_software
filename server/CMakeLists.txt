@@ -39,18 +39,3 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE 
     ${CMAKE_SOURCE_DIR}/cpp-httplib
 )
-
-# rpi rgb led matrix library
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE 
-    "$ENV{HOME}/rpi-rgb-led-matrix/include"
-)
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    "$ENV{HOME}/rpi-rgb-led-matrix/lib/librgbmatrix.a"
-)
-
-# SDL
-find_package(SDL2 REQUIRED)
-target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    ${SDL2_LIBRARIES}
-)
