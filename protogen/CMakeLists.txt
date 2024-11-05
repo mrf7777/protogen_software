@@ -13,7 +13,7 @@ add_executable(${PROJECT_NAME} ${PROTOGEN_SOURCES})
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 configure_file("${PROJECT_SOURCE_DIR}/include/cmake_config.h.in" "${PROJECT_BINARY_DIR}/include/cmake_config.h")
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/include")
-target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/installable_includes")
+target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/installable_headers")
 # TODO: reintroduce
 # target_precompile_headers(${PROJECT_NAME} PRIVATE
 #     "${PROJECT_SOURCE_DIR}/include/common_headers.hpp"

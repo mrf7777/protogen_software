@@ -52,3 +52,6 @@ file(COPY "${PROJECT_SOURCE_DIR}/resources" DESTINATION ${CMAKE_CURRENT_BINARY_D
 install(DIRECTORY resources/
     DESTINATION share/protogen/resources
 )
+install(DIRECTORY installable_headers/
+    DESTINATION include
+)
