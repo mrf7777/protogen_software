@@ -28,7 +28,7 @@
 #include <protogen/presentation/protogen.h>
 #include <protogen/presentation/render_surface.h>
 #include <protogen/presentation/sdl_render_surface.h>
-#include <web_server.h>
+#include <protogen/server/web_server.h>
 #include <cmake_config.h>
 
 using namespace protogen;
