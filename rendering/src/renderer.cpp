@@ -1,17 +1,21 @@
 #include <protogen/rendering/renderer.h>
 
+#include <filesystem>
+
 namespace protogen {
 
 EmotionDrawer::EmotionDrawer(const std::string& emotions_directory)
     : m_emotionsDirectory(emotions_directory)
 {
-    for(const auto& emotion : ProtogenHeadState::allEmotions()) {
-        // TODO: use std::filesystem to join file system paths.
-        const auto emotion_images_dir = emotions_directory + "/" + emotion;
-        m_emotionImageSpectrums.insert({
-            emotion,
-            ImageSpectrum(emotion_images_dir)
-        });
+    const auto emotions_dir = std::filesystem::path(emotions_directory);
+    for(const auto& emotion_dir : std::filesystem::directory_iterator(emotions_dir)) {
+        if(emotion_dir.is_directory()) {
+            const auto emotion_name = emotion_dir.path().filename();
+            m_emotionImageSpectrums.insert({
+                emotion_name,
+                ImageSpectrum(emotion_dir.path().string())
+            });
+        }
     }
 }
 
@@ -24,6 +28,25 @@ void EmotionDrawer::configWebServerToHostEmotionImages(
         httplib::Server& srv,
         const std::string& base_url_path) {
     srv.set_mount_point(base_url_path, m_emotionsDirectory);
+}
+
+std::string EmotionDrawer::emotionsSeparatedByNewline() const
+{
+    std::string s;
+    for(const auto& emotion : emotions()) {
+        s += emotion;
+        s += "\n";
+    }
+    return s;
+}
+
+std::vector<ProtogenHeadState::Emotion> EmotionDrawer::emotions() const
+{
+    std::vector<ProtogenHeadState::Emotion> emotions;
+    for(const auto& entry : m_emotionImageSpectrums) {
+        emotions.push_back(entry.first);
+    }
+    return emotions;
 }
 
 ProtogenHeadFrameProvider::ProtogenHeadFrameProvider() {}

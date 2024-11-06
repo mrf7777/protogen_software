@@ -19,13 +19,11 @@ public:
 		ForDarkRoom,
 	};
 
-	static std::vector<Emotion> allEmotions();
 	static std::vector<Brightness> allBrightnessLevels();
 	static std::string brightnessLevelsSeparatedByNewline();
 	static std::string brightnessToString(Brightness brightness);
 	static Brightness stringToBrightness(const std::string& brightness);
 	static uint8_t brightnessToPercent(Brightness brightness);
-	static std::string emotionsSeparatedByNewline();
 
 	ProtogenHeadState();
 

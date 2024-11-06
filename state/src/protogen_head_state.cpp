@@ -1,23 +1,7 @@
 #include <protogen/state/protogen_head_state.h>
 
 namespace protogen {
-
-std::vector<ProtogenHeadState::Emotion> ProtogenHeadState::allEmotions() {
-    // TODO: scan resources directory and deduce.
-    return {
-        "normal",
-        "angry",
-        "flustered",
-        "sad",
-        "disappointed",
-        "flirty",
-        "scared",
-        "owo",
-        "uwu",
-        "blink",
-    };
-}
-
+    
 std::vector<ProtogenHeadState::Brightness> ProtogenHeadState::allBrightnessLevels() {
     return {Brightness::ForBrightRoom, Brightness::ForDarkRoom};
 }
@@ -59,14 +43,6 @@ uint8_t ProtogenHeadState::brightnessToPercent(Brightness brightness) {
     default:
         return 0;
     }
-}
-
-std::string ProtogenHeadState::emotionsSeparatedByNewline() {
-    std::string emotions;
-    for(const auto& emotion : allEmotions()) {
-        emotions += emotion + "\n";
-    }
-    return emotions;
 }
 
 ProtogenHeadState::ProtogenHeadState()

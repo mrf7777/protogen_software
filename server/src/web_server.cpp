@@ -2,7 +2,7 @@
 
 namespace protogen {
 
-void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const std::string& static_files_dir) {
+void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const std::string& static_files_dir, const EmotionDrawer& emotion_drawer) {
 	srv->set_logger([=](const auto&, auto&){
 	});
 
@@ -21,19 +21,19 @@ void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppS
 			app_state->setMode(mode);
 	});
 
-	setup_web_server_for_protogen_head(srv, app_state, html_files_dir);
+	setup_web_server_for_protogen_head(srv, app_state, html_files_dir, emotion_drawer);
 	setup_web_server_for_minecraft(srv, app_state, html_files_dir);
 }
 
-void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir) {
+void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const EmotionDrawer& emotion_drawer) {
 	srv->Get("/", [html_files_dir](const auto&, auto& res){
 			res.set_content(read_file_to_str(html_files_dir + "/index.html"), "text/html");
 	});
 	srv->Put("/protogen/head/start", [app_state](const auto&, auto&){
 			app_state->setMode(AppState::Mode::ProtogenHead);
 	});
-	srv->Get("/protogen/head/emotion/all", [app_state](const auto&, auto& res){
-			res.set_content(ProtogenHeadState::emotionsSeparatedByNewline(), "text/plain");
+	srv->Get("/protogen/head/emotion/all", [app_state, emotion_drawer](const auto&, auto& res){
+			res.set_content(emotion_drawer.emotionsSeparatedByNewline(), "text/plain");
 	});
 	srv->Get("/protogen/head/emotion", [app_state](const auto&, auto& res){
 			const auto emotion = app_state->protogenHeadState().emotion();

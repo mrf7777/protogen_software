@@ -22,7 +22,10 @@ public:
 	EmotionDrawer(const std::string& emotions_directory);
 	void draw(ICanvas& canvas, ProtogenHeadState::Emotion emotion, Proportion eye_openness) const;
 	void configWebServerToHostEmotionImages(httplib::Server& srv, const std::string& base_url_path);
+	std::string emotionsSeparatedByNewline() const;
 private:
+	std::vector<ProtogenHeadState::Emotion> emotions() const;
+
 	std::unordered_map<ProtogenHeadState::Emotion, ImageSpectrum> m_emotionImageSpectrums;
 	std::string m_emotionsDirectory;
 };
