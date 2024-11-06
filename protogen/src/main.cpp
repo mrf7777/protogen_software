@@ -214,11 +214,13 @@ std::unique_ptr<IRenderSurface> getRenderSurface() {
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	Magick::InitializeMagick(*argv);
 
+	printServiceLocationHeader("Apps");
 	ProtogenAppLoader app_loader(PROTOGEN_APPS_DIR);
 	[[maybe_unused]] auto apps = app_loader.apps();
 	for(const auto& [app_id, app] : apps) {
 		std::cout << "Found app: \"" << apps.at(app_id)->name() << "\" (id: " << app_id << ")" << std::endl;
 	}
+	printServiceLocationFooter();
 
 	printServiceLocationHeader("Resources");
 	const auto potential_resources_dir = getResourcesDir();
