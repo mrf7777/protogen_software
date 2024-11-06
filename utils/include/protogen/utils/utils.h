@@ -25,21 +25,6 @@ public:
 
 void writeImageToCanvas(const Magick::Image &img, ICanvas* canvas);
 
-class RGBColor : public IToString {
-public:
-       RGBColor(uint8_t r, uint8_t g, uint8_t b);
-       RGBColor(std::string hex);
-       uint8_t r() const;
-       uint8_t g() const;
-       uint8_t b() const;
-
-       virtual std::string toString() const override;
-private:
-       uint8_t m_r;
-       uint8_t m_g;
-       uint8_t m_b;
-};
-
 std::string read_file_to_str(const std::string& filename);
 
 }      // namespace
