@@ -82,6 +82,7 @@ public:
      * what went wrong and what could be done to fix it if possible.
      */
     virtual bool sanityCheck(std::string& errorMessage) const {
+        (void)errorMessage;
         return true;
     };
     /**
@@ -188,7 +189,9 @@ public:
      * This is called with the mouth proportion provider. If you want access to
      * the device which moves the mouth, this is the method to implement.
      */
-    virtual void setMouthProportionProvider(std::shared_ptr<IProportionProvider> provider) {};
+    virtual void setMouthProportionProvider(std::shared_ptr<IProportionProvider> provider) {
+        (void)provider;
+    };
 };
 
 }   // namespace
