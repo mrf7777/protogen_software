@@ -113,6 +113,10 @@ public:
     struct Endpoint {
         HttpMethod method;
         std::string relativePath;
+        bool operator==(const Endpoint& other) const { 
+            return (method == other.method
+            && relativePath == other.relativePath);
+        }
     };
     /**
      * A function to handle an endpoint being called.
@@ -188,5 +192,14 @@ public:
 };
 
 }   // namespace
+
+template<>
+struct std::hash<protogen::IProtogenApp::Endpoint> {
+    std::size_t operator()(const protogen::IProtogenApp::Endpoint& x) const noexcept {
+        const std::size_t path_hash = std::hash<std::string>()(x.relativePath);
+        const std::size_t method_hash = std::hash<int>()(static_cast<int>(x.method));
+        return path_hash ^ method_hash;
+    }
+};
 
 #endif
