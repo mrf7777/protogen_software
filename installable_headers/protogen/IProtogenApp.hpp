@@ -171,7 +171,7 @@ public:
      * on a video display device, usually a protogen head. The frequency of calls
      * to this method is dictated in part by what your `framerate` method returns.
      */
-    virtual void render(const ICanvas& canvas) const = 0;
+    virtual void render(ICanvas& canvas) const = 0;
     /**
      * The framerate of your app. You may return a different framerate
      * over time, but usually it is just constant. This is used to determine
