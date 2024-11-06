@@ -15,6 +15,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     utils
     state
     rendering
+    apps
 )
 
 # GraphicsMagick

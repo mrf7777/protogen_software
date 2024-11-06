@@ -10,9 +10,9 @@ ProtogenAppLoader::ProtogenAppLoader(const std::string &apps_directory)
 {
 }
 
-std::map<std::string, std::unique_ptr<IProtogenApp, ProtogenAppDeleter>> ProtogenAppLoader::apps() const
+Apps ProtogenAppLoader::apps() const
 {
-    std::map<std::string, std::unique_ptr<IProtogenApp, ProtogenAppDeleter>> apps;
+    Apps apps;
     for(const auto& entry : std::filesystem::directory_iterator(m_appDirectory)) {
         if(entry.is_directory()) {
             auto app = loadAppFromDirectory(entry.path());

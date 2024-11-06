@@ -2,7 +2,7 @@
 
 namespace protogen {
 
-void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const std::string& static_files_dir, const EmotionDrawer& emotion_drawer) {
+void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const std::string& static_files_dir, const EmotionDrawer& emotion_drawer, const Apps& apps) {
 	srv->set_logger([=](const auto&, auto&){
 	});
 
@@ -23,6 +23,7 @@ void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppS
 
 	setup_web_server_for_protogen_head(srv, app_state, html_files_dir, emotion_drawer);
 	setup_web_server_for_minecraft(srv, app_state, html_files_dir);
+	setup_web_server_for_apps(srv, apps);
 }
 
 void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const EmotionDrawer& emotion_drawer) {
@@ -127,4 +128,46 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 	});
 }
 
-}	// namespace
+void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, const Apps& apps) {
+	using HttpMethod = IProtogenApp::HttpMethod;
+
+	for(const auto& app : apps) {
+		const std::string app_id = app.first;
+
+		// Setup app endpoints.
+		for(const auto& endpoint : app.second->serverEndpoints()) {
+			const std::string endpoint_full_path = "/apps/" + app_id + endpoint.first.relativePath;
+			switch(endpoint.first.method) {
+			case HttpMethod::Get:
+				srv->Get(endpoint_full_path, endpoint.second);
+				break;
+			case HttpMethod::Post:
+				srv->Post(endpoint_full_path, endpoint.second);
+				break;
+			case HttpMethod::Put:
+				srv->Put(endpoint_full_path, endpoint.second);
+				break;
+			case HttpMethod::Delete:
+				srv->Delete(endpoint_full_path, endpoint.second);
+				break;
+			case HttpMethod::Patch:
+				srv->Patch(endpoint_full_path, endpoint.second);
+				break;
+			case HttpMethod::Options:
+				srv->Options(endpoint_full_path, endpoint.second);
+				break;
+			}
+		}
+
+		// Setup app static file hosting.
+		const std::string static_files_rel_dir = app.second->staticFilesDirectory();
+		// TODO: pass in base path for apps
+		const std::string static_files_absolute_dir = "/usr/local/share/protogen/apps/" + app_id + "/resources/" + static_files_rel_dir;
+		if(!static_files_rel_dir.empty()) {
+			const std::string static_files_mount_point = "/apps/" + app_id + app.second->staticFilesPath();
+			srv->set_mount_point(static_files_mount_point, static_files_absolute_dir);
+		}
+	}
+}
+
+} // namespace

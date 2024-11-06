@@ -216,7 +216,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	printServiceLocationHeader("Apps");
 	ProtogenAppLoader app_loader(PROTOGEN_APPS_DIR);
-	[[maybe_unused]] auto apps = app_loader.apps();
+	auto apps = app_loader.apps();
 	for(const auto& [app_id, app] : apps) {
 		std::cout << "Found app: \"" << apps.at(app_id)->name() << "\" (id: " << app_id << ")" << std::endl;
 	}
@@ -254,7 +254,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	auto renderer = Renderer(emotion_drawer, MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
 
-	setup_web_server(srv, app_state, html_files_dir, static_web_resources_dir, emotion_drawer);
+	setup_web_server(srv, app_state, html_files_dir, static_web_resources_dir, emotion_drawer, apps);
 	setup_signal_handlers();
 
 	std::thread web_server_thread(web_server_thread_function, srv);

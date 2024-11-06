@@ -27,10 +27,12 @@ private:
     void * m_appLibHandle;
 };
 
+using Apps = std::map<std::string, std::unique_ptr<IProtogenApp, ProtogenAppDeleter>>;
+
 class ProtogenAppLoader {
 public:
     explicit ProtogenAppLoader(const std::string& apps_directory);
-    std::map<std::string, std::unique_ptr<IProtogenApp, ProtogenAppDeleter>> apps() const;
+    Apps apps() const;
 
 private:
     static std::optional<std::unique_ptr<IProtogenApp, ProtogenAppDeleter>> loadAppFromDirectory(const std::filesystem::path& app_directory);
