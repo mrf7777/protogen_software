@@ -14,7 +14,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMA
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/include")
-target_include_directories(${PROJECT_NAME} BEFORE PUBLIC "${CMAKE_SOURCE_DIR}/installable_headers")
 target_precompile_headers(${PROJECT_NAME} PRIVATE
     "${PROJECT_SOURCE_DIR}/include/common_headers.hpp"
 )
@@ -25,6 +24,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     rendering
     server
     state
+    installable_headers
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE graphics_magick)
