@@ -194,6 +194,9 @@ public:
     };
 };
 
+using CreateAppFunction = IProtogenApp * (*)();
+using DestroyAppFunction = void (*)(IProtogenApp *);
+
 }   // namespace
 
 template<>

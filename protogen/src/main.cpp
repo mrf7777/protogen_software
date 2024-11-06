@@ -20,6 +20,7 @@
 #include <protogen/state/app_state.h>
 #include <protogen/ICanvas.hpp>
 #include <protogen/Proportion.hpp>
+#include <protogen/IProtogenApp.hpp>
 #include <protogen/IProportionProvider.hpp>
 #include <protogen/rendering/images.h>
 #include <protogen/rendering/renderer.h>
@@ -29,6 +30,7 @@
 #include <protogen/presentation/render_surface.h>
 #include <protogen/presentation/sdl_render_surface.h>
 #include <protogen/server/web_server.h>
+#include <protogen_app_loader.h>
 #include <cmake_config.h>
 
 using namespace protogen;
@@ -211,7 +213,13 @@ std::unique_ptr<IRenderSurface> getRenderSurface() {
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	Magick::InitializeMagick(*argv);
-	
+
+	ProtogenAppLoader app_loader(PROTOGEN_APPS_DIR);
+	[[maybe_unused]] auto apps = app_loader.apps();
+	for(const auto& [app_id, app] : apps) {
+		std::cout << "Found app: \"" << apps.at(app_id)->name() << "\" (id: " << app_id << ")" << std::endl;
+	}
+
 	printServiceLocationHeader("Resources");
 	const auto potential_resources_dir = getResourcesDir();
 	if(!potential_resources_dir.has_value()) {
