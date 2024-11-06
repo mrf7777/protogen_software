@@ -39,11 +39,11 @@ target_link_libraries(SDL INTERFACE ${SDL2_LIBRARIES})
 
 add_subdirectory(mouth)
 add_subdirectory(presentation)
-add_subdirectory(protogen)
 add_subdirectory(rendering)
 add_subdirectory(server)
 add_subdirectory(state)
 add_subdirectory(utils)
+add_subdirectory(main)
 
 # Copy resources to build so one can run current build
 # with resources without installing resources to system.
