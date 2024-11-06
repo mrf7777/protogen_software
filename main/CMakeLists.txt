@@ -8,7 +8,7 @@ set(PROTOGEN_RESOURCES_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/protogen/resou
 set(PROTOGEN_APPS_DIR "${CMAKE_INSTALL_PREFIX}/share/protogen/apps")
 configure_file("${PROJECT_SOURCE_DIR}/include/cmake_config.h.in" "${PROJECT_BINARY_DIR}/include/cmake_config.h")
 
-add_executable(${PROJECT_NAME} "src/main.cpp" "src/protogen_app_loader.cpp")
+add_executable(${PROJECT_NAME} "src/main.cpp")
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME protogen)
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)

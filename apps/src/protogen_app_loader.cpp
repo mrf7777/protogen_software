@@ -1,4 +1,4 @@
-#include <protogen_app_loader.h>
+#include <protogen/apps/protogen_app_loader.h>
 
 #include <dlfcn.h>
 

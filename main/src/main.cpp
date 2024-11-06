@@ -30,7 +30,7 @@
 #include <protogen/presentation/render_surface.h>
 #include <protogen/presentation/sdl_render_surface.h>
 #include <protogen/server/web_server.h>
-#include <protogen_app_loader.h>
+#include <protogen/apps/protogen_app_loader.h>
 #include <cmake_config.h>
 
 using namespace protogen;
