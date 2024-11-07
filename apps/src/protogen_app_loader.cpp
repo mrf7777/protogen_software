@@ -25,7 +25,7 @@ Apps ProtogenAppLoader::apps() const
     return apps;
 }
 
-std::optional<std::unique_ptr<IProtogenApp, ProtogenAppDeleter>> ProtogenAppLoader::loadAppFromDirectory(const std::filesystem::path &app_directory)
+std::optional<std::shared_ptr<IProtogenApp>> ProtogenAppLoader::loadAppFromDirectory(const std::filesystem::path &app_directory)
 {
     // Search for a `.so` file.
     for(const auto& app_file : std::filesystem::directory_iterator(app_directory)) {
@@ -55,7 +55,7 @@ std::optional<std::unique_ptr<IProtogenApp, ProtogenAppDeleter>> ProtogenAppLoad
             auto protogen_app_destroy = reinterpret_cast<DestroyAppFunction>(protogen_app_destroy_raw);
 
             auto protogen_app_deleter = ProtogenAppDeleter(protogen_app_destroy, protogen_app_lib);
-            auto protogen_app = std::unique_ptr<IProtogenApp, ProtogenAppDeleter>(protogen_app_create(), protogen_app_deleter);
+            auto protogen_app = std::shared_ptr<IProtogenApp>(protogen_app_create(), protogen_app_deleter);
             return protogen_app;
         }
     }

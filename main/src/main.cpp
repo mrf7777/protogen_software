@@ -101,11 +101,11 @@ void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 
 void protogen_mouth_sync_thread_function(std::shared_ptr<AppState> app_state, std::unique_ptr<IProportionProvider> mouth_openness_provider) {
 	// TODO: only run loop when the protogen is the active mode.
-	int framerate = app_state->frameRate();
+	float framerate = app_state->frameRate();
 	while(!interrupt_received) {
 		app_state->protogenHeadState().setMouthOpenness(mouth_openness_provider->proportion());
 		framerate = app_state->frameRate();
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000/framerate));
+		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(1000/framerate)));
 	}
 }
 
@@ -245,23 +245,27 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	const std::string static_protogen_image_path = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/static/nose.png")).generic_string();
 	const std::string protogen_mouth_dir = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/mouth")).generic_string();
 
-	auto app_state = std::shared_ptr<AppState>(new AppState());
-
 	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
+
 
 	auto emotion_drawer = EmotionDrawer(protogen_emotions_dir);
 	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");
 
-	auto renderer = Renderer(emotion_drawer, MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
+	auto app_state = std::shared_ptr<AppState>(new AppState(std::move(apps)));
 
 	setup_web_server(srv, app_state, html_files_dir, static_web_resources_dir, emotion_drawer, apps);
+
+	auto renderer = Renderer(emotion_drawer, MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
+
+
+
 	setup_signal_handlers();
 
 	std::thread web_server_thread(web_server_thread_function, srv);
 	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
 	std::thread protogen_mouth_sync_thread(protogen_mouth_sync_thread_function, app_state, std::move(mouth_openness_provider));
 
-	int FPS;
+	float FPS;
 	while(!interrupt_received) {
 		FPS = app_state->frameRate();
 		
@@ -269,7 +273,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 			renderer.render(*app_state, canvas);
 		});
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000/FPS));
+		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(1000/FPS)));
 	}
 
 	// clean up

@@ -27,7 +27,7 @@ private:
     void * m_appLibHandle;
 };
 
-using Apps = std::map<std::string, std::unique_ptr<IProtogenApp, ProtogenAppDeleter>>;
+using Apps = std::map<std::string, std::shared_ptr<IProtogenApp>>;
 
 class ProtogenAppLoader {
 public:
@@ -35,7 +35,7 @@ public:
     Apps apps() const;
 
 private:
-    static std::optional<std::unique_ptr<IProtogenApp, ProtogenAppDeleter>> loadAppFromDirectory(const std::filesystem::path& app_directory);
+    static std::optional<std::shared_ptr<IProtogenApp>> loadAppFromDirectory(const std::filesystem::path& app_directory);
 
     std::filesystem::path m_appDirectory;
 };

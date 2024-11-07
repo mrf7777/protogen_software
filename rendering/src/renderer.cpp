@@ -115,6 +115,8 @@ void Renderer::render(const AppState& data, ICanvas& canvas) {
     case AppState::Mode::Minecraft:
         viewMinecraftData(data.minecraftState(), canvas);
         break;
+    case AppState::Mode::App:
+        data.getActiveApp()->render(canvas);
     }
 }
 
