@@ -129,44 +129,84 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 }
 
 void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, const Apps& apps) {
+	for(const auto& app : apps) {
+		setup_web_server_for_app(srv, app.second);
+	}
+
+	// App management endpoints
+	srv->Get("/protogen/apps", [apps](const auto&, auto& res){
+		std::string app_ids_separated_by_newline;
+		for(const auto& app : apps) {
+			app_ids_separated_by_newline += app.first;
+			app_ids_separated_by_newline += "\n";
+		}
+		res.set_content(app_ids_separated_by_newline, "text/plain");
+	});
+	srv->Get("/protogen/apps/:appid/name", [apps](const auto& req, auto& res){
+		try {
+			res.set_content(apps.at(req.path_params.at("appid"))->name(), "text/plain");
+		} catch (std::out_of_range&) {
+			res.status = httplib::StatusCode::NotFound_404;
+			res.set_content("", "text/plain");
+		}
+	});
+	srv->Get("/protogen/apps/:appid/description", [apps](const auto& req, auto& res){
+		try {
+			res.set_content(apps.at(req.path_params.at("appid"))->description(), "text/plain");
+		} catch (std::out_of_range&) {
+			res.status = httplib::StatusCode::NotFound_404;
+			res.set_content("", "text/plain");
+		}
+	});
+	srv->Get("/protogen/apps/:appid/homepage", [apps](const auto& req, auto& res){
+		try {
+			const auto app = apps.at(req.path_params.at("appid"));
+			const std::string homepage_path = "/apps/" + app->id() + app->homePage();
+			res.set_content(homepage_path, "text/plain");
+		} catch (std::out_of_range&) {
+			res.status = httplib::StatusCode::NotFound_404;
+			res.set_content("", "text/plain");
+		}
+	});
+}
+
+void setup_web_server_for_app(std::shared_ptr<httplib::Server> srv, std::shared_ptr<IProtogenApp> app){
 	using HttpMethod = IProtogenApp::HttpMethod;
 
-	for(const auto& app : apps) {
-		const std::string app_id = app.first;
+	const std::string app_id = app->id();
 
-		// Setup app endpoints.
-		for(const auto& endpoint : app.second->serverEndpoints()) {
-			const std::string endpoint_full_path = "/apps/" + app_id + endpoint.first.relativePath;
-			switch(endpoint.first.method) {
-			case HttpMethod::Get:
-				srv->Get(endpoint_full_path, endpoint.second);
-				break;
-			case HttpMethod::Post:
-				srv->Post(endpoint_full_path, endpoint.second);
-				break;
-			case HttpMethod::Put:
-				srv->Put(endpoint_full_path, endpoint.second);
-				break;
-			case HttpMethod::Delete:
-				srv->Delete(endpoint_full_path, endpoint.second);
-				break;
-			case HttpMethod::Patch:
-				srv->Patch(endpoint_full_path, endpoint.second);
-				break;
-			case HttpMethod::Options:
-				srv->Options(endpoint_full_path, endpoint.second);
-				break;
-			}
+	// Setup app endpoints.
+	for(const auto& endpoint : app->serverEndpoints()) {
+		const std::string endpoint_full_path = "/apps/" + app_id + endpoint.first.relativePath;
+		switch(endpoint.first.method) {
+		case HttpMethod::Get:
+			srv->Get(endpoint_full_path, endpoint.second);
+			break;
+		case HttpMethod::Post:
+			srv->Post(endpoint_full_path, endpoint.second);
+			break;
+		case HttpMethod::Put:
+			srv->Put(endpoint_full_path, endpoint.second);
+			break;
+		case HttpMethod::Delete:
+			srv->Delete(endpoint_full_path, endpoint.second);
+			break;
+		case HttpMethod::Patch:
+			srv->Patch(endpoint_full_path, endpoint.second);
+			break;
+		case HttpMethod::Options:
+			srv->Options(endpoint_full_path, endpoint.second);
+			break;
 		}
+	}
 
-		// Setup app static file hosting.
-		const std::string static_files_rel_dir = app.second->staticFilesDirectory();
-		// TODO: pass in base path for apps
-		const std::string static_files_absolute_dir = "/usr/local/share/protogen/apps/" + app_id + "/resources/" + static_files_rel_dir;
-		if(!static_files_rel_dir.empty()) {
-			const std::string static_files_mount_point = "/apps/" + app_id + app.second->staticFilesPath();
-			srv->set_mount_point(static_files_mount_point, static_files_absolute_dir);
-		}
+	// Setup app static file hosting.
+	const std::string static_files_rel_dir = app->staticFilesDirectory();
+	// TODO: pass in base path for apps
+	const std::string static_files_absolute_dir = "/usr/local/share/protogen/apps/" + app_id + "/resources/" + static_files_rel_dir;
+	if(!static_files_rel_dir.empty()) {
+		const std::string static_files_mount_point = "/apps/" + app_id + app->staticFilesPath();
+		srv->set_mount_point(static_files_mount_point, static_files_absolute_dir);
 	}
 }
 
