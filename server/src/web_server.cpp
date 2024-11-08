@@ -2,7 +2,7 @@
 
 namespace protogen {
 
-void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const std::string& static_files_dir, const EmotionDrawer& emotion_drawer, const Apps& apps) {
+void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const std::string& static_files_dir, const EmotionDrawer& emotion_drawer) {
 	srv->set_logger([=](const auto&, auto&){
 	});
 
@@ -23,7 +23,7 @@ void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppS
 
 	setup_web_server_for_protogen_head(srv, app_state, html_files_dir, emotion_drawer);
 	setup_web_server_for_minecraft(srv, app_state, html_files_dir);
-	setup_web_server_for_apps(srv, apps);
+	setup_web_server_for_apps(srv, app_state);
 }
 
 void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const EmotionDrawer& emotion_drawer) {
@@ -128,39 +128,57 @@ void setup_web_server_for_minecraft(std::shared_ptr<httplib::Server> srv, std::s
 	});
 }
 
-void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, const Apps& apps) {
-	for(const auto& app : apps) {
+void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
+	for(const auto& app : app_state->apps()) {
 		setup_web_server_for_app(srv, app.second);
 	}
 
 	// App management endpoints
-	srv->Get("/protogen/apps", [apps](const auto&, auto& res){
+	srv->Get("/protogen/apps", [app_state](const auto&, auto& res){
 		std::string app_ids_separated_by_newline;
-		for(const auto& app : apps) {
+		for(const auto& app : app_state->apps()) {
 			app_ids_separated_by_newline += app.first;
 			app_ids_separated_by_newline += "\n";
 		}
 		res.set_content(app_ids_separated_by_newline, "text/plain");
 	});
-	srv->Get("/protogen/apps/:appid/name", [apps](const auto& req, auto& res){
+	srv->Get("/protogen/apps/:appid/name", [app_state](const auto& req, auto& res){
 		try {
-			res.set_content(apps.at(req.path_params.at("appid"))->name(), "text/plain");
+			res.set_content(app_state->apps().at(req.path_params.at("appid"))->name(), "text/plain");
 		} catch (std::out_of_range&) {
 			res.status = httplib::StatusCode::NotFound_404;
 			res.set_content("", "text/plain");
 		}
 	});
-	srv->Get("/protogen/apps/:appid/description", [apps](const auto& req, auto& res){
+	srv->Get("/protogen/apps/:appid/description", [app_state](const auto& req, auto& res){
 		try {
-			res.set_content(apps.at(req.path_params.at("appid"))->description(), "text/plain");
+			res.set_content(app_state->apps().at(req.path_params.at("appid"))->description(), "text/plain");
 		} catch (std::out_of_range&) {
 			res.status = httplib::StatusCode::NotFound_404;
 			res.set_content("", "text/plain");
 		}
 	});
-	srv->Get("/protogen/apps/:appid/homepage", [apps](const auto& req, auto& res){
+	srv->Get("/protogen/apps/:appid/active", [app_state](const auto& req, auto& res){
 		try {
-			const auto app = apps.at(req.path_params.at("appid"));
+			const auto active_app = app_state->getActiveApp();
+			if(active_app != nullptr) {
+				if(active_app->id() == req.path_params.at("appid")) {
+					res.set_content("true", "text/plain");
+				} else {
+					res.set_content("false", "text/plain");
+				}
+			} else {
+				res.status = httplib::StatusCode::NotFound_404;
+				res.set_content("", "text/plain");
+			}
+		} catch (std::out_of_range&) {
+			res.status = httplib::StatusCode::NotFound_404;
+			res.set_content("", "text/plain");
+		}
+	});
+	srv->Get("/protogen/apps/:appid/homepage", [app_state](const auto& req, auto& res){
+		try {
+			const auto app = app_state->apps().at(req.path_params.at("appid"));
 			const std::string homepage_path = "/apps/" + app->id() + app->homePage();
 			res.set_content(homepage_path, "text/plain");
 		} catch (std::out_of_range&) {
