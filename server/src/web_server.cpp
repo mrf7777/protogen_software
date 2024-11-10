@@ -176,6 +176,18 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 			res.set_content("", "text/plain");
 		}
 	});
+	srv->Put("/protogen/apps/:appid/active", [app_state](const auto& req, auto&){
+		const auto app_id = req.path_params.at("appid");
+		app_state->setActiveApp(app_id);
+	});
+	srv->Get("/protogen/apps/active", [app_state](const auto&, auto& res){
+		const auto active_app = app_state->getActiveApp();
+		if(active_app != nullptr) {
+			res.set_content(active_app->id(), "text/plain");
+		} else {
+			res.set_content("", "text/plain");
+		}
+	});
 	srv->Get("/protogen/apps/:appid/homepage", [app_state](const auto& req, auto& res){
 		try {
 			const auto app = app_state->apps().at(req.path_params.at("appid"));

@@ -51,14 +51,15 @@ float AppState::frameRate() const {
 AppState::Mode AppState::mode() const { return m_mode; }
 
 void AppState::setMode(Mode m) {
-    const auto previous_mode = m_mode;
-    m_mode = m;
-
     // If changing mode away from app mode, set the app to inactive.
-    if(previous_mode == Mode::App && m_mode != Mode::App) {
-        getActiveApp()->setActive(false);
+    if(m_mode == Mode::App && m != Mode::App) {
+        if(IProtogenApp * current_app = getActiveApp()) {
+            current_app->setActive(false);
+        }
         m_activeAppId = "";
     }
+
+    m_mode = m;
 }
 
 void AppState::setActiveApp(const std::string& app_id) {
@@ -71,9 +72,9 @@ void AppState::setActiveApp(const std::string& app_id) {
         current_app->setActive(false);
     }
 
-    getActiveApp()->setActive(true);
     m_activeAppId = app_id;
     setMode(Mode::App);
+    getActiveApp()->setActive(true);
 }
 
 IProtogenApp * AppState::getActiveApp() const {
