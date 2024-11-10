@@ -185,6 +185,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 		if(active_app != nullptr) {
 			res.set_content(active_app->id(), "text/plain");
 		} else {
+			res.status = httplib::StatusCode::NotFound_404;
 			res.set_content("", "text/plain");
 		}
 	});
