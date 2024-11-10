@@ -5,6 +5,7 @@ function getAppIds(callback) {
         .then(response => response.text())
         .then(text => {
             const app_ids = text.split(/\r?\n/).filter(app_id => app_id !== "")
+            app_ids.sort()
             callback(app_ids)
         })
 }

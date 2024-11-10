@@ -11,6 +11,10 @@ void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppS
 		std::cerr << "Could not mount static directory to web server." << std::endl;
 	}
 	
+	srv->Get("/", [html_files_dir, app_state](const auto&, auto& res){
+		res.set_content(read_file_to_str(html_files_dir + "/index.html"), "text/html");
+	});
+
 	srv->Get("/protogen/mode", [app_state](const auto&, auto& res){
 			const auto mode = app_state->mode();
 			const auto mode_string = AppState::modeToString(mode);
