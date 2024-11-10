@@ -49,7 +49,13 @@ add_subdirectory(main)
 
 # Copy resources to build so one can run current build
 # with resources without installing resources to system.
-file(COPY "${PROJECT_SOURCE_DIR}/resources" DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+add_custom_target(static_files ALL)
+add_custom_command(
+    TARGET static_files
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${PROJECT_SOURCE_DIR}/resources
+    ${CMAKE_BINARY_DIR}/resources
+)
 
 install(DIRECTORY resources/
     DESTINATION share/protogen/resources
