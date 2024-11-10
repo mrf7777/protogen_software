@@ -27,8 +27,8 @@ void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppS
 }
 
 void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const EmotionDrawer& emotion_drawer) {
-	srv->Get("/", [html_files_dir](const auto&, auto& res){
-			res.set_content(read_file_to_str(html_files_dir + "/index.html"), "text/html");
+	srv->Get("/protogen/face", [html_files_dir](const auto&, auto& res){
+			res.set_content(read_file_to_str(html_files_dir + "/face.html"), "text/html");
 	});
 	srv->Put("/protogen/head/start", [app_state](const auto&, auto&){
 			app_state->setMode(AppState::Mode::ProtogenHead);
