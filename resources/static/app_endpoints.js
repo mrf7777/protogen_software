@@ -45,3 +45,11 @@ function getActiveAppId(callback) {
             callback(text)
         })
 }
+
+function getAppHomepage(app_id, callback) {
+    fetch(`${origin}/protogen/apps/${app_id}/homepage`)
+        .then(response => response.text())
+        .then(text => {
+            callback(text)
+        })
+}

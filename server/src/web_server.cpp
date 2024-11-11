@@ -196,6 +196,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	srv->Get("/protogen/apps/:appid/homepage", [app_state](const auto& req, auto& res){
 		try {
 			const auto app = app_state->apps().at(req.path_params.at("appid"));
+			// TODO: should this path building be abstracted closer to apps somehow?
 			const std::string homepage_path = "/apps/" + app->id() + app->homePage();
 			res.set_content(homepage_path, "text/plain");
 		} catch (std::out_of_range&) {
