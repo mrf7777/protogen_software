@@ -21,7 +21,7 @@ std::optional<Magick::Image> loadImage(const std::string& filename);
 class Spectrum {
 public:
 	Spectrum();
-	Spectrum(double min, double max, unsigned int buckets, double tolerance = 0.1);
+	Spectrum(double min, double max, unsigned int buckets, double tolerance = 0.000001);
 	std::size_t bucket(double value) const;
 private:
 	double m_min;
