@@ -69,7 +69,7 @@ void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 	// 0.0 |----------------------------(time)->
 	//
 
-	static constexpr double animation_action_start_time = 4.5;
+	static constexpr double animation_action_start_time = 4.3;
 	static constexpr double animation_action_end_time = 5.0;
 	static constexpr double animation_action_mid_time = (animation_action_start_time + animation_action_end_time) / 2;
 	static_assert(animation_action_start_time < animation_action_end_time);
