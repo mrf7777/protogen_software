@@ -168,7 +168,7 @@ std::optional<std::filesystem::path> getResourcesDir() {
 	return {};
 }
 
-std::unique_ptr<IProportionProvider> getMouthProportionProvider() {
+std::unique_ptr<IProportionProvider> getMouthProportionProvider(std::shared_ptr<httplib::Server> srv) {
 	// Try using I2C PCB artists decibel meter.
 	printServiceLocationSubsection("PCB Artist's Decibel Meter");
 	auto potential_pcb_artists_decibel_meter = PcbArtistsDecibelMeter::make();
@@ -178,6 +178,13 @@ std::unique_ptr<IProportionProvider> getMouthProportionProvider() {
 	} else {
 		printNotFound();
 	}
+
+	// try using web-based audio slider emulator.
+	printServiceLocationSubsection("Web-based Audio Slider Emulator");
+	std::cout << green("Audio device found: Web-based Audio Slider Emulator.") << std::endl;
+	auto website_audio_provider = std::unique_ptr<IAudioProvider>(new WebsiteAudioProvider(*srv, "/protogen/head/audio-loudness"));
+	auto website_proportion_provider = std::unique_ptr<IProportionProvider>(new AudioToProportionAdapter(std::move(website_audio_provider)));
+	return website_proportion_provider;
 
 	// As a fallback, use a static mouth proportion provider.
 	std::cout << red("Audio device not found. Mouth will be closed at all times.") << std::endl;
@@ -214,6 +221,8 @@ std::unique_ptr<IRenderSurface> getRenderSurface() {
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	Magick::InitializeMagick(*argv);
 
+	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
+
 	printServiceLocationHeader("Apps");
 	ProtogenAppLoader app_loader(PROTOGEN_APPS_DIR);
 	auto apps = app_loader.apps();
@@ -231,7 +240,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	printServiceLocationFooter();
 
 	printServiceLocationHeader("Mouth Movement Device");
-	auto mouth_openness_provider = getMouthProportionProvider();
+	auto mouth_openness_provider = getMouthProportionProvider(srv);
 	printServiceLocationFooter();
 
 	printServiceLocationHeader("Display Device");
@@ -245,7 +254,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	const std::string static_protogen_image_path = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/static/nose.png")).generic_string();
 	const std::string protogen_mouth_dir = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/mouth")).generic_string();
 
-	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
+	
 
 
 	auto emotion_drawer = EmotionDrawer(protogen_emotions_dir);

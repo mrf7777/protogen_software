@@ -26,7 +26,7 @@ double WebsiteAudioProvider::min() const {
 }
 
 double WebsiteAudioProvider::max() const {
-    return 100.0;
+    return 255.0;
 }
 
 std::optional<std::unique_ptr<PcbArtistsDecibelMeter>> PcbArtistsDecibelMeter::make()
