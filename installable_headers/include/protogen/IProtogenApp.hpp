@@ -138,6 +138,13 @@ public:
      */
     virtual std::string homePage() const = 0;
     /**
+     * Relative URL path to the thumbnail image of your app.
+     * This is an image that the user will see as associated with your app.
+     * URL path is relative to "/apps/{id}".
+     * If returns empty string, a default image will be used.
+     */
+    virtual std::string thumbnail() const = 0;
+    /**
      * Can return empty string if you do not want to host static files.
      * 
      * Returns a relative directory path to your static files that you

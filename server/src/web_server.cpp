@@ -162,6 +162,17 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 			res.set_content("", "text/plain");
 		}
 	});
+	srv->Get("/protogen/apps/:appid/thumbnail", [app_state](const auto& req, auto& res){
+		try {
+			// TODO: should this path building be abstracted closer to apps somehow?
+			const auto app = app_state->apps().at(req.path_params.at("appid"));
+			const std::string thumbnail_path = "/apps/" + app->id() + app->thumbnail();
+			res.set_content(thumbnail_path, "text/plain");
+		} catch (std::out_of_range&) {
+			res.status = httplib::StatusCode::NotFound_404;
+			res.set_content("", "text/plain");
+		}
+	});
 	srv->Get("/protogen/apps/:appid/active", [app_state](const auto& req, auto& res){
 		try {
 			const auto active_app = app_state->getActiveApp();
