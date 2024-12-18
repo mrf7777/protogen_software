@@ -1,9 +1,10 @@
-function createAppCard(app_id, app_name, app_description) {
+function createAppCard(app_id, app_name, app_description, app_thumbnail) {
     let card = document.createElement("div")
     card.className = "card"
 
     let img = document.createElement("img")
     img.className = "card-img-top"
+    img.src = app_thumbnail
     img.alt = app_name
 
     let card_body = document.createElement("div")
@@ -36,8 +37,10 @@ function createAppElement(app_id, callback) {
     getAppName(app_id, app_name => {
         getAppDescription(app_id, app_description => {
             getAppHomepage(app_id, app_homepage => {
-                card_element = createAppCard(app_id, app_name, app_description)
-                callback(card_element)
+                getAppThumbnail(app_id, app_thumbnail => {
+                    card_element = createAppCard(app_id, app_name, app_description, app_thumbnail)
+                    callback(card_element)
+                })
             })
         })
     })

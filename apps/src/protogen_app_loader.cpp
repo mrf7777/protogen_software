@@ -1,4 +1,5 @@
 #include <protogen/apps/protogen_app_loader.h>
+#include <protogen/apps/ProtogenAppDefaultDecorator.h>
 
 #include <dlfcn.h>
 
@@ -56,6 +57,7 @@ std::optional<std::shared_ptr<IProtogenApp>> ProtogenAppLoader::loadAppFromDirec
 
             auto protogen_app_deleter = ProtogenAppDeleter(protogen_app_destroy, protogen_app_lib);
             auto protogen_app = std::shared_ptr<IProtogenApp>(protogen_app_create(), protogen_app_deleter);
+            auto wrapped_protogen_app = std::shared_ptr<IProtogenApp>(new ProtogenAppDefaultDecorator(protogen_app));
             return protogen_app;
         }
     }
