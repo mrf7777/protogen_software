@@ -148,7 +148,9 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	});
 	srv->Get("/protogen/apps/:appid/name", [app_state](const auto& req, auto& res){
 		try {
-			res.set_content(app_state->apps().at(req.path_params.at("appid"))->name(), "text/plain");
+			const auto app = app_state->apps().at(req.path_params.at("appid"));
+			const std::string name = app->name().empty() ? "(No name)" : app->name();
+			res.set_content(name, "text/plain");
 		} catch (std::out_of_range&) {
 			res.status = httplib::StatusCode::NotFound_404;
 			res.set_content("", "text/plain");
@@ -156,7 +158,9 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	});
 	srv->Get("/protogen/apps/:appid/description", [app_state](const auto& req, auto& res){
 		try {
-			res.set_content(app_state->apps().at(req.path_params.at("appid"))->description(), "text/plain");
+			const auto app = app_state->apps().at(req.path_params.at("appid"));
+			const std::string description = app->description().empty() ? "(No description)" : app->description();
+			res.set_content(description, "text/plain");
 		} catch (std::out_of_range&) {
 			res.status = httplib::StatusCode::NotFound_404;
 			res.set_content("", "text/plain");
