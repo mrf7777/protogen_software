@@ -166,7 +166,12 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 		try {
 			// TODO: should this path building be abstracted closer to apps somehow?
 			const auto app = app_state->apps().at(req.path_params.at("appid"));
-			const std::string thumbnail_path = "/apps/" + app->id() + app->thumbnail();
+			std::string thumbnail_path;
+			if(app->thumbnail().empty()) {
+				thumbnail_path = "/static/images/no_thumbnail.png";
+			} else {
+				thumbnail_path = "/apps/" + app->id() + app->thumbnail();
+			}
 			res.set_content(thumbnail_path, "text/plain");
 		} catch (std::out_of_range&) {
 			res.status = httplib::StatusCode::NotFound_404;
