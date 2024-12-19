@@ -1,9 +1,10 @@
 function createAppCard(app_id, app_name, app_description, app_thumbnail) {
     let card = document.createElement("div")
-    card.className = "card"
+    card.className = "card flex-row align-items-center"
 
     let img = document.createElement("img")
-    img.className = "card-img-top"
+    img.className = "object-fit-contain rounded "
+    img.style = "max-width: 25vw; height: auto; max-height: 256px;"
     img.src = app_thumbnail
     img.alt = app_name
 
