@@ -19,12 +19,13 @@ function createAppCard(app_id, app_name, app_description, app_thumbnail, app_hom
     card_description.className = "card-text"
     card_description.appendChild(document.createTextNode(app_description))
 
-    let card_launch = document.createElement("a")
+    let card_launch = document.createElement("button")
     card_launch.className = "btn btn-primary"
     card_launch.appendChild(document.createTextNode("Launch"))
-    card_launch.href = app_homepage
-    card_launch.target = "_blank"
-    card_launch.rel = "noopener noreferrer"
+    card_launch.addEventListener("click", () => {
+        setAppActive(app_id)
+        window.open(app_homepage, "_blank").focus()
+    })
 
     card_body.appendChild(card_title)
     card_body.appendChild(card_description)
