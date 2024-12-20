@@ -199,12 +199,15 @@ public:
      * The display resolutions that your app supports.
      * These resolutions are compared to the resolutions of the current
      * display device. An algorithm is used to select the "best" resolution
-     * from the set that the app provides.
+     * from the set that the app provides. The current display device resolution
+     * is provided to you in case your supported resolutions depend on the
+     * device resolution: Conway's Game of Life is an example that would
+     * benefit from taking the device screen.
      * 
      * As a tip, the smaller your resolution, the more devices can display your
      * app.
      */
-    virtual std::vector<Resolution> supportedResolutions() const = 0;
+    virtual std::vector<Resolution> supportedResolutions(const Resolution& device_resolution) const = 0;
 
     /**
      * This is called with the mouth proportion provider. If you want access to
