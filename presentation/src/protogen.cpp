@@ -66,6 +66,11 @@ void ProtogenHeadMatrices::drawFrame(const std::function<void(ICanvas&)>& drawer
     m_matrix->SwapOnVSync(frame);
 }
 
+Resolution ProtogenHeadMatrices::resolution() const
+{
+    return Resolution(128, 32);
+}
+
 RgbMatrixCanvasToICanvasAdapter::RgbMatrixCanvasToICanvasAdapter(rgb_matrix::Canvas *canvas)
     : mCanvas(canvas)
 {

@@ -8,6 +8,7 @@
 
 #include <protogen/presentation/render_surface.h>
 #include <protogen/ICanvas.hpp>
+#include <protogen/Resolution.hpp>
 
 namespace protogen {
 
@@ -34,6 +35,7 @@ public:
     static std::optional<std::unique_ptr<SdlRenderSurface>> make();
     ~SdlRenderSurface() override;
     void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
+    Resolution resolution() const override;
 private:
     class ConstructorException : public std::runtime_error {
     public:

@@ -22,6 +22,11 @@ void SdlRenderSurface::drawFrame([[maybe_unused]] const std::function<void(ICanv
     SDL_RenderPresent(m_renderer.get());
 }
 
+Resolution SdlRenderSurface::resolution() const
+{
+    return Resolution(128, 32);
+}
+
 SdlRenderSurface::SdlRenderSurface()
 {
     {

@@ -10,6 +10,7 @@
 
 #include <protogen/presentation/render_surface.h>
 #include <protogen/ICanvas.hpp>
+#include <protogen/Resolution.hpp>
 
 #include <led-matrix.h>
 
@@ -37,6 +38,7 @@ public:
 	~ProtogenHeadMatrices();
 
 	void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
+	Resolution resolution() const override;
 private:
 	class ConstructorException : public std::exception {
 	public:
