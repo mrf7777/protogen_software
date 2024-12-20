@@ -1,4 +1,4 @@
-function createAppCard(app_id, app_name, app_description, app_thumbnail) {
+function createAppCard(app_id, app_name, app_description, app_thumbnail, app_homepage) {
     let card = document.createElement("div")
     card.className = "card flex-row align-items-center"
 
@@ -19,9 +19,12 @@ function createAppCard(app_id, app_name, app_description, app_thumbnail) {
     card_description.className = "card-text"
     card_description.appendChild(document.createTextNode(app_description))
 
-    let card_launch = document.createElement("button")
+    let card_launch = document.createElement("a")
     card_launch.className = "btn btn-primary"
     card_launch.appendChild(document.createTextNode("Launch"))
+    card_launch.href = app_homepage
+    card_launch.target = "_blank"
+    card_launch.rel = "noopener noreferrer"
 
     card_body.appendChild(card_title)
     card_body.appendChild(card_description)
@@ -39,7 +42,7 @@ function createAppElement(app_id, callback) {
         getAppDescription(app_id, app_description => {
             getAppHomepage(app_id, app_homepage => {
                 getAppThumbnail(app_id, app_thumbnail => {
-                    card_element = createAppCard(app_id, app_name, app_description, app_thumbnail)
+                    card_element = createAppCard(app_id, app_name, app_description, app_thumbnail, app_homepage)
                     callback(card_element)
                 })
             })
