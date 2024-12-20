@@ -45,8 +45,15 @@ function createAppCard(app_id, app_name, app_description, app_thumbnail, app_hom
     card_launch.id = launchAppButtonId(app_id)
     card_launch.className = "btn fs-5"
     card_launch.addEventListener("click", () => {
-        setAppActive(app_id)
-        window.open(app_homepage, "_blank").focus()
+        getAppIsActive(app_id, (app_is_active) => {
+            if(!app_is_active) {
+                if(!window.confirm("Launching this app will stop any other running app. Launch app?")) {
+                    return;
+                }
+            }
+            setAppActive(app_id)
+            window.open(app_homepage, "_blank").focus()
+        })
     })
     setInterval(() => {
         updateLaunchButton(app_id)
