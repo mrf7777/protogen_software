@@ -43,7 +43,7 @@ function createAppCard(app_id, app_name, app_description, app_thumbnail, app_hom
 
     let card_launch = document.createElement("button")
     card_launch.id = launchAppButtonId(app_id)
-    card_launch.className = "btn"
+    card_launch.className = "btn fs-5"
     card_launch.addEventListener("click", () => {
         setAppActive(app_id)
         window.open(app_homepage, "_blank").focus()
