@@ -1,3 +1,25 @@
+function launchAppButtonId(app_id) {
+    return `launch-app-button-${app_id}`
+}
+
+function updateLaunchButton(app_id) {
+    const launch_button_id = launchAppButtonId(app_id)
+    const launch_button = document.getElementById(launch_button_id)
+    getAppIsActive(app_id, (app_is_active) => {
+        if(app_is_active) {
+            launch_button.innerHTML = ""
+            launch_button.appendChild(document.createTextNode("Active"))
+            launch_button.classList.remove("btn-primary")
+            launch_button.classList.add("btn-success")
+        } else {
+            launch_button.innerHTML = ""
+            launch_button.appendChild(document.createTextNode("Launch"))
+            launch_button.classList.remove("btn-success")
+            launch_button.classList.add("btn-primary")
+        }
+    })
+}
+
 function createAppCard(app_id, app_name, app_description, app_thumbnail, app_homepage) {
     let card = document.createElement("div")
     card.className = "card flex-row align-items-center"
@@ -20,12 +42,15 @@ function createAppCard(app_id, app_name, app_description, app_thumbnail, app_hom
     card_description.appendChild(document.createTextNode(app_description))
 
     let card_launch = document.createElement("button")
-    card_launch.className = "btn btn-primary"
-    card_launch.appendChild(document.createTextNode("Launch"))
+    card_launch.id = launchAppButtonId(app_id)
+    card_launch.className = "btn"
     card_launch.addEventListener("click", () => {
         setAppActive(app_id)
         window.open(app_homepage, "_blank").focus()
     })
+    setInterval(() => {
+        updateLaunchButton(app_id)
+    }, 1000)
 
     card_body.appendChild(card_title)
     card_body.appendChild(card_description)
@@ -58,6 +83,8 @@ getAppIds((app_ids) => {
             let app_list_item = document.createElement("li")
             app_list_item.appendChild(app_element)
             app_list.appendChild(app_list_item)
+
+            updateLaunchButton(app_id)
         }))
     });
 })

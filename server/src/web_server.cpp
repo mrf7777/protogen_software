@@ -192,8 +192,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 					res.set_content("false", "text/plain");
 				}
 			} else {
-				res.status = httplib::StatusCode::NotFound_404;
-				res.set_content("", "text/plain");
+				res.set_content("false", "text/plain");
 			}
 		} catch (std::out_of_range&) {
 			res.status = httplib::StatusCode::NotFound_404;
