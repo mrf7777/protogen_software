@@ -7,6 +7,7 @@
 
 #include <protogen/ICanvas.hpp>
 #include <protogen/IProportionProvider.hpp>
+#include <protogen/Resolution.hpp>
 
 #include <httplib.h>
 
@@ -16,8 +17,8 @@ namespace protogen {
  * An interface which represents an app for a protogen.
  * 
  * An app represents a new feature that the user of the protogen
- * can active and use. Each app defines its own static resources,
- * web server endpoints, internal state, and rendering. All of
+ * can activate and use. Each app defines its own static resources,
+ * web server endpoints, internal state, and rendering logic. All of
  * these allows the app to safely extend the protogen's functionality
  * while not interfering with other protogen apps and core functions.
  * 
@@ -39,9 +40,9 @@ namespace protogen {
  * When you install the core protogen software, /usr/local/shared/protogen
  * is a directory that will exist. When you install your app, you are
  * responsible for the following:
- * - Ensure /usr/local/shared/protogen/app/<your app id> directory exists.
- * - Ensure /usr/local/shared/protogen/app/<your app id>/resources directory exists.
- * - Ensure /usr/local/shared/protogen/app/<your app id>/<some name>.so exists.
+ * - Ensure /usr/local/shared/protogen/app/<your app id>                 directory exists.
+ * - Ensure /usr/local/shared/protogen/app/<your app id>/resources       directory exists.
+ * - Ensure /usr/local/shared/protogen/app/<your app id>/<some name>.so  exists.
  * 
  * Your .so file is a shared library that is dynamically loaded by the core
  * protogen software. It is this file that contains the concrete class, creation function,
@@ -178,6 +179,9 @@ public:
      * Given a blank canvas, draw the current frame. What you draw will be shown
      * on a video display device, usually a protogen head. The frequency of calls
      * to this method is dictated in part by what your `framerate` method returns.
+     * 
+     * The resolution of the canvas parameter is determined by an algorithm
+     * which selects one of the resolutions that you provide via `supportedResolutions`.
      */
     virtual void render(ICanvas& canvas) const = 0;
     /**
@@ -191,6 +195,16 @@ public:
      * on framerate that you provide for other implementation details if possible.
      */
     virtual float framerate() const = 0;
+    /**
+     * The display resolutions that your app supports.
+     * These resolutions are compared to the resolutions of the current
+     * display device. An algorithm is used to select the "best" resolution
+     * from the set that the app provides.
+     * 
+     * As a tip, the smaller your resolution, the more devices can display your
+     * app.
+     */
+    virtual std::vector<Resolution> supportedResolutions() const = 0;
 
     /**
      * This is called with the mouth proportion provider. If you want access to
