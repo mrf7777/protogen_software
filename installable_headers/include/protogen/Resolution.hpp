@@ -1,6 +1,8 @@
 #ifndef RESOLUTION_H
 #define RESOLUTION_H
 
+#include <string>
+
 namespace protogen {
 
 class Resolution {
@@ -10,6 +12,9 @@ public:
     unsigned int height() const { return m_height; }
     bool fitsIn(const Resolution& r) const {
         return width() <= r.width() && height() <= r.height();
+    }
+    std::string toString() const {
+        return "Resolution{width: " + std::to_string(m_width) + ", height: " + std::to_string(m_height) + "}";
     }
 private:
     unsigned int m_width;
