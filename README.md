@@ -41,11 +41,12 @@ How to use a small MEMS mic and I2C sound sensor module to measure loudness:
 https://pcbartists.com/product-documentation/accurate-raspberry-pi-decibel-meter/
 
 ## New feature ideas
-- Plugin feature that allows other developers to develop apps for the protogen.
-  - This would use shared libraries and resources that are then installed in a specific directory.
-  - Plugins will add the following: new http endpoints, state, and static resources.
-- SDL for seeing imagery on desktop environment.
-- Party games: trivia, battleship, etc.
+- Party games: bowling (with phone-swipe as "throwing" ball), trivia, battleship, multi-player pokemon, bomb defusing (or protogen gets blue screen of death)
+- Solo games: zen garden, pokemon, tetris, fnaf
+- Standardization
+  - File format for packaging parametric protogen emotion sets.
+  - "app store" idea for community-created apps for the protogen.
+    - How can we ensure that installing apps is easy for non-technical or non-expert users?
 - Vowel detection and switching between mouth-frame sets based on vowel sound.
 - Protogen-to-Protogen interaction/communication.
   - If connected to internet and have gps-like module, each protogen can publish their lat/lon continuously. 
