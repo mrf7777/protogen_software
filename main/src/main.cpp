@@ -254,9 +254,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	const std::string static_protogen_image_path = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/static/nose.png")).generic_string();
 	const std::string protogen_mouth_dir = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/mouth")).generic_string();
 
-	
-
-
 	auto emotion_drawer = EmotionDrawer(protogen_emotions_dir);
 	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");
 
@@ -265,8 +262,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	setup_web_server(srv, app_state, html_files_dir, static_web_resources_dir, emotion_drawer);
 
 	auto renderer = Renderer(emotion_drawer, MinecraftDrawer(), protogen_mouth_dir, static_protogen_image_path);
-
-
 
 	setup_signal_handlers();
 
