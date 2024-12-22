@@ -31,13 +31,14 @@ using Apps = std::map<std::string, std::shared_ptr<IProtogenApp>>;
 
 class ProtogenAppLoader {
 public:
-    explicit ProtogenAppLoader(const std::string& apps_directory);
+    explicit ProtogenAppLoader(const std::string& apps_directory, std::shared_ptr<IProportionProvider> mouth_proportion_provider);
     Apps apps() const;
 
 private:
     static std::optional<std::shared_ptr<IProtogenApp>> loadAppFromDirectory(const std::filesystem::path& app_directory);
 
     std::filesystem::path m_appDirectory;
+    std::shared_ptr<IProportionProvider> m_mouthProportionProvider;
 };
 
 }   // namespace

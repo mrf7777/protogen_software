@@ -5,8 +5,8 @@
 namespace protogen
 {
 
-ProtogenAppLoader::ProtogenAppLoader(const std::string &apps_directory)
-    : m_appDirectory(apps_directory)
+ProtogenAppLoader::ProtogenAppLoader(const std::string &apps_directory, std::shared_ptr<IProportionProvider> mouth_proportion_provider)
+    : m_appDirectory(apps_directory), m_mouthProportionProvider(mouth_proportion_provider)
 {
 }
 
@@ -17,6 +17,7 @@ Apps ProtogenAppLoader::apps() const
         if(entry.is_directory()) {
             auto app = loadAppFromDirectory(entry.path());
             if(app.has_value()) {
+                app.value()->setMouthProportionProvider(m_mouthProportionProvider);
                 const std::string app_id = app.value()->id();
                 apps.insert({app_id, std::move(app.value())});
             }

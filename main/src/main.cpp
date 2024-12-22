@@ -99,7 +99,7 @@ void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
 	}
 }
 
-void protogen_mouth_sync_thread_function(std::shared_ptr<AppState> app_state, std::unique_ptr<IProportionProvider> mouth_openness_provider) {
+void protogen_mouth_sync_thread_function(std::shared_ptr<AppState> app_state, std::shared_ptr<IProportionProvider> mouth_openness_provider) {
 	// TODO: only run loop when the protogen is the active mode.
 	float framerate = app_state->frameRate();
 	while(!interrupt_received) {
@@ -223,8 +223,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
 
+	printServiceLocationHeader("Mouth Movement Device");
+	std::shared_ptr<IProportionProvider> mouth_openness_provider = getMouthProportionProvider(srv);
+	printServiceLocationFooter();
+
 	printServiceLocationHeader("Apps");
-	ProtogenAppLoader app_loader(PROTOGEN_APPS_DIR);
+	ProtogenAppLoader app_loader(PROTOGEN_APPS_DIR, mouth_openness_provider);
 	auto apps = app_loader.apps();
 	for(const auto& [app_id, app] : apps) {
 		std::cout << "Found app: \"" << apps.at(app_id)->name() << "\" (id: " << app_id << ")" << std::endl;
@@ -237,10 +241,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 		std::cerr << red("Could not find either your local or installed 'resources' directory.") << std::endl;
 		exit(1);
 	}
-	printServiceLocationFooter();
-
-	printServiceLocationHeader("Mouth Movement Device");
-	auto mouth_openness_provider = getMouthProportionProvider(srv);
 	printServiceLocationFooter();
 
 	printServiceLocationHeader("Display Device");
@@ -267,7 +267,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	std::thread web_server_thread(web_server_thread_function, srv);
 	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
-	std::thread protogen_mouth_sync_thread(protogen_mouth_sync_thread_function, app_state, std::move(mouth_openness_provider));
+	std::thread protogen_mouth_sync_thread(protogen_mouth_sync_thread_function, app_state, mouth_openness_provider);
 
 	float FPS;
 	while(!interrupt_received) {
