@@ -207,7 +207,7 @@ std::unique_ptr<IRenderSurface> getRenderSurface() {
 	printServiceLocationSubsection("SDL Video");
 	auto sdl_device = SdlRenderSurface::make(Resolution(128, 32));
 	if(sdl_device.has_value()) {
-		std::cout << green("Video device found: SDL");
+		std::cout << green("Video device found: SDL") << std::endl;
 		return std::move(sdl_device.value());
 	} else {
 		printNotFound();
