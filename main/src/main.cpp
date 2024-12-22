@@ -223,12 +223,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
 
+	printServiceLocationHeader("Display Device");
+	auto data_viewer = getRenderSurface();
+	printServiceLocationFooter();
+
 	printServiceLocationHeader("Mouth Movement Device");
 	std::shared_ptr<IProportionProvider> mouth_openness_provider = getMouthProportionProvider(srv);
 	printServiceLocationFooter();
 
 	printServiceLocationHeader("Apps");
-	ProtogenAppLoader app_loader(PROTOGEN_APPS_DIR, mouth_openness_provider);
+	ProtogenAppLoader app_loader(PROTOGEN_APPS_DIR, mouth_openness_provider, data_viewer->resolution());
 	auto apps = app_loader.apps();
 	for(const auto& [app_id, app] : apps) {
 		std::cout << "Found app: \"" << apps.at(app_id)->name() << "\" (id: " << app_id << ")" << std::endl;
@@ -241,10 +245,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 		std::cerr << red("Could not find either your local or installed 'resources' directory.") << std::endl;
 		exit(1);
 	}
-	printServiceLocationFooter();
-
-	printServiceLocationHeader("Display Device");
-	auto data_viewer = getRenderSurface();
 	printServiceLocationFooter();
 
 	const std::string resources_dir = potential_resources_dir.value();

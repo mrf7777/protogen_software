@@ -9,6 +9,7 @@
 #include <dlfcn.h>
 
 #include <protogen/IProtogenApp.hpp>
+#include <protogen/Resolution.hpp>
 
 namespace protogen
 {
@@ -31,7 +32,7 @@ using Apps = std::map<std::string, std::shared_ptr<IProtogenApp>>;
 
 class ProtogenAppLoader {
 public:
-    explicit ProtogenAppLoader(const std::string& apps_directory, std::shared_ptr<IProportionProvider> mouth_proportion_provider);
+    explicit ProtogenAppLoader(const std::string& apps_directory, std::shared_ptr<IProportionProvider> mouth_proportion_provider, const Resolution& device_resolution);
     Apps apps() const;
 
 private:
@@ -39,6 +40,7 @@ private:
 
     std::filesystem::path m_appDirectory;
     std::shared_ptr<IProportionProvider> m_mouthProportionProvider;
+    Resolution m_deviceResolution;
 };
 
 }   // namespace
