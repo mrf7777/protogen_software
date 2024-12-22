@@ -205,7 +205,7 @@ std::unique_ptr<IRenderSurface> getRenderSurface() {
 	// Try using SDL to display imagery. This will usually be
 	// in a window in a desktop environment.
 	printServiceLocationSubsection("SDL Video");
-	auto sdl_device = SdlRenderSurface::make();
+	auto sdl_device = SdlRenderSurface::make(Resolution(128, 32));
 	if(sdl_device.has_value()) {
 		std::cout << green("Video device found: SDL");
 		return std::move(sdl_device.value());

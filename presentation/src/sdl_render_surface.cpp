@@ -4,9 +4,9 @@
 
 namespace protogen {
 
-std::optional<std::unique_ptr<SdlRenderSurface>> SdlRenderSurface::make()
+std::optional<std::unique_ptr<SdlRenderSurface>> SdlRenderSurface::make(const Resolution& resolution)
 {
-    return std::optional<std::unique_ptr<SdlRenderSurface>>(new SdlRenderSurface());
+    return std::optional<std::unique_ptr<SdlRenderSurface>>(new SdlRenderSurface(resolution));
 }
 
 SdlRenderSurface::~SdlRenderSurface()
@@ -16,7 +16,7 @@ SdlRenderSurface::~SdlRenderSurface()
 
 void SdlRenderSurface::drawFrame([[maybe_unused]] const std::function<void(ICanvas &)> &drawer)
 {
-    SdlRendererToICanvasAdapter canvas(m_renderer.get(), 128, 32);
+    SdlRendererToICanvasAdapter canvas(m_renderer.get(), m_resolution.width(), m_resolution.height());
     canvas.clear();
     drawer(canvas);
     SDL_RenderPresent(m_renderer.get());
@@ -24,10 +24,11 @@ void SdlRenderSurface::drawFrame([[maybe_unused]] const std::function<void(ICanv
 
 Resolution SdlRenderSurface::resolution() const
 {
-    return Resolution(128, 32);
+    return m_resolution;
 }
 
-SdlRenderSurface::SdlRenderSurface()
+SdlRenderSurface::SdlRenderSurface(const Resolution& resolution)
+    : m_resolution(resolution)
 {
     {
         const int sdl_init_result = SDL_Init(SDL_INIT_VIDEO);
@@ -41,8 +42,8 @@ SdlRenderSurface::SdlRenderSurface()
             "Protogen Head",
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
-            128 * 8,
-            32 * 8,
+            m_resolution.width() * 8,
+            m_resolution.height() * 8,
             SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
         );
         if(window == NULL) {
@@ -60,7 +61,7 @@ SdlRenderSurface::SdlRenderSurface()
         if(renderer == NULL) {
             throw ConstructorException(SDL_GetError());
         }
-        const auto set_logical_size_result = SDL_RenderSetLogicalSize(renderer, 128, 32);
+        const auto set_logical_size_result = SDL_RenderSetLogicalSize(renderer, m_resolution.width(), m_resolution.height());
         if(set_logical_size_result) {
             throw ConstructorException(SDL_GetError());
         }

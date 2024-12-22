@@ -32,7 +32,7 @@ private:
 
 class SdlRenderSurface : public IRenderSurface {
 public:
-    static std::optional<std::unique_ptr<SdlRenderSurface>> make();
+    static std::optional<std::unique_ptr<SdlRenderSurface>> make(const Resolution& resolution);
     ~SdlRenderSurface() override;
     void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
     Resolution resolution() const override;
@@ -41,7 +41,7 @@ private:
     public:
         ConstructorException(const char * what) : std::runtime_error(what) {}
     };
-    SdlRenderSurface();
+    SdlRenderSurface(const Resolution& resolution);
 
     struct WindowDestroyer {
         void operator()(SDL_Window * window) { SDL_DestroyWindow(window); }
@@ -50,6 +50,7 @@ private:
         void operator()(SDL_Renderer * renderer) { SDL_DestroyRenderer(renderer); }
     };
 
+    Resolution m_resolution;
     std::unique_ptr<SDL_Window, WindowDestroyer> m_window;
     std::unique_ptr<SDL_Renderer, RendererDestroyer> m_renderer;
 };
