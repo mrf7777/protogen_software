@@ -36,16 +36,6 @@ public:
 	void draw(ICanvas& canvas, ProtogenHeadState::Emotion emotion, Proportion mouth_openness, EmotionDrawer& emotion_drawer, ImageSpectrum& mouth_images, StaticImageDrawer& static_drawer, bool blank, Proportion eye_openness);
 };
 
-class MinecraftDrawer final {
-public:
-	MinecraftDrawer();
-	void draw(ICanvas& canvas, const MinecraftState& state) const;
-private:
-	static void drawWorld(ICanvas& canvas, const BlockMatrix& block_matrix, const BlockColorProfile& color_profile);
-	static void drawPlayers(ICanvas& canvas, const MinecraftState& state);
-	static void drawPlayer(ICanvas& canvas, const MinecraftPlayerState& player_state, const BlockColorProfile& color_profile);
-};
-
 class IRender {
 public:
     virtual ~IRender() = default;
@@ -54,15 +44,12 @@ public:
 
 class Renderer : public IRender {
 public:
-    Renderer(EmotionDrawer emotion_drawer, MinecraftDrawer minecraft_drawer, const std::string& mouth_images_dir, const std::string& static_image_path);
+    Renderer(EmotionDrawer emotion_drawer, const std::string& mouth_images_dir, const std::string& static_image_path);
     virtual void render(const AppState& data, ICanvas& canvas) override;
 private:
 	void viewProtogenHeadData(const ProtogenHeadState& data, ICanvas& canvas);
 
-	void viewMinecraftData(const MinecraftState& data, ICanvas& canvas);
-
     EmotionDrawer m_emotionDrawer;
-    MinecraftDrawer m_minecraftDrawer;
     StaticImageDrawer m_staticImageDrawer;
     ImageSpectrum m_headImages;
     ProtogenHeadFrameProvider m_protogenHeadFrameProvider;

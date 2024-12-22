@@ -5,9 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROTOGEN_SOURCES
-    "${PROJECT_SOURCE_DIR}/src/minecraft.cpp"
     "${PROJECT_SOURCE_DIR}/src/app_state.cpp"
-    "${PROJECT_SOURCE_DIR}/src/minecraft_state.cpp"
     "${PROJECT_SOURCE_DIR}/src/protogen_head_state.cpp"
 )
 add_library(${PROJECT_NAME} ${PROTOGEN_SOURCES})
