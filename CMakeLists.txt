@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(protogen_project)
 
+include(FetchContent)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -23,8 +25,12 @@ target_compile_options(graphics_magick INTERFACE ${GraphicsMagick_CPP_FLAGS})
 target_link_libraries(graphics_magick INTERFACE ${GraphicsMagick_LIBS})
 
 ## cpp-httplib
-add_library(httplib INTERFACE)
-target_include_directories(httplib INTERFACE "${CMAKE_SOURCE_DIR}/cpp-httplib")
+FetchContent_Declare(
+    httplib
+    GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
+    GIT_TAG v0.18.3
+)
+FetchContent_MakeAvailable(httplib)
 
 ## rpi rgb led matrix library
 add_library(rpi_rgb_led_matrix INTERFACE)
