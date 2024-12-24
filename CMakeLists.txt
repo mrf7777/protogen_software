@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(protogen_project)
 
 include(FetchContent)
+enable_testing()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -47,6 +48,14 @@ find_package(SDL2 REQUIRED)
 target_include_directories(SDL INTERFACE ${SDL2_INCLUDE_DIRS})
 target_link_libraries(SDL INTERFACE ${SDL2_LIBRARIES})
 
+## GoogleTest
+set(INSTALL_GTEST OFF)
+FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
+)
+FetchContent_MakeAvailable(googletest)
+
 add_subdirectory(apps)
 add_subdirectory(installable_headers)
 add_subdirectory(mouth)
@@ -56,6 +65,7 @@ add_subdirectory(server)
 add_subdirectory(state)
 add_subdirectory(utils)
 add_subdirectory(main)
+add_subdirectory(tests)
 
 # Copy resources to build so one can run current build
 # with resources without installing resources to system.
