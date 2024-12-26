@@ -259,7 +259,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	auto app_state = std::shared_ptr<AppState>(new AppState(std::move(apps)));
 
-	setup_web_server(srv, app_state, html_files_dir, static_web_resources_dir, emotion_drawer);
+	setup_web_server(srv, app_state, html_files_dir, static_web_resources_dir, emotion_drawer, PROTOGEN_APPS_DIR);
 
 	auto renderer = Renderer(emotion_drawer, protogen_mouth_dir, static_protogen_image_path);
 

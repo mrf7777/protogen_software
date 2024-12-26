@@ -2,7 +2,7 @@
 
 namespace protogen {
 
-void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const std::string& static_files_dir, const EmotionDrawer& emotion_drawer) {
+void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const std::string& static_files_dir, const EmotionDrawer& emotion_drawer, const std::string& apps_dir) {
 	srv->set_logger([=](const auto&, auto&){
 	});
 
@@ -26,7 +26,7 @@ void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppS
 	});
 
 	setup_web_server_for_protogen_head(srv, app_state, html_files_dir, emotion_drawer);
-	setup_web_server_for_apps(srv, app_state);
+	setup_web_server_for_apps(srv, app_state, apps_dir);
 }
 
 void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const EmotionDrawer& emotion_drawer) {
@@ -69,9 +69,9 @@ void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, st
 	});
 }
 
-void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state) {
+void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& apps_dir) {
 	for(const auto& app : app_state->apps()) {
-		setup_web_server_for_app(srv, app.second);
+		setup_web_server_for_app(srv, app.second, apps_dir);
 	}
 
 	// App management endpoints
@@ -162,7 +162,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	});
 }
 
-void setup_web_server_for_app(std::shared_ptr<httplib::Server> srv, std::shared_ptr<IProtogenApp> app){
+void setup_web_server_for_app(std::shared_ptr<httplib::Server> srv, std::shared_ptr<IProtogenApp> app, const std::string& apps_dir){
 	using HttpMethod = IProtogenApp::HttpMethod;
 
 	const std::string app_id = app->id();
@@ -195,7 +195,7 @@ void setup_web_server_for_app(std::shared_ptr<httplib::Server> srv, std::shared_
 	// Setup app static file hosting.
 	const std::string static_files_rel_dir = app->staticFilesDirectory();
 	// TODO: pass in base path for apps
-	const std::string static_files_absolute_dir = "/usr/local/share/protogen/apps/" + app_id + "/resources/" + static_files_rel_dir;
+	const std::string static_files_absolute_dir = apps_dir + "/" + app_id + "/resources/" + static_files_rel_dir;
 	if(!static_files_rel_dir.empty()) {
 		const std::string static_files_mount_point = "/apps/" + app_id + app->staticFilesPath();
 		srv->set_mount_point(static_files_mount_point, static_files_absolute_dir);
