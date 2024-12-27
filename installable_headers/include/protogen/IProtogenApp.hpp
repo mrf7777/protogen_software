@@ -23,34 +23,29 @@ namespace protogen {
  * while not interfering with other protogen apps and core functions.
  * 
  * To install the app that you made, observe this directory structure:
- * /usr/
- * └── local/
- *     └── shared/
- *         └── protogen/
- *             └── apps/
- *                 └── <your app's id as returned by its id method>/
- *                     ├── <some name>.so
- *                     └── resources/
- *                         ├── <some files like .png, .html, etc...>
- *                         ├── image.png
- *                         ├── index.html
- *                         ├── scripts/
- *                         ├── static/
- *                         └── ...
- * When you install the core protogen software, /usr/local/shared/protogen
+ * <install location>/
+ * └── shared/
+ *     └── protogen/
+ *         └── apps/
+ *             └── <app id as returned by its id method>/
+ *                 ├── *.so
+ *                 └── resources/
+ *                     └── <app's files>
+ * <install location> is the directory where the core protogen software is installed.
+ * By default, `cmake --install` on linux installs in /usr/local.
+ * When you install the core protogen software, <install location>/shared/protogen
  * is a directory that will exist. When you install your app, you are
  * responsible for the following:
- * - Ensure /usr/local/shared/protogen/app/<your app id>                 directory exists.
- * - Ensure /usr/local/shared/protogen/app/<your app id>/resources       directory exists.
- * - Ensure /usr/local/shared/protogen/app/<your app id>/<some name>.so  exists.
+ * - Ensure <install location>/shared/protogen/app/<your app id>                 directory exists.
+ * - Ensure <install location>/shared/protogen/app/<your app id>/resources       directory exists.
+ * - Ensure <install location>/shared/protogen/app/<your app id>/<some name>.so  exists.
  * 
  * Your .so file is a shared library that is dynamically loaded by the core
- * protogen software. It is this file that contains the concrete class, creation function,
- * and destruction function for the concrete class. Your .so file must have the following
- * functions implemented as well as your concrete class:
+ * protogen software. Your .so file must have the following
+ * functions implemented:
  * extern "C" IProtogenApp * create_app()
  * extern "C" void destroy_app(IProtogenApp * app)
- * The `create_app` will return a new instance of your class and return ownership.
+ * The `create_app` will return a new instance of your class, which implements IProtogenApp and return ownership.
  * The `destroy_app` will take ownership, destroy, and deallocate the class.
  * These both can be implemented as simply as using C++ `new` and `delete` operators. After all,
  * your concrete class can have its own destructor to do cleanup anyway.
