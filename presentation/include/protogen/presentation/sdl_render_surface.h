@@ -40,6 +40,7 @@ private:
  */
 class SdlRenderSurface : public IRenderSurface {
 public:
+    SdlRenderSurface();
     ~SdlRenderSurface() override;
     std::string id() const override;
     std::string name() const override;
@@ -51,7 +52,6 @@ private:
     public:
         ConstructorException(const char * what) : std::runtime_error(what) {}
     };
-    SdlRenderSurface();
 
     struct WindowDestroyer {
         void operator()(SDL_Window * window) { SDL_DestroyWindow(window); }
