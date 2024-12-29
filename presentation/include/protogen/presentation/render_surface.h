@@ -13,8 +13,11 @@ namespace protogen {
 
 class FakeRenderSurface : public IRenderSurface{
 public:
+    std::string id() const override { return "fake_render_surface"; }
+    std::string name() const override { return "Fake Render Surface"; }
+    InitializationStatus initialize() override { return InitializationStatus::Success; }
     void drawFrame(const std::function<void(ICanvas&)>&) override {}
-    Resolution resolution() const override { return Resolution(32, 32); }
+    Resolution resolution() const override { return Resolution(512, 512); }
 };
 
 }   // namespace
