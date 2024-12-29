@@ -18,6 +18,7 @@
 #include <Magick++.h>
 
 #include <protogen/state/app_state.h>
+#include <protogen/IRenderSurface.hpp>
 #include <protogen/ICanvas.hpp>
 #include <protogen/Proportion.hpp>
 #include <protogen/IProtogenApp.hpp>

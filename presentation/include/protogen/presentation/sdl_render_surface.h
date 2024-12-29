@@ -30,10 +30,20 @@ private:
     int m_height;
 };
 
+/**
+ * Represents an SDL window as a render surface.
+ * 
+ * The width and height of this render surface can be set by setting the
+ * environment variables PROTOGEN_SDL_RENDER_SURFACE_WIDTH and
+ * PROTOGEN_SDL_RENDER_SURFACE_HEIGHT, respectively. Otherwise, the default
+ * width and height will be used.
+ */
 class SdlRenderSurface : public IRenderSurface {
 public:
-    static std::optional<std::unique_ptr<SdlRenderSurface>> make(const Resolution& resolution);
     ~SdlRenderSurface() override;
+    std::string id() const override;
+    std::string name() const override;
+    InitializationStatus initialize() override;
     void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
     Resolution resolution() const override;
 private:
@@ -41,7 +51,7 @@ private:
     public:
         ConstructorException(const char * what) : std::runtime_error(what) {}
     };
-    SdlRenderSurface(const Resolution& resolution);
+    SdlRenderSurface();
 
     struct WindowDestroyer {
         void operator()(SDL_Window * window) { SDL_DestroyWindow(window); }
@@ -53,6 +63,11 @@ private:
     Resolution m_resolution;
     std::unique_ptr<SDL_Window, WindowDestroyer> m_window;
     std::unique_ptr<SDL_Renderer, RendererDestroyer> m_renderer;
+
+    static constexpr const char * ENV_VAR_WIDTH = "PROTOGEN_SDL_RENDER_SURFACE_WIDTH";
+    static constexpr const char * ENV_VAR_HEIGHT = "PROTOGEN_SDL_RENDER_SURFACE_HEIGHT";
+    static const unsigned int DEFAULT_WIDTH = 128;
+    static const unsigned int DEFAULT_HEIGHT = 32;
 };
 
 }   // namespace
