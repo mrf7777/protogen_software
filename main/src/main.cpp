@@ -195,10 +195,10 @@ std::unique_ptr<IProportionProvider> getMouthProportionProvider(std::shared_ptr<
 std::unique_ptr<IRenderSurface> getRenderSurface() {
 	// Try Hub75 type led matrices.
 	printServiceLocationSubsection("HUB75 interface LED Matrices");
-	auto protogen_head_matrices = ProtogenHeadMatrices::make();
-	if(protogen_head_matrices.has_value()) {
+	auto protogen_head_matrices = std::unique_ptr<ProtogenHeadMatrices>(new ProtogenHeadMatrices());
+	if(protogen_head_matrices->initialize() == IRenderSurface::InitializationStatus::Success) {
 		std::cout << green("Video device found: Protogen Head Matrices.") << std::endl;
-		return std::move(protogen_head_matrices.value());
+		return protogen_head_matrices;
 	} else {
 		printNotFound();
 	}
@@ -209,7 +209,7 @@ std::unique_ptr<IRenderSurface> getRenderSurface() {
 	auto sdl_device = std::unique_ptr<IRenderSurface>(new SdlRenderSurface());
 	if(sdl_device->initialize() == IRenderSurface::InitializationStatus::Success) {
 		std::cout << green("Video device found: SDL") << std::endl;
-		return std::move(sdl_device);
+		return sdl_device;
 	} else {
 		printNotFound();
 	}

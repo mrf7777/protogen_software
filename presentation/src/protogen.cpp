@@ -1,51 +1,76 @@
 #include <protogen/presentation/protogen.h>
 
+#include <iostream>
+
 namespace protogen {
 
 ProtogenHeadMatrices::ProtogenHeadMatrices()
     : m_whichProtogenFrameBufferIsUsed(0)
 {
-    rgb_matrix::RGBMatrix::Options options;
-    options.rows = 32;
-    options.cols = 64;
-    options.chain_length = 2;
-    options.brightness = 100;
-    options.hardware_mapping = "adafruit-hat";
-    options.led_rgb_sequence = "RBG";
-
-    rgb_matrix::RuntimeOptions runtime_opts;
-    runtime_opts.drop_privileges = -1;
-
-    m_matrix = std::unique_ptr<rgb_matrix::RGBMatrix>(
-        rgb_matrix::RGBMatrix::CreateFromOptions(
-            options, runtime_opts
-        )
-    );
-    if(m_matrix.get() == nullptr) {
-        throw ConstructorException();
-    }
-
-    m_matrix->Clear();
-
-    m_protogenFrameBuffer0 = m_matrix->CreateFrameCanvas();
-    m_protogenFrameBuffer1 = m_matrix->CreateFrameCanvas();
 };
-
-std::optional<std::unique_ptr<ProtogenHeadMatrices>> ProtogenHeadMatrices::make()
-{
-    try {
-        return {std::unique_ptr<ProtogenHeadMatrices>(new ProtogenHeadMatrices())};
-    } catch(const ConstructorException&) {
-        return {};
-    }
-}
 
 ProtogenHeadMatrices::~ProtogenHeadMatrices()
 {
     m_matrix->Clear();
 }
 
-rgb_matrix::FrameCanvas * ProtogenHeadMatrices::getNextProtogenFrameBuffer() {
+std::string ProtogenHeadMatrices::id() const
+{
+    return "hub75_display";
+}
+
+std::string ProtogenHeadMatrices::name() const
+{
+    return "HUB75 Display";
+}
+
+IRenderSurface::InitializationStatus ProtogenHeadMatrices::initialize()
+{
+    // TODO: rename this class to HUB75Display or something similar
+    // TODO: parameterize these values and make them configurable
+    // TODO: learn what other options are available
+    try
+    {
+        rgb_matrix::RGBMatrix::Options options;
+        options.rows = 32;
+        options.cols = 64;
+        options.chain_length = 2;
+        options.brightness = 100;
+        options.hardware_mapping = "adafruit-hat";
+        options.led_rgb_sequence = "RBG";
+
+        rgb_matrix::RuntimeOptions runtime_opts;
+        runtime_opts.drop_privileges = -1;
+
+        m_matrix = std::unique_ptr<rgb_matrix::RGBMatrix>(
+            rgb_matrix::RGBMatrix::CreateFromOptions(
+                options, runtime_opts
+            )
+        );
+        if(m_matrix.get() == nullptr) {
+            throw ConstructorException();
+        }
+
+        m_matrix->Clear();
+
+        m_protogenFrameBuffer0 = m_matrix->CreateFrameCanvas();
+        m_protogenFrameBuffer1 = m_matrix->CreateFrameCanvas();
+        return InitializationStatus::Success;
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << "Error initializing render surface \"" << name() << "\". Error: " << e.what();
+        return InitializationStatus::Failure;
+    }
+    catch(...)
+    {
+        std::cerr << "Error initializing render surface \"" << name() << "\". Unknown error.";
+        return InitializationStatus::Failure;
+    }
+}
+
+rgb_matrix::FrameCanvas *ProtogenHeadMatrices::getNextProtogenFrameBuffer()
+{
     switch(m_whichProtogenFrameBufferIsUsed) {
     case 0:
         m_whichProtogenFrameBufferIsUsed = 1;

@@ -34,9 +34,12 @@ private:
 
 class ProtogenHeadMatrices final : public IRenderSurface {
 public:
-	static std::optional<std::unique_ptr<ProtogenHeadMatrices>> make();
+	ProtogenHeadMatrices();
 	~ProtogenHeadMatrices();
 
+	std::string id() const override;
+	std::string name() const override;
+	InitializationStatus initialize() override;
 	void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
 	Resolution resolution() const override;
 private:
@@ -44,7 +47,7 @@ private:
 	public:
 		ConstructorException() : std::exception() {}
 	};
-	ProtogenHeadMatrices();
+	
 	rgb_matrix::FrameCanvas * getNextProtogenFrameBuffer();
 
 	std::unique_ptr<rgb_matrix::RGBMatrix> m_matrix;
