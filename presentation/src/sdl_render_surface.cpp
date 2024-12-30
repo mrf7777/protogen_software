@@ -68,12 +68,12 @@ SdlRenderSurface::InitializationStatus SdlRenderSurface::initialize()
     }
     catch(const std::exception& e)
     {
-        std::cerr << "Error initializing render surface \"" << name() << "\". Error: " << e.what();
+        std::cerr << "Error initializing render surface \"" << name() << "\". Error: " << e.what() << std::endl;
         return InitializationStatus::Failure;
     }
     catch(...)
     {
-        std::cerr << "Error initializing render surface \"" << name() << "\". Unknown error.";
+        std::cerr << "Error initializing render surface \"" << name() << "\". Unknown error." << std::endl;
         return InitializationStatus::Failure;
     }
 }
