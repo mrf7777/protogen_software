@@ -43,9 +43,9 @@ public:
 	void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
 	Resolution resolution() const override;
 private:
-	class ConstructorException : public std::exception {
+	class ConstructorException : public std::runtime_error {
 	public:
-		ConstructorException() : std::exception() {}
+		ConstructorException(const char * what) : std::runtime_error(what) {}
 	};
 	
 	rgb_matrix::FrameCanvas * getNextProtogenFrameBuffer();

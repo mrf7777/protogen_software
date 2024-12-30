@@ -50,7 +50,7 @@ IRenderSurface::InitializationStatus ProtogenHeadMatrices::initialize()
             )
         );
         if(m_matrix.get() == nullptr) {
-            throw ConstructorException();
+            throw ConstructorException("Could not create RGBMatrix from provided options.");
         }
 
         m_matrix->Clear();
