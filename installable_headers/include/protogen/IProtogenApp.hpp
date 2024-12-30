@@ -92,6 +92,12 @@ public:
      * By default, you should be inactive.
      */
     virtual void setActive(bool active) = 0;
+    /**
+     * This is called with the resources directory. This is where
+     * your app's resources are located. You can use this to
+     * load your resources, or to save data for this app.
+     */
+    virtual void receiveResourcesDirectory(const std::string& resourcesDirectory) = 0;
 
     enum class HttpMethod {
         Get, Post, Put, Delete, Options, Patch,

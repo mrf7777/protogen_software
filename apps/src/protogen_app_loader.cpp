@@ -19,6 +19,8 @@ Apps ProtogenAppLoader::apps() const
             if(app.has_value()) {
                 app.value()->setMouthProportionProvider(m_mouthProportionProvider);
                 app.value()->supportedResolutions(m_deviceResolution);
+                const auto app_resources_directory = entry / std::filesystem::path("resources");
+                app.value()->receiveResourcesDirectory(app_resources_directory.generic_string());
                 const std::string app_id = app.value()->id();
                 apps.insert({app_id, std::move(app.value())});
             }
