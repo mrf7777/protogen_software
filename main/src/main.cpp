@@ -141,7 +141,7 @@ void printServiceLocationFooter() {
 }
 
 void printNotFound() {
-	std::cout << yellow("Not found.") << std::endl;
+	//std::cout << yellow("Not found.") << std::endl;
 }
 
 std::optional<std::filesystem::path> getResourcesDir() {
