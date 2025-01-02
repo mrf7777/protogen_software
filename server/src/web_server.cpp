@@ -1,5 +1,7 @@
 #include <protogen/server/web_server.h>
 
+#include <protogen/Endpoints.hpp>
+
 namespace protogen {
 
 void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const std::string& static_files_dir, const EmotionDrawer& emotion_drawer, const std::string& apps_dir) {
@@ -163,7 +165,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 }
 
 void setup_web_server_for_app(std::shared_ptr<httplib::Server> srv, std::shared_ptr<IProtogenApp> app, const std::string& apps_dir){
-	using HttpMethod = IProtogenApp::HttpMethod;
+	using HttpMethod = protogen::HttpMethod;
 
 	const std::string app_id = app->id();
 
@@ -194,7 +196,6 @@ void setup_web_server_for_app(std::shared_ptr<httplib::Server> srv, std::shared_
 
 	// Setup app static file hosting.
 	const std::string static_files_rel_dir = app->staticFilesDirectory();
-	// TODO: pass in base path for apps
 	const std::string static_files_absolute_dir = apps_dir + "/" + app_id + "/resources/" + static_files_rel_dir;
 	if(!static_files_rel_dir.empty()) {
 		const std::string static_files_mount_point = "/apps/" + app_id + app->staticFilesPath();

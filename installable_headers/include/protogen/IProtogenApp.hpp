@@ -8,6 +8,7 @@
 #include <protogen/ICanvas.hpp>
 #include <protogen/IProportionProvider.hpp>
 #include <protogen/Resolution.hpp>
+#include <protogen/Endpoints.hpp>
 
 #include <httplib.h>
 
@@ -99,38 +100,17 @@ public:
      */
     virtual void receiveResourcesDirectory(const std::string& resourcesDirectory) = 0;
 
-    enum class HttpMethod {
-        Get, Post, Put, Delete, Options, Patch,
-    };
     /**
-     * A relative path and http method to access some handler.
-     * Be aware that the `relativePath` is relative to the
+     * Returns all of the web endpoints for this app.
+     * 
+     * Be aware that the `relativePath` of each Endpoint is relative to the
      * base url: `/apps/{id}` where `{id}` refers to what your
      * `id` method returns.
      * 
      * For example, if your `id` method returns "test",
-     * `relativePath` is "hello", and method is `Get`, then
-     * this endpoint struct represents the url path "/apps/test/hello"
+     * `relativePath` of an Endpoint is "hello", and method is `Get`, then
+     * this one Endpoint struct represents the url path "/apps/test/hello"
      * which can be accessed through a http Get request.
-     */
-    struct Endpoint {
-        HttpMethod method;
-        std::string relativePath;
-        bool operator==(const Endpoint& other) const { 
-            return (method == other.method
-            && relativePath == other.relativePath);
-        }
-    };
-    /**
-     * A function to handle an endpoint being called.
-     */
-    using EndpointHandler = std::function<void(const httplib::Request&, httplib::Response&)>;
-    /**
-     * A mapping from endpoints to handlers.
-     */
-    using Endpoints = std::unordered_map<Endpoint, EndpointHandler>;
-    /**
-     * Returns the web endpoints for this app.
      */
     virtual Endpoints serverEndpoints() const = 0;
     /**
@@ -197,13 +177,17 @@ public:
      */
     virtual float framerate() const = 0;
     /**
+     * Receive the render surface's resolution.
+     * This is called before the `supportedResolutions` method, so
+     * feel free to store the device resolution and use it in the   
+     * `supportedResolutions` method if you need it.
+     */
+    virtual void receiveDeviceResolution(const Resolution& device_resolution) = 0;
+    /**
      * The display resolutions that your app supports.
      * These resolutions are compared to the resolutions of the current
      * display device. An algorithm is used to select the "best" resolution
-     * from the set that the app provides. The current display device resolution
-     * is provided to you in case your supported resolutions depend on the
-     * device resolution: Conway's Game of Life is an example that would
-     * benefit from taking the device screen.
+     * from the set that the app provides.
      * 
      * As a tip, the smaller your resolution, the more devices can display your
      * app.
@@ -223,14 +207,5 @@ using CreateAppFunction = IProtogenApp * (*)();
 using DestroyAppFunction = void (*)(IProtogenApp *);
 
 }   // namespace
-
-template<>
-struct std::hash<protogen::IProtogenApp::Endpoint> {
-    std::size_t operator()(const protogen::IProtogenApp::Endpoint& x) const noexcept {
-        const std::size_t path_hash = std::hash<std::string>()(x.relativePath);
-        const std::size_t method_hash = std::hash<int>()(static_cast<int>(x.method));
-        return path_hash ^ method_hash;
-    }
-};
 
 #endif
