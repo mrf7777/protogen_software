@@ -192,7 +192,7 @@ public:
      * As a tip, the smaller your resolution, the more devices can display your
      * app.
      */
-    virtual std::vector<Resolution> supportedResolutions(const Resolution& device_resolution) const = 0;
+    virtual std::vector<Resolution> supportedResolutions() const = 0;
 
     /**
      * This is called with the mouth proportion provider. If you want access to
