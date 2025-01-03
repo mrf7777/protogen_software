@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROTOGEN_SOURCES
     "${PROJECT_SOURCE_DIR}/src/protogen_app_loader.cpp"
+    "${PROJECT_SOURCE_DIR}/src/HomeDirLocationProvider.cpp"
 )
 add_library(${PROJECT_NAME} ${PROTOGEN_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/include")

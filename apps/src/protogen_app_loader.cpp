@@ -5,8 +5,12 @@
 namespace protogen
 {
 
-ProtogenAppLoader::ProtogenAppLoader(const std::string &apps_directory, std::shared_ptr<IProportionProvider> mouth_proportion_provider, const Resolution& device_resolution)
-    : m_appDirectory(apps_directory), m_mouthProportionProvider(mouth_proportion_provider), m_deviceResolution(device_resolution)
+ProtogenAppLoader::ProtogenAppLoader(
+    const std::string &apps_directory,
+    std::shared_ptr<IProportionProvider> mouth_proportion_provider,
+    const Resolution& device_resolution,
+    std::shared_ptr<IUserDataLocationProvider> user_data_location_provider)
+    : m_appDirectory(apps_directory), m_mouthProportionProvider(mouth_proportion_provider), m_deviceResolution(device_resolution), m_userDataLocationProvider(user_data_location_provider)
 {
 }
 
@@ -21,6 +25,12 @@ Apps ProtogenAppLoader::apps() const
                 app.value()->receiveDeviceResolution(m_deviceResolution);
                 const auto app_resources_directory = entry / std::filesystem::path("resources");
                 app.value()->receiveResourcesDirectory(app_resources_directory.generic_string());
+                const auto app_user_data_directory = m_userDataLocationProvider->getUserDataLocation(app.value()->id());
+                if(app_user_data_directory.has_value()) {
+                    app.value()->receiveUserDataDirectory(app_user_data_directory.value());
+                } else {
+                    std::cerr << "Could not determine user data directory for app: " << app.value()->id() << std::endl;
+                }
                 const std::string app_id = app.value()->id();
                 apps.insert({app_id, std::move(app.value())});
             }
@@ -58,8 +68,14 @@ std::optional<std::shared_ptr<IProtogenApp>> ProtogenAppLoader::loadAppFromDirec
             auto protogen_app_create = reinterpret_cast<CreateAppFunction>(protogen_app_create_raw);
             auto protogen_app_destroy = reinterpret_cast<DestroyAppFunction>(protogen_app_destroy_raw);
 
+            auto protogen_app_instance = protogen_app_create();
+            if(protogen_app_instance == nullptr) {
+                std::cerr << "Could not create instance of protogen app from library file due to its `create_app` function returning a null pointer: " << app_file.path() << std::endl;
+                dlclose(protogen_app_lib);
+                return {};
+            }
             auto protogen_app_deleter = ProtogenAppDeleter(protogen_app_destroy, protogen_app_lib);
-            auto protogen_app = std::shared_ptr<IProtogenApp>(protogen_app_create(), protogen_app_deleter);
+            auto protogen_app = std::shared_ptr<IProtogenApp>(protogen_app_instance, protogen_app_deleter);
             return protogen_app;
         }
     }

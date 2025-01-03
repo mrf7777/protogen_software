@@ -10,6 +10,7 @@
 
 #include <protogen/IProtogenApp.hpp>
 #include <protogen/Resolution.hpp>
+#include <protogen/apps/IUserDataLocationProvider.h>
 
 namespace protogen
 {
@@ -32,7 +33,11 @@ using Apps = std::map<std::string, std::shared_ptr<IProtogenApp>>;
 
 class ProtogenAppLoader {
 public:
-    explicit ProtogenAppLoader(const std::string& apps_directory, std::shared_ptr<IProportionProvider> mouth_proportion_provider, const Resolution& device_resolution);
+    explicit ProtogenAppLoader(
+        const std::string& apps_directory,
+        std::shared_ptr<IProportionProvider> mouth_proportion_provider,
+        const Resolution& device_resolution,
+        std::shared_ptr<IUserDataLocationProvider> user_data_location_provider);
     Apps apps() const;
 
 private:
@@ -41,6 +46,7 @@ private:
     std::filesystem::path m_appDirectory;
     std::shared_ptr<IProportionProvider> m_mouthProportionProvider;
     Resolution m_deviceResolution;
+    std::shared_ptr<IUserDataLocationProvider> m_userDataLocationProvider;
 };
 
 }   // namespace

@@ -97,8 +97,24 @@ public:
      * This is called with the resources directory. This is where
      * your app's resources are located. You can use this to
      * load your resources, or to save data for this app.
+     * These files are expected to be read-only. If you need
+     * read-write or write access to files, use the user data directory
+     * instead.
+     * 
+     * When your app is updated, this directory is expected to
+     * be cleared and replaced with the new resources.
      */
     virtual void receiveResourcesDirectory(const std::string& resourcesDirectory) = 0;
+    /**
+     * This is called with the user data directory. This is where
+     * your app can save user data. This directory is unique to
+     * the user and the app. If you need read-write or write access
+     * to files, this is the directory to use. If you need read-only
+     * access to files, use the resources directory instead.
+     * 
+     * When an app is updated, this directory is unchanged.
+     */
+    virtual void receiveUserDataDirectory(const std::string& userDataDirectory) = 0;
 
     /**
      * Returns all of the web endpoints for this app.
