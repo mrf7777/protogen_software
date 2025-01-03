@@ -38,20 +38,20 @@ std::optional<std::shared_ptr<IProtogenApp>> ProtogenAppLoader::loadAppFromDirec
             const std::string app_library_path = app_file.path().string();
             void * protogen_app_lib = dlopen(app_library_path.c_str(), RTLD_NOW);
             if(protogen_app_lib == NULL) {
-                std::cerr << "Could not load protogen app library file: " << app_file.path() << std::endl;
+                std::cerr << "Could not load protogen app library file: " << app_file.path() << ". Dynamic linker error: " << dlerror() << std::endl;
                 return {};
             }
 
             // Load app create and destroy functions.
             void * protogen_app_create_raw = dlsym(protogen_app_lib, "create_app");
             if(protogen_app_create_raw == NULL) {
-                std::cerr << "Could not load symbol 'create_app' from protogen app library file: " << app_file.path() << std::endl;
+                std::cerr << "Could not load symbol 'create_app' from protogen app library file: " << app_file.path() << ". Dynamic linker error: " << dlerror() << std::endl;
                 dlclose(protogen_app_lib);
                 return {};
             }
             void * protogen_app_destroy_raw = dlsym(protogen_app_lib, "destroy_app");
             if(protogen_app_destroy_raw == NULL) {
-                std::cerr << "Could not load symbol 'destroy_app' from protogen app library file: " << app_file.path() << std::endl;
+                std::cerr << "Could not load symbol 'destroy_app' from protogen app library file: " << app_file.path() << ". Dynamic linker error: " << dlerror() << std::endl;
                 dlclose(protogen_app_lib);
                 return {};
             }
