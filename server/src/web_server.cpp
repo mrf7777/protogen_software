@@ -73,7 +73,7 @@ void setup_web_server_for_protogen_head(std::shared_ptr<httplib::Server> srv, st
 
 void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& apps_dir) {
 	for(const auto& app : app_state->apps()) {
-		setup_web_server_for_app(srv, app.second, apps_dir);
+		setup_web_server_for_app(srv, app.second, app_state, apps_dir);
 	}
 
 	// App management endpoints
@@ -164,7 +164,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	});
 }
 
-void setup_web_server_for_app(std::shared_ptr<httplib::Server> srv, std::shared_ptr<IProtogenApp> app, const std::string& apps_dir){
+void setup_web_server_for_app(std::shared_ptr<httplib::Server> srv, std::shared_ptr<IProtogenApp> app, std::shared_ptr<AppState> app_state, const std::string& apps_dir){
 	using HttpMethod = protogen::HttpMethod;
 
 	const std::string app_id = app->id();
@@ -172,24 +172,33 @@ void setup_web_server_for_app(std::shared_ptr<httplib::Server> srv, std::shared_
 	// Setup app endpoints.
 	for(const auto& endpoint : app->serverEndpoints()) {
 		const std::string endpoint_full_path = "/apps/" + app_id + endpoint.first.relativePath;
+		// Only call web endpoints of an app if the app is active.
+		const auto wrapped_endpoint = [app, app_state, endpoint](const httplib::Request& req, httplib::Response& res){
+			if(app_state->getActiveApp() == app.get()) {
+				endpoint.second(req, res);
+			} else {
+				res.status = httplib::StatusCode::Forbidden_403;
+				res.set_content("Forbidden. App \"" + app->id() + "\" is not active ", "text/plain");
+			}
+		};
 		switch(endpoint.first.method) {
 		case HttpMethod::Get:
-			srv->Get(endpoint_full_path, endpoint.second);
+			srv->Get(endpoint_full_path, wrapped_endpoint);
 			break;
 		case HttpMethod::Post:
-			srv->Post(endpoint_full_path, endpoint.second);
+			srv->Post(endpoint_full_path, wrapped_endpoint);
 			break;
 		case HttpMethod::Put:
-			srv->Put(endpoint_full_path, endpoint.second);
+			srv->Put(endpoint_full_path, wrapped_endpoint);
 			break;
 		case HttpMethod::Delete:
-			srv->Delete(endpoint_full_path, endpoint.second);
+			srv->Delete(endpoint_full_path, wrapped_endpoint);
 			break;
 		case HttpMethod::Patch:
-			srv->Patch(endpoint_full_path, endpoint.second);
+			srv->Patch(endpoint_full_path, wrapped_endpoint);
 			break;
 		case HttpMethod::Options:
-			srv->Options(endpoint_full_path, endpoint.second);
+			srv->Options(endpoint_full_path, wrapped_endpoint);
 			break;
 		}
 	}
