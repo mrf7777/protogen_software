@@ -22,6 +22,11 @@ std::string SdlRenderSurface::name() const
     return "SDL Window";
 }
 
+std::string SdlRenderSurface::description() const
+{
+    return "Implements support for showing imagery with a window using SDL. This allows for development and testing the imagery without the need for dedicated protogen hardware and uses your monitor instead.";
+}
+
 SdlRenderSurface::InitializationStatus SdlRenderSurface::initialize()
 {
     try

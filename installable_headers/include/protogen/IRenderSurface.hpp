@@ -59,6 +59,10 @@ public:
      * The name of the render surface. This is displayed to the user or developer.
      */
     virtual std::string name() const = 0;
+    /**
+     * A description of the render surface. This is displayed to the user or developer.
+     */
+    virtual std::string description() const = 0;
 
     enum class InitializationStatus {
         Success,

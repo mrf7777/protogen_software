@@ -26,6 +26,11 @@ std::string ProtogenHeadMatrices::name() const
     return "HUB75 Display";
 }
 
+std::string ProtogenHeadMatrices::description() const
+{
+    return "Implements support for HUB75 LED matrices. Many RGB LED matrices use the HUB75 interface.";
+}
+
 IRenderSurface::InitializationStatus ProtogenHeadMatrices::initialize()
 {
     // TODO: rename this class to HUB75Display or something similar

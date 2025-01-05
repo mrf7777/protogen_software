@@ -39,6 +39,7 @@ public:
 
 	std::string id() const override;
 	std::string name() const override;
+	std::string description() const override;
 	InitializationStatus initialize() override;
 	void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
 	Resolution resolution() const override;
