@@ -9,6 +9,7 @@
 #include <protogen/IProportionProvider.hpp>
 #include <protogen/Resolution.hpp>
 #include <protogen/Endpoints.hpp>
+#include <protogen/IAttributeStore.hpp>
 
 #include <httplib.h>
 
@@ -51,7 +52,7 @@ namespace protogen {
  * These both can be implemented as simply as using C++ `new` and `delete` operators. After all,
  * your concrete class can have its own destructor to do cleanup anyway.
  */
-class IProtogenApp {
+class IProtogenApp : public IAttributeStore {
 public:
     virtual ~IProtogenApp() {}
 
