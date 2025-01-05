@@ -7,6 +7,8 @@
 #include <variant>
 #include <vector>
 
+#include <protogen/IAttributeStore.hpp>
+
 // Added extra `sensor` namespace because there are a lot of types and symbols here.
 namespace protogen::sensor {
 
@@ -51,7 +53,7 @@ using ChannelValue = std::variant<
  * By using standard channels, you can ensure that your sensor is compatible
  * with a wide variety of apps.
  */
-class ISensor {
+class ISensor : public IAttributeStore {
 public:
     enum class Initialization {
         Success,
