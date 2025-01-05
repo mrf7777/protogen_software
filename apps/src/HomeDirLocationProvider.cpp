@@ -1,4 +1,4 @@
-#include <protogen/apps/HomeDirLocationProvider.h>
+#include <protogen/apps/HomeDirLocator.h>
 
 #include <cstdlib>
 #include <unistd.h>
@@ -6,7 +6,7 @@
 
 namespace protogen {
 
-std::optional<std::string> HomeDirLocationProvider::getUserDataLocation(const std::string& app_id) const {
+std::optional<std::string> HomeDirLocator::getUserDataLocation(const std::string& app_id) const {
     // Attempt `HOME` environment variable.
     if(const char * home_path = std::getenv("HOME")) {
         return std::string(home_path) + "/.protogen/" + app_id + "/userdata";

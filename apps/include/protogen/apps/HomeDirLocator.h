@@ -1,7 +1,7 @@
 #ifndef HOMEDIRLOCATIONPROVIDER_H
 #define HOMEDIRLOCATIONPROVIDER_H
 
-#include <protogen/apps/IUserDataLocationProvider.h>
+#include <protogen/apps/IUserDataLocator.h>
 
 #include <string>
 #include <optional>
@@ -9,7 +9,7 @@
 namespace protogen {
 
 /**
- * An implementation of IUserDataLocationProvider which provides
+ * An implementation of IUserDataLocator which provides
  * the user data location for each app as a subdirectory
  * in the user's home directory.
  * 
@@ -19,9 +19,9 @@ namespace protogen {
  * using `sudo` command, it will still use the home directory of the
  * user who ran the `sudo` command.
  */
-class HomeDirLocationProvider : public IUserDataLocationProvider {
+class HomeDirLocator : public IUserDataLocator {
 public:
-    HomeDirLocationProvider() = default;
+    HomeDirLocator() = default;
     std::optional<std::string> getUserDataLocation(const std::string& app_id) const override;
 };
 

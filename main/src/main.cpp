@@ -32,7 +32,7 @@
 #include <protogen/presentation/sdl_render_surface.h>
 #include <protogen/server/web_server.h>
 #include <protogen/apps/protogen_app_loader.h>
-#include <protogen/apps/HomeDirLocationProvider.h>
+#include <protogen/apps/HomeDirLocator.h>
 #include <cmake_config.h>
 
 using namespace protogen;
@@ -234,7 +234,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	printServiceLocationFooter();
 
 	printServiceLocationHeader("Apps");
-	auto app_user_data_directory_locator = std::shared_ptr<IUserDataLocationProvider>(new HomeDirLocationProvider());
+	auto app_user_data_directory_locator = std::shared_ptr<IUserDataLocator>(new HomeDirLocator());
 	ProtogenAppLoader app_loader(PROTOGEN_APPS_DIR, mouth_openness_provider, data_viewer->resolution(), app_user_data_directory_locator);
 	auto apps = app_loader.apps();
 	for(const auto& [app_id, app] : apps) {

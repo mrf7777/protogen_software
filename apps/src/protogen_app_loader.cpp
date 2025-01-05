@@ -9,7 +9,7 @@ ProtogenAppLoader::ProtogenAppLoader(
     const std::string &apps_directory,
     std::shared_ptr<IProportionProvider> mouth_proportion_provider,
     const Resolution& device_resolution,
-    std::shared_ptr<IUserDataLocationProvider> user_data_location_provider)
+    std::shared_ptr<IUserDataLocator> user_data_location_provider)
     : m_appDirectory(apps_directory), m_mouthProportionProvider(mouth_proportion_provider), m_deviceResolution(device_resolution), m_userDataLocationProvider(user_data_location_provider)
 {
 }

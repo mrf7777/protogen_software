@@ -10,9 +10,9 @@ namespace protogen {
  * An interface which provides the location of the user data
  * for a given app.
  */
-class IUserDataLocationProvider {
+class IUserDataLocator {
 public:
-    virtual ~IUserDataLocationProvider() = default;
+    virtual ~IUserDataLocator() = default;
 
     // Returns the location of the user data for an app as a string.
     // If the location cannot be determined, an empty optional is returned.
