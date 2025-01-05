@@ -52,3 +52,6 @@ https://pcbartists.com/product-documentation/accurate-raspberry-pi-decibel-meter
   - If connected to internet and have gps-like module, each protogen can publish their lat/lon continuously. 
   - If protogen has some kind of NFC or bluetooth-like connectivity, maybe that could work.
 - Voice-modification with mic and speaker.
+
+## Refactor ideas
+- Allow apps, sensors, and render surface's to have their own web server with their own port. The port is then forwarded to the core software and an nginx config file is updated to proxy URLs to the correct server without the designated prefix. This makes HTTP the interface between the extensions and the core software eliminating the need for shared C++ interfaces.
