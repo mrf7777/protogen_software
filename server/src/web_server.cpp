@@ -8,6 +8,11 @@ void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppS
 	srv->set_logger([=](const auto&, auto&){
 	});
 
+	srv->set_error_handler([=](const auto& req, auto& res){
+		std::cerr << "Error while handling request: " << req.method << " " << req.path << std::endl;
+		res.set_content("Error handling request", "text/plain");
+	});
+
 	srv->set_exception_handler([=](const auto& req, auto& res, const std::exception_ptr e){
 		try {
 			std::rethrow_exception(e);
