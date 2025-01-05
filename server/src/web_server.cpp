@@ -8,6 +8,19 @@ void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppS
 	srv->set_logger([=](const auto&, auto&){
 	});
 
+	srv->set_exception_handler([=](const auto& req, auto& res, const std::exception_ptr e){
+		try {
+			std::rethrow_exception(e);
+		} catch(const std::exception& e) {
+			std::cerr << "Exception thrown while handling request: " << req.method << " " << req.path << std::endl;
+			std::cerr << "Exception: " << e.what() << std::endl;
+		} catch(...) {
+			std::cerr << "Unknown exception thrown while handling request: " << req.method << " " << req.path << std::endl;
+		}
+		res.status = httplib::StatusCode::InternalServerError_500;
+		res.set_content("Internal Server Error", "text/plain");
+	});
+
 	auto ret = srv->set_mount_point("/static", static_files_dir);
 	if(!ret) {
 		std::cerr << "Could not mount static directory to web server." << std::endl;
