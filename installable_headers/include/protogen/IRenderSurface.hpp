@@ -6,6 +6,7 @@
 
 #include <protogen/Resolution.hpp>
 #include <protogen/ICanvas.hpp>
+#include <protogen/IAttributeStore.hpp>
 
 namespace protogen {
 
