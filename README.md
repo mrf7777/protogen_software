@@ -55,3 +55,24 @@ https://pcbartists.com/product-documentation/accurate-raspberry-pi-decibel-meter
 
 ## Refactor ideas
 - Allow apps, sensors, and render surface's to have their own web server with their own port. The port is then forwarded to the core software and an nginx config file is updated to proxy URLs to the correct server without the designated prefix. This makes HTTP the interface between the extensions and the core software eliminating the need for shared C++ interfaces.
+- If using Nginx and two servers serving different files and want to wrap them using url prefixes, this works for `nginx.conf` in the `/etc` dir. This strips the prefix and then feeds the striped url to the configured server.
+```
+events {
+        worker_connections 1024;
+}
+
+http {
+        server {
+                listen 0.0.0.0:1234;
+                location /abc/ {
+                        proxy_pass http://0.0.0.0:8000/;
+                }
+                location /123/ {
+                        proxy_pass http://0.0.0.0:8001/;
+                }
+        }
+}```
+- How do we run nginx and reload it if its already running in C++?
+  - How about simply attempting to manage nginx, and if there are permission issues, report to user and exit.
+- Do we need to abstract away nginx and just think in terms of "reverse proxy server"?
+  - Would not hurt.
