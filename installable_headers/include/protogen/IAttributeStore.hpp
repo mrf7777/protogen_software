@@ -5,20 +5,18 @@
 #include <vector>
 #include <optional>
 
-namespace protogen {
+// Added extra `attributes` namespace because there are a lot of types and symbols here.
+namespace protogen::attributes {
 
 /**
  * An interface which represents an object that can have attributes.
  * 
  * Attributes are useful for storing metadata, configuration, and other
- * information that is not part of the core functionality of the object.
+ * information about the implementing object. Attributes can be used to
+ * extend the capabilities of a class without changing its C++ API.
  * 
- * Attributes are key-value pairs that can be set, read, and removed.
  * Each attribute has an access level which determines if it can be read,
  * written, or both.
- * 
- * By default, all methods have default implementations that do nothing.
- * You must override these methods to provide attribute functionality.
  */
 class IAttributeStore {
 public:
@@ -30,30 +28,67 @@ public:
         ReadWrite,
     };
 
+    enum class SetAttributeResult {
+        Created,
+        Updated,
+        UnsetBecauseNotWritable,
+        UnsetBecauseImplementation
+    };
+
+    enum class RemoveAttributeResult {
+        Removed,
+        DoesNotExist,
+        KeptBecauseNotWritable,
+        KeptBecauseImplementation,
+    };
+
     /**
-     * Set an attribute with a key and value. If the attribute already exists and it writable, it will be overwritten.
-     * Returns true if the attribute was set, false if could not be set.
+     * Set an attribute with a key and value.
      * 
-     * If a new attribute is created, its access level is determined by the implementation, but it is reasonable to implement it to assign Access of ReadWrite.
+     * If the attribute already exists and is writable, it is updated and
+     * Updated is returned.
+     * 
+     * If the attribute does not exist, it is created and Created is returned.
+     * The Access of the created attribute is up to the implementation but a
+     * sensible default is ReadWrite.
+     * 
+     * If the attribute exists but is not writable, it is not updated and
+     * NotWritable is returned.
      */
-    virtual bool setAttribute(const std::string& key, const std::string& value) { (void)key; (void)value; return false; };
+    virtual SetAttributeResult setAttribute(const std::string& key, const std::string& value) = 0;
     /**
-     * Get an attribute value by key. If the attribute does not exist, an empty optional is returned.
+     * Get an attribute value by key. If the attribute does not exist or is not
+     * readable, an empty optional is returned.
      */
-    virtual std::optional<std::string> getAttribute(const std::string& key) const { (void)key; return {}; };
+    virtual std::optional<std::string> getAttribute(const std::string& key) const = 0;
     /**
-     * Get all attribute keys. If there are no attributes, an empty vector is returned.
+     * Get all attribute keys.
      */
-    virtual std::vector<std::string> getAttributeKeys() const { return {}; };
+    virtual std::vector<std::string> listAttributes() const = 0;
     /**
-     * Get the access of an attribute by key. If the attribute does not exist, an empty optional is returned.
+     * Get the Access of an attribute by key. If the attribute does not exist,
+     * an empty optional is returned.
      */
-    virtual std::optional<Access> getAttributeAccess(const std::string& key) const { (void)key; return {}; };
+    virtual std::optional<Access> getAttributeAccess(const std::string& key) const = 0;
     /**
-     * Remove an attribute by key. Returns true if the attribute was removed, false if it could not be removed or does not exist.
-     * If the attribute is not writable, it cannot be removed. If its writable, it is up to the implementation to decide if it can be removed.
+     * Remove an attribute by key.
+     * 
+     * If the key exists and was removed, Removed is returned.
+     * 
+     * If the key does not exist, DoesNotExist is returned.
+     * 
+     * If the key exists, but is not writable, KeptBecauseNotWritable is
+     * returned.
+     * 
+     * If the key exists, is writable, but is not removed,
+     * KeptBecauseImplementation is returned;
      */
-    virtual bool removeAttribute(const std::string& key) { (void)key; return false; };
+    virtual RemoveAttributeResult removeAttribute(const std::string& key) = 0;
+    /**
+     * Returns the default access of attributes that are created with
+     * `setAttribute`.
+     */
+    virtual Access getDefaultAccess() const { return Access::ReadWrite; };
 
     // Helpers
 
@@ -61,52 +96,52 @@ public:
      * Check if an attribute exists by key.
      */
     virtual bool hasAttribute(const std::string& key) const {
-        for(const auto& k : getAttributeKeys()) {
+        for(const auto& k : listAttributes()) {
             if(k == key) {
                 return true;
             }
         }
         return false;
     };
-    /**
-     * Check if an attribute is readable by key.
-     */
-    virtual bool canReadAttribute(const std::string& key) const {
-        const auto access = getAttributeAccess(key);
-        return access.has_value() && (access.value() == Access::Read || access.value() == Access::ReadWrite);
-    };
-    /**
-     * Check if an attribute is writable by key.
-     */
-    virtual bool canWriteAttribute(const std::string& key) const {
-        const auto access = getAttributeAccess(key);
-        return access.has_value() && (access.value() == Access::Write || access.value() == Access::ReadWrite);
-    };
-    /**
-     * Get all readable attribute keys.
-     */
-    virtual std::vector<std::string> getReadableAttributeKeys() const {
-        std::vector<std::string> keys;
-        for(const auto& key : getAttributeKeys()) {
-            if(canReadAttribute(key)) {
-                keys.push_back(key);
-            }
-        }
-        return keys;
-    };
-    /**
-     * Get all writable attribute keys.
-     */
-    virtual std::vector<std::string> getWritableAttributeKeys() const {
-        std::vector<std::string> keys;
-        for(const auto& key : getAttributeKeys()) {
-            if(canWriteAttribute(key)) {
-                keys.push_back(key);
-            }
-        }
-        return keys;
-    };
 };
+
+/**
+ * Pre-defined standard attribute keys.
+ * 
+ * Each pre-defined attribute key has a special use. The use of the word
+ * "object" in the following documentation refers to the entity that is
+ * associated with the attribute. One such entity is an app.
+ */
+
+// ID of the object.
+[[maybe_unused]] static const char * ATTRIBUTE_ID = "id";
+// Name of the object.
+[[maybe_unused]] static const char * ATTRIBUTE_NAME = "name";
+// Description of the object.
+[[maybe_unused]] static const char * ATTRIBUTE_DESCRIPTION = "description";
+// A relative URL path to the thumbnail of the object. This is only the path
+// component and not the full URL. For example, if this attribute has value
+// "thumbnail.png" and the object id is "test", then a full url to this
+// thumbnail from the perspective of this device would be
+// http://0.0.0.0/apps/test/thumbnail.png if your object were an app.
+[[maybe_unused]] static const char * ATTRIBUTE_THUMBNAIL = "thumbnail";
+// A relative URL path to the main page of the app. See comment on
+// ATTRIBUTE_THUMBNAIL for details of how this relative URL is used.
+// This is where the user is redirected when an app is launched. This can also
+// be used to locate a control web interface is which controls some device like
+// a sensor or display.
+[[maybe_unused]] static const char * ATTRIBUTE_MAIN_PAGE = "main_page";
+// A URL to the home page of the app. This is where a user can learn more about
+// your object in their free time.
+[[maybe_unused]] static const char * ATTRIBUTE_HOME_PAGE = "home_page";
+// A URL which locates where to provide funding for the object.
+[[maybe_unused]] static const char * ATTRIBUTE_FUNDING = "funding";
+// Version of the object. This should follow Semantic Versioning.
+// See https://semver.org/.
+[[maybe_unused]] static const char * ATTRIBUTE_VERSION = "version";
+// Testing phase of the object. It can be one of many values: "alpha", "beta",
+// "release_candidate", or "stable".
+[[maybe_unused]] static const char * ATTRIBUTE_TESTING_PHASE = "testing_phase";
 
 } // namespace
 
