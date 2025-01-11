@@ -8,7 +8,6 @@
 #include <protogen/ICanvas.hpp>
 #include <protogen/IProportionProvider.hpp>
 #include <protogen/Resolution.hpp>
-#include <protogen/Endpoints.hpp>
 #include <protogen/IAttributeStore.hpp>
 
 #include <httplib.h>
@@ -52,26 +51,9 @@ namespace protogen {
  * These both can be implemented as simply as using C++ `new` and `delete` operators. After all,
  * your concrete class can have its own destructor to do cleanup anyway.
  */
-class IProtogenApp : public IAttributeStore {
+class IProtogenApp {
 public:
     virtual ~IProtogenApp() {}
-
-    /**
-     * The human-friendly name of your app.
-     * This is displayed to the user.
-     */
-    virtual std::string name() const = 0;
-    /**
-     * The name of your app as used for technical details
-     * such as directory names, url path segments, internal app name,
-     * etc. Only use lowercase alphanumeric characters.
-     */
-    virtual std::string id() const = 0;
-    /**
-     * A human-readable description of your app.
-     * Keep it short and simple. A sentence or two will be fine.
-     */
-    virtual std::string description() const = 0;
 
     /**
      * If you need something before you are set to active, this is the
@@ -83,6 +65,11 @@ public:
         (void)errorMessage;
         return true;
     };
+    /**
+     * Initialize your app. This will be called after all methods that start
+     * with "receive" are called.
+     */
+    virtual void initialize() = 0;
     /**
      * When called with true, this app should be ready to go.
      * This is the time to start or resume any background threads or
@@ -118,59 +105,24 @@ public:
     virtual void receiveUserDataDirectory(const std::string& userDataDirectory) = 0;
 
     /**
-     * Returns all of the web endpoints for this app.
+     * What port your app's web server runs on. If the app does not have a web
+     * interface, return -1.
      * 
-     * Be aware that the `relativePath` of each Endpoint is relative to the
-     * base url: `/apps/{id}` where `{id}` refers to what your
-     * `id` method returns.
+     * The core software uses a proxy server to forward calls to your web
+     * server. Do not prefix your URL paths with any namespacing related to your
+     * app because this handled for you. For example, If your `id` method
+     * returns "testapp" and your `webPort` method returns 12345, assuming the
+     * core software is running on port 80 on host 0.0.0.0, the following
+     * request is mapped as follows:
+     * GET http://0.0.0.0/apps/testapp/path -> GET http://0.0.0.0:12345/path
      * 
-     * For example, if your `id` method returns "test",
-     * `relativePath` of an Endpoint is "hello", and method is `Get`, then
-     * this one Endpoint struct represents the url path "/apps/test/hello"
-     * which can be accessed through a http Get request.
+     * Why is it this way? Because HTTP is an interface and lets you decide on
+     * how to implement the web server without the core software imposing a C++
+     * web interface on you. I recommend cpp-httplib which is found here:
+     * https://github.com/yhirose/cpp-httplib.
      */
-    virtual Endpoints serverEndpoints() const = 0;
-    /**
-     * Relative URL path to the home page of your app.
-     * This is what the user will see when they click on your app through
-     * the web interface. URL path is relative to "/apps/{id}"
-     */
-    virtual std::string homePage() const = 0;
-    /**
-     * Relative URL path to the thumbnail image of your app.
-     * This is an image that the user will see as associated with your app.
-     * URL path is relative to "/apps/{id}".
-     * If returns empty string, a default image will be used.
-     */
-    virtual std::string thumbnail() const = 0;
-    /**
-     * Can return empty string if you do not want to host static files.
-     * 
-     * Returns a relative directory path to your static files that you
-     * want the webserver to host. Example: returning "/static_files"
-     * will make the webserver host files located at directory
-     * "resources/static_files". The "resources" directory is owned by your app,
-     * please reference the app directory structure.
-     * 
-     * Use `staticFilesPath` to specify how access your static files through
-     * a URL.
-     */
-    virtual std::string staticFilesDirectory() const {
-        return std::string("");
-    };
-    /**
-     * How to reach the static files through a URL. Example: if this returns
-     * "static", you can access your app's static files at URL path: "/apps/{id}/static"
-     * where {id} is your app's id.
-     * 
-     * Assume that there is a file named "image.png" located at "resources/static_files/image.png".
-     * If this method returns "static" and `staticFilesDirectory` return "static_files", the image
-     * file can be access through the URL path: "/apps/{id}/static/image.png".
-     * 
-     * Ignored if `staticFilesDirectory` returns empty string.
-     */
-    virtual std::string staticFilesPath() const {
-        return std::string("");
+    virtual int webPort() const {
+        return -1;
     };
 
     /**
@@ -218,6 +170,19 @@ public:
     virtual void setMouthProportionProvider(std::shared_ptr<IProportionProvider> provider) {
         (void)provider;
     };
+
+    /**
+     * Return attribute store for this app.
+     */
+    virtual std::shared_ptr<attributes::IAttributeStore> getAttributeStore() = 0;
+
+    // Attribute helpers.
+    std::string id() { return getAttributeStore()->getAttribute(attributes::ATTRIBUTE_ID).value_or(""); }
+    std::string name() { return getAttributeStore()->getAttribute(attributes::ATTRIBUTE_NAME).value_or(""); }
+    std::string description() { return getAttributeStore()->getAttribute(attributes::ATTRIBUTE_DESCRIPTION).value_or(""); }
+    std::string thumbnail() { return getAttributeStore()->getAttribute(attributes::ATTRIBUTE_THUMBNAIL).value_or(""); }
+    std::string mainPage() { return getAttributeStore()->getAttribute(attributes::ATTRIBUTE_MAIN_PAGE).value_or(""); }
+    std::string homePage() { return getAttributeStore()->getAttribute(attributes::ATTRIBUTE_HOME_PAGE).value_or(""); }
 };
 
 using CreateAppFunction = IProtogenApp * (*)();

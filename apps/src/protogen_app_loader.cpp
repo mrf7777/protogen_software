@@ -31,6 +31,7 @@ Apps ProtogenAppLoader::apps() const
                 } else {
                     std::cerr << "Could not determine user data directory for app: " << app.value()->id() << std::endl;
                 }
+                app.value()->initialize();
                 const std::string app_id = app.value()->id();
                 apps.insert({app_id, std::move(app.value())});
             }

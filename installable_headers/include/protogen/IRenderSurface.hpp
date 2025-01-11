@@ -6,7 +6,6 @@
 
 #include <protogen/Resolution.hpp>
 #include <protogen/ICanvas.hpp>
-#include <protogen/IAttributeStore.hpp>
 
 namespace protogen {
 
@@ -47,7 +46,7 @@ namespace protogen {
  * directory <install location>/shared/protogen/displays. If the core
  * software finds a render surface that it can use, it will use it.
  */
-class IRenderSurface : public IAttributeStore {
+class IRenderSurface {
 public:
     virtual ~IRenderSurface() = default;
 

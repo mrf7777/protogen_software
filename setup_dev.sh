@@ -1,5 +1,4 @@
 sudo apt update
-sudo apt upgrade
 
 # required for some utilites in the rpi rgb led matrix library
 sudo apt-get install libgraphicsmagick++-dev libwebp-dev -y
@@ -7,6 +6,9 @@ sudo apt-get install libgraphicsmagick++-dev libwebp-dev -y
 # SDL for window-in-desktop visualization and control when
 # real protogen hardware is not avaliable.
 sudo apt-get install libsdl2-dev -y
+
+# nginx as a reverse proxy web server
+sudo apt-get install nginx -y
 
 # compile tools
 sudo apt-get install cmake -y
