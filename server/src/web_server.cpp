@@ -4,8 +4,6 @@
 #include <sstream>
 #include <cstdlib>
 
-#include <protogen/Endpoints.hpp>
-
 namespace protogen {
 
 void setup_web_server(std::shared_ptr<httplib::Server> srv, std::shared_ptr<AppState> app_state, const std::string& html_files_dir, const std::string& static_files_dir, const EmotionDrawer& emotion_drawer) {
