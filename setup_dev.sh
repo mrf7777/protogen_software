@@ -31,6 +31,7 @@ fi
 # Usually, a developer would do this manually because it requires some human input.
 if [ "$1" = "ci" ]; then
 	cd "$HOME"
+	read -p "Press enter to continue."
 	curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/main/rgb-matrix.sh >rgb-matrix.sh
 	bash rgb-matrix.sh <<< "y
 1
