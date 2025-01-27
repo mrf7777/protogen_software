@@ -30,9 +30,14 @@ fi
 # If running in a CI/CD environment, just go ahead and get the rpi-rgb-led-matrix library source.
 # Usually, a developer would do this manually because it requires some human input.
 if [ "$1" = "ci" ]; then
-	cd ~
+	cd "$HOME"
 	curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/main/rgb-matrix.sh >rgb-matrix.sh
-	bash rgb-matrix.sh
+	bash rgb-matrix.sh <<< "y
+1
+2
+y
+n
+"
 	rm rgb-matrix.sh
 fi
 
