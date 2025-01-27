@@ -47,7 +47,7 @@ jobs:
       # https://github.com/hzeller/rpi-rgb-led-matrix/blob/master/.github/workflows/c-cpp.yml
       # https://github.com/hzeller/rpi-rgb-led-matrix/issues/1671
       run: |
-        sudo apt-get install cython3-legacy cython3 -y
+        sudo apt-get install cython3 python3-dev -y
         sudo bash setup_dev.sh ci
 
     - name: Configure CMake
