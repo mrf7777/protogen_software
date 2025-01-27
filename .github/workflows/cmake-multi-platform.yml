@@ -46,7 +46,7 @@ jobs:
       # Install some extra cython, these links explain why:
       # https://github.com/hzeller/rpi-rgb-led-matrix/blob/master/.github/workflows/c-cpp.yml
       # https://github.com/hzeller/rpi-rgb-led-matrix/issues/1671
-      run: >
+      run: |
         sudo apt-get install cython3-legacy cython3 -y
         sudo bash setup_dev.sh ci
 
