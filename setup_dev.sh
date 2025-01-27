@@ -11,7 +11,7 @@ apt-get install libsdl2-dev -y
 apt-get install nginx -y
 
 # compile tools
-apt-get install cmake -y
+apt-get install cmake curl -y
 
 # disable the sound module if not disabled already
 blacklist_file=/etc/modprobe.d/alsa-blacklist.conf
@@ -25,5 +25,15 @@ else
 	echo "blacklist snd_bcm2835" | tee -a $blacklist_file
 fi
 
+# If running in a CI/CD environment, just go ahead and get the rpi-rgb-led-matrix library source.
+# Usually, a developer would do this manually because it requires some human input.
+if [ "$1" == "ci" ]; then
+	cd ~
+	curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/main/rgb-matrix.sh >rgb-matrix.sh
+	bash rgb-matrix.sh
+	rm rgb-matrix.sh
+fi
+
+# build matrix library if not already built
 cd ~/rpi-rgb-led-matrix
 make
