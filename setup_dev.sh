@@ -34,15 +34,27 @@ if [ "$1" = "ci" ]; then
 	pwd
 	read -p "Press enter to continue."
 	curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/main/rgb-matrix.sh >rgb-matrix.sh
+	pwd
+	read -p "Press enter to continue."
 	bash rgb-matrix.sh <<< "y
 1
 2
 y
 n
 "
+	pwd
+	read -p "Press enter to continue."
 	rm rgb-matrix.sh
+	pwd
+	read -p "Press enter to continue."
 fi
 
 # build matrix library if not already built
+pwd
+read -p "Press enter to continue."
 cd ~/rpi-rgb-led-matrix
+pwd
+read -p "Press enter to continue."
 make
+pwd
+read -p "Press enter to continue."
