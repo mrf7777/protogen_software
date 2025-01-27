@@ -1,4 +1,6 @@
 # Protogen Software
+![Protogen demo animation.](/assets/protogen_demo_short.gif)
+
 This is the repository for a protogen software application.
 
 ## How to build and run
