@@ -43,8 +43,12 @@ jobs:
 
     - name: Setup Dependencies and Environment
       # Run setup script with "ci" argument to indicate setup for CI/CD environment.
+      # Install some extra cython, these links explain why:
+      # https://github.com/hzeller/rpi-rgb-led-matrix/blob/master/.github/workflows/c-cpp.yml
+      # https://github.com/hzeller/rpi-rgb-led-matrix/issues/1671
       run: >
         sudo bash setup_dev.sh ci
+        sudo apt-get install cython3-legacy cython3 -y
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
