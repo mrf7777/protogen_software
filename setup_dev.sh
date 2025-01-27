@@ -13,7 +13,7 @@ apt-get install libsdl2-dev -y
 apt-get install nginx -y
 
 # compile tools
-apt-get install cmake curl -y
+apt-get install cmake curl unzip -y
 
 # disable the sound module if not disabled already
 blacklist_file=/etc/modprobe.d/alsa-blacklist.conf
