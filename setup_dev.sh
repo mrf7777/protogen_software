@@ -27,34 +27,23 @@ else
 	echo "blacklist snd_bcm2835" | tee -a $blacklist_file
 fi
 
+# Ensure `python` points to python3 for building the rpi-rgb-led-matrix library
+alias python=python3
+
 # If running in a CI/CD environment, just go ahead and get the rpi-rgb-led-matrix library source.
 # Usually, a developer would do this manually because it requires some human input.
 if [ "$1" = "ci" ]; then
 	cd "$HOME"
-	pwd
-	read -p "Press enter to continue."
 	curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/main/rgb-matrix.sh >rgb-matrix.sh
-	pwd
-	read -p "Press enter to continue."
 	bash rgb-matrix.sh <<< "y
 1
 2
 y
 n
 "
-	pwd
-	read -p "Press enter to continue."
 	rm rgb-matrix.sh
-	pwd
-	read -p "Press enter to continue."
 fi
 
 # build matrix library if not already built
-pwd
-read -p "Press enter to continue."
 cd ~/rpi-rgb-led-matrix
-pwd
-read -p "Press enter to continue."
 make
-pwd
-read -p "Press enter to continue."
