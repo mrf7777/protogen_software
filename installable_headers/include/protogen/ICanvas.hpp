@@ -128,61 +128,6 @@ public:
             }
         }
     };
-    /**
-     * Draws an ellipse with the provided color.
-     *
-     * @param x The x-coordinate of the top-left corner of the bounding box of the ellipse.
-     * @param y The y-coordinate of the top-left corner of the bounding box of the ellipse.
-     * @param width The width of the ellipse.
-     * @param height The height of the ellipse.
-     * @param red The red component of the color (0-255).
-     * @param green The green component of the color (0-255).
-     * @param blue The blue component of the color (0-255).
-     *
-     * The (x, y) coordinates specify the top-left corner of the bounding box that contains the ellipse.
-     * The center of the ellipse is calculated as (x + width / 2, y + height / 2).
-     */
-    virtual void drawEllipse(int x, int y, int width, int height, uint8_t red, uint8_t green, uint8_t blue) {
-        // This implementation uses the midpoint ellipse algorithm to draw the ellipse.
-        int a = width / 2;
-        int b = height / 2;
-        int a2 = a * a;
-        int b2 = b * b;
-        int fa2 = 4 * a2;
-        int fb2 = 4 * b2;
-        int x0 = x + a;
-        int y0 = y + b;
-        int x1 = x;
-        int y1 = y + b;
-        int sigma = 2 * b2 + a2 * (1 - 2 * b);
-        for (int i = 0; b2 * x1 <= a2 * y1; ++i) {
-            setPixel(x0 + x1, y0 - y1, red, green, blue);
-            setPixel(x0 - x1, y0 - y1, red, green, blue);
-            setPixel(x0 - x1, y0 + y1, red, green, blue);
-            setPixel(x0 + x1, y0 + y1, red, green, blue);
-            if (sigma >= 0) {
-                sigma += fa2 * (1 - y1);
-                --y1;
-            }
-            sigma += b2 * ((4 * x1) + 6);
-            ++x1;
-        }
-        x1 = 0;
-        y1 = b;
-        sigma = 2 * a2 + b2 * (1 - 2 * a);
-        for (int i = 0; a2 * y1 <= b2 * x1; ++i) {
-            setPixel(x0 + x1, y0 - y1, red, green, blue);
-            setPixel(x0 - x1, y0 - y1, red, green, blue);
-            setPixel(x0 - x1, y0 + y1, red, green, blue);
-            setPixel(x0 + x1, y0 + y1, red, green, blue);
-            if (sigma >= 0) {
-                sigma += fb2 * (1 - x1);
-                --x1;
-            }
-            sigma += a2 * ((4 * y1) + 6);
-            ++y1;
-        }
-    };
 
     /**
      * Draws an ellipse with the provided color.
