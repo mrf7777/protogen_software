@@ -78,8 +78,8 @@ public:
      */
     virtual InitializationStatus initialize() = 0;
     /**
-     * Draw a frame to the render surface. You are passed a `drawer`
-     * function which defines "what" is to be drawn. Your job as the
+     * Draw a frame to the render surface. This is passed a `drawer`
+     * function which defines "what" is to be drawn. The job of the
      * render surface is to prepare some object which implements
      * ICanvas, which defines the "how" of rendering, and to pass
      * that to the `drawer` function.
