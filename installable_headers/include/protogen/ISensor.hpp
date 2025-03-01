@@ -1,32 +1,23 @@
 #ifndef PROTOGEN_ISENSOR_HPP
 #define PROTOGEN_ISENSOR_HPP
 
-#include <cstdint>
 #include <string>
 #include <optional>
 #include <variant>
 #include <vector>
+#include <array>
+#include <chrono>
 
 // Added extra `sensor` namespace because there are a lot of types and symbols here.
 namespace protogen::sensor {
 
 using ChannelReal = double;
-using ChannelBool = bool;
 using ChannelString = std::string;
-using ChannelByte = uint8_t;
-using ChannelInt = int32_t;
-using ChannelByteArray = std::vector<uint8_t>;
-using ChannelIntArray = std::vector<int32_t>;
-using ChannelRealArray = std::vector<double>;
-using ChannelStringArray = std::vector<std::string>;
+using ChannelRealArray = std::vector<ChannelReal>;
+using ChannelStringArray = std::vector<ChannelString>;
 using ChannelValue = std::variant<
     ChannelReal,
-    ChannelBool,
     ChannelString,
-    ChannelByte,
-    ChannelInt,
-    ChannelByteArray,
-    ChannelIntArray,
     ChannelRealArray,
     ChannelStringArray
 >;
@@ -37,25 +28,72 @@ using ChannelValue = std::variant<
  * A sensor is a device that can read data from the environment and provide
  * that data to the protogen. This data is queried from the apps on the protogen.
  * 
- * Sensors can be used to measure a variety of things such as temperature,
- * sound, light, distance, and more. Each sensor has a unique identifier,
- * a name, a description, and a set of channels that it can read from.
  * A sensor can have multiple channels. Each channel is intended to measure
- * a specific property of the environment. There are standard channels that
+ * a specific property of some environment. There are standard channels that
  * are pre-defined for common properties such as temperature, sound, location,
  * etc.
  * 
- * Custom channels can be defined by the sensor. The sensor is responsible
+ * Custom channels can be specified by the sensor. The sensor is responsible
  * for documenting the properties of the custom channels it provides. Please
- * make sure there is not already a standard channel that fits your needs.
- * By using standard channels, you can ensure that your sensor is compatible
- * with a wide variety of apps.
+ * make sure there is not already a standard channel that fits your needs or
+ * another community which has defined their own standard channels.
+ * By using standard channels or community-invented channels, you can ensure
+ * that your sensor is compatible with a wide variety of apps.
+ * 
+ * While each sensor has an id, each channel has an id as well. Sensor ids are
+ * required to be unique across all sensors, but two different sensors can have
+ * channels with the same id. This is because two sensors may be installed that
+ * measure the same property in different ways. For example, one sensor may
+ * measure have a channel of id `ch.std.in.temperature` and another sensor may
+ * have the same channel, but measure the temperature in a different way.
+ * This is a feature, because some sensors which measure common channels may
+ * provide additional channels or provide a "different opinion."
+ * 
+ * Each channel id is formatted: `ch.<origin>.<property>`.
+ * - `ch`: Indicates that this is a channel id.
+ * - `<origin>`: A string which identifies an authority which provides a standard for the rest of the channel id. This is either `std` for standard channels, or a unique identifier for custom channels. The fewer values of this in circulation, the more reusable the channel becomes.
+ * - `<target>`: The object or area that the channel measures. If `<origin>` is `std`, this typically is either `in` for inside the protogen, `out` for outside the protogen, or `misc` for miscellaneous targets. Otherwise, this can be any string that the sensor author chooses.
+ * - `<property>`: The specific property that the channel measures. This should be a short, descriptive string that indicates what the channel measures.
+ * Some examples:
+ * - `ch.std.in.temperature` names the standard channel for the internal temperature of the protogen. `in.temperature` is the property that is measured.
+ * - `ch.std.out.temperature` names the standard channel for the external temperature of the protogen. `out.temperature` is the property that is measured.
+ * - `ch.ai.digit` could name a custom channel that uses AI to detect digits and returns a string for the digit.
+ * - `ch.mycompany.outside.weather` could name a custom channel that measures the chance of rain by device made by `mycompany`.
+ * - `ch.mycompany.house.attic.temperature` could name a custom channel that measures the temperature of the attic in a house by device made by `mycompany`.
  */
 class ISensor {
 public:
     enum class Initialization {
         Success,
         Failure,
+    };
+
+    enum class ReadError {
+        ChannelNotFound,
+        SensorNotReady,
+        HardwareFailure,
+        UnknownError,
+    };
+
+    struct ReadResult {
+        std::chrono::system_clock::time_point timestamp;
+        std::optional<ChannelValue> value;
+        std::optional<ReadError> error;
+    };
+
+    /**
+     * Information about a channel that the sensor provides.
+     * 
+     * A channel is a property that the sensor can read from. Each channel has a
+     * unique id and a description. The description should detail what the
+     * channel measures, how the value is interpreted, and what units the value
+     * is in.
+     * 
+     * Please prefer using standard channels when possible.
+     */
+    struct ChannelInfo {
+        std::string id;
+        std::string description;
     };
 
     virtual ~ISensor() = default;
@@ -67,86 +105,109 @@ public:
      * will be called.
      */
     virtual Initialization initialize() = 0;
+
     /**
      * The id of the sensor. This is a unique identifier for the sensor.
-     * This is used to identify the sensor in the system.
-     * 
      * The id should be a lowercase alphanumeric string, with underscores and with no spaces.
      */
     virtual std::string id() const = 0;
+
     /**
      * The name of the sensor. This is a human-readable name of the sensor.
      */
     virtual std::string name() const = 0;
+
     /**
      * A description of the sensor. This is a human-readable description of the sensor.
      * This should describe what the sensor does and what it measures.
-     * Please document any custom channels that you defined.
+     * Please summarize what channels this sensor provides in this description.
      */
     virtual std::string description() const = 0;
+
     /**
      * The channels that the sensor provides. This is a list of the channels that
-     * the sensor can read from. Each channel is a string that identifies the
-     * property that the channel measures. The channel strings should be unique
-     * and should not contain spaces.
+     * the sensor can read from.
      */
-    virtual std::vector<std::string> channels() const = 0;
+    virtual std::vector<ChannelInfo> channels() const = 0;
+
+    /**
+     * A convenience method to get the information about a specific channel.
+     */
+    virtual std::optional<ChannelInfo> channelInfo(const std::string& channel_id) const {
+        for(const auto& channel : channels()) {
+            if(channel.id == channel_id) {
+                return channel;
+            }
+        }
+        return {};
+    };
+
     /**
      * Read a value from a channel. Use the `ISensor::channels` method to
      * get what channels are available for the sensor.
-     * The type of the value is determined by the channel that is read. This
-     * should be documented in either the standard channels or the custom
-     * channels that the sensor provides.
      * 
-     * If the channel is not found or an error occurs, an empty optional is returned.
+     * If the channel is not found or an error occurs, the `error` field in the `ReadResult` will be set accordingly.
      */
-    virtual std::optional<ChannelValue> read(const std::string& channel) = 0;
+    virtual ReadResult read(const std::string& channel_id) = 0;
 };
 
 /*
  * Pre-defined standard sensor channels.
  * 
- * Each pre-defined channel specifies the following properties. Some are optional:
- * - Object of measure (required)
- * - The property it measures (required)
- * - Its units (required)
- * - Its range
- * - Its resolution
- * - Its accuracy
- * - Its precision
+ * These common channels are intended to be used by apps to query data from
+ * sensors.
  * 
- * Given a pre-defined channel, a call to `ISensor::read` with the channel can be
- * expected to return a value that conforms the the specified properties of the
- * pre-defined channel read.
+ * When writing a sensor, it is recommended to use these standard channels
+ * when possible. This will make your sensor compatible with a wide variety
+ * of apps, and prevent app developers from having to make custom code to
+ * support your specific sensor.
  */
-
-// Measures the internal temperature of the protogen in celsius with type ChannelReal.
-static const char * CHANNEL_INTERNAL_TEMPERATURE = "internal_temperature";
-// Measures the external temperature of the protogen in celsius with type ChannelReal.
-static const char * CHANNEL_EXTERNAL_TEMPERATURE = "external_temperature";
-// Measures the internal "loudness" of the protogen in decibels with type ChannelReal.
-static const char * CHANNEL_INTERNAL_LOUDNESS  = "internal_loudness";
-// Measures the external "loudness" of the protogen in decibels with type ChannelReal.
-static const char * CHANNEL_EXTERNAL_LOUDNESS  = "external_loudness";
-// Measures the location of the protogen in latitude and longitude in WGS84 with type ChannelRealArray of size 2.
-// The first element is the latitude and the second element is the longitude in degrees.
-static const char * CHANNEL_LAT_LON_WGS84 = "lat_lon_wgs84";
-// Measures the azimuth of the protogen from the north in degrees with type ChannelReal.
-static const char * CHANNEL_AZIMUTH_FROM_NORTH = "azimuth_from_north";
-// Measures the altitude of the protogen in WGS84 in meters with type ChannelReal.
-static const char * CHANNEL_ALTITUDE_WGS84 = "altitude_wgs84";
-// Measures the distance to the front object in meters with type ChannelReal.
-// Returns negative value if no object is detected.
-// If a sensor has this channel, consider also having channel "is_booped"
-static const char * CHANNEL_DISTANCE_TO_FRONT_OBJECT = "distance_to_front_object";
-// Returns value of ChannelBool true if the protogen is booped, false otherwise.
-// A protogen is considered "booped" if it is currently being touched on its nose.
-static const char * CHANNEL_IS_BOOPED = "is_booped";
-// Measures the confidence of the presence of certain vowels inside the protogen with type ChannelRealArray of size 5.
-// The following vowels are measured in order: a, e, i, o, u.
-// "a" as in ah, "e" as in eh, "i" as in ee or itch, "o" as in oh, "u" as in oo.
-// The values are in the range [0, 1] where 0 means no confidence and 1 means high confidence.
-static const char * CHANNEL_INTERNAL_VOWEL_CONFIDENCE = "internal_vowel_confidence";
+const std::array<ISensor::ChannelInfo, 11> STANDARD_CHANNELS = {{
+    { 
+        "ch.std.in.temperature", 
+        "Internal temperature measured in Celsius." 
+    },
+    { 
+        "ch.std.out.temperature", 
+        "External temperature measured in Celsius." 
+    },
+    { 
+        "ch.std.out.ambient_light", 
+        "Ambient light intensity measured in lux." 
+    },
+    { 
+        "ch.std.out.sound_level", 
+        "External sound intensity level measured in decibels (dB)." 
+    },
+    { 
+        "ch.std.in.sound_level", 
+        "Internal sound intensity level measured in decibels (dB)." 
+    },
+    { 
+        "ch.std.out.proximity", 
+        "Proximity measurement in meters." 
+    },
+    { 
+        "ch.std.in.battery_level", 
+        "Battery level as a percentage (0-100%)." 
+    },
+    { 
+        "ch.std.self.gcs_location", 
+        "Geographic Coordinate system (GCS) location data including latitude, longitude, and altitude, in that order, as a real array." 
+    },
+    {
+        "ch.std.self.azimuth",
+        "Azimuth angle, from north, measured in degrees between 0 degrees (inclusive) and 360 degrees (exclusive)."
+    },
+    {
+        "ch.std.out.humidity_relative",
+        "Outside relative humidity measured in percentage."
+    },
+    {
+        "ch.std.in.humidity_relative",
+        "Inside relative humidity measured in percentage."
+    }
+}};
 
 } // namespace
 
