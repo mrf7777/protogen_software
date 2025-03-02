@@ -46,7 +46,7 @@ public:
     }
 
     std::vector<std::string> listAttributes() const override {
-        std::unique_lock lock(m_mutex);
+        std::shared_lock lock(m_mutex);
         std::vector<std::string> attributes;
         for(const auto& [key, _] : m_attributes) {
             attributes.push_back(key);
