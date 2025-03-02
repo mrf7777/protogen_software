@@ -2,6 +2,8 @@
 #define PROTOGEN_IPROTOGENAPP_H
 
 #include <string>
+#include <vector>
+#include <memory>
 #include <unordered_map>
 #include <functional>
 
@@ -9,6 +11,8 @@
 #include <protogen/IProportionProvider.hpp>
 #include <protogen/Resolution.hpp>
 #include <protogen/IAttributeStore.hpp>
+#include <protogen/ISensor.hpp>
+#include <protogen/IRenderSurface.hpp>
 
 #include <httplib.h>
 
@@ -53,23 +57,19 @@ namespace protogen {
  */
 class IProtogenApp {
 public:
-    virtual ~IProtogenApp() {}
-
-    /**
-     * If you need something before you are set to active, this is the
-     * method to do checks. Return true if you are ready to be set to active.
-     * Return false if something is wrong and write to `errorMessage`
-     * what went wrong and what could be done to fix it if possible.
-     */
-    virtual bool sanityCheck(std::string& errorMessage) const {
-        (void)errorMessage;
-        return true;
+    enum class Initialization {
+        Success,
+        Failure,
     };
+
+    virtual ~IProtogenApp() {}
+    
     /**
      * Initialize your app. This will be called after all methods that start
      * with "receive" are called.
      */
-    virtual void initialize() = 0;
+    virtual Initialization initialize() = 0;
+
     /**
      * When called with true, this app should be ready to go.
      * This is the time to start or resume any background threads or
@@ -81,28 +81,6 @@ public:
      * By default, you should be inactive.
      */
     virtual void setActive(bool active) = 0;
-    /**
-     * This is called with the resources directory. This is where
-     * your app's resources are located. You can use this to
-     * load your resources, or to save data for this app.
-     * These files are expected to be read-only. If you need
-     * read-write or write access to files, use the user data directory
-     * instead.
-     * 
-     * When your app is updated, this directory is expected to
-     * be cleared and replaced with the new resources.
-     */
-    virtual void receiveResourcesDirectory(const std::string& resourcesDirectory) = 0;
-    /**
-     * This is called with the user data directory. This is where
-     * your app can save user data. This directory is unique to
-     * the user and the app. If you need read-write or write access
-     * to files, this is the directory to use. If you need read-only
-     * access to files, use the resources directory instead.
-     * 
-     * When an app is updated, this directory is unchanged.
-     */
-    virtual void receiveUserDataDirectory(const std::string& userDataDirectory) = 0;
 
     /**
      * What port your app's web server runs on. If the app does not have a web
@@ -130,14 +108,23 @@ public:
      * on a video display device, usually a protogen head. The frequency of calls
      * to this method is dictated in part by what your `framerate` method returns.
      * 
+     * This is called in a separate thread from the main thread. If you want to
+     * do your own rendering or use an alternative model for rendering, you can
+     * set the attribute protogen::attributes::A_CONTROL_RENDER_DEVICE for your
+     * app. Setting this attribute will prevent this method from being called.
+     * 
      * The resolution of the canvas parameter is determined by an algorithm
      * which selects one of the resolutions that you provide via `supportedResolutions`.
      */
     virtual void render(ICanvas& canvas) const = 0;
+
     /**
      * The framerate of your app. You may return a different framerate
      * over time, but usually it is just constant. This is used to determine
      * how often your render method is called.
+     * 
+     * If the app has attribute protogen::attributes::A_CONTROL_RENDER_DEVICE
+     * set, this method is not called, ignored, and not used for anything.
      * 
      * The core software at anytime or at any version may put
      * hard limits on the framerate. If your framerate is too
@@ -145,13 +132,21 @@ public:
      * on framerate that you provide for other implementation details if possible.
      */
     virtual float framerate() const = 0;
+
     /**
-     * Receive the render surface's resolution.
-     * This is called before the `supportedResolutions` method, so
-     * feel free to store the device resolution and use it in the   
-     * `supportedResolutions` method if you need it.
+     * Receive the render surface. This is called before the `render` method
+     * and before the `supportedResolutions` method. Feel free to store the
+     * render surface and use it in the `render` method. Also feel free to
+     * store the resolution of the render surface.
+     * 
+     * If you set the attribute protogen::attributes::A_CONTROL_RENDER_DEVICE
+     * for your app, you are allowed to call `IRenderSurface::drawFrame` in your
+     * app. If you have not set this attribute, you are not allowed to call
+     * `IRenderSurface::drawFrame` in your app because rendering is being
+     * managed by the core software.
      */
-    virtual void receiveDeviceResolution(const Resolution& device_resolution) = 0;
+    virtual void receiveRenderSurface(std::shared_ptr<IRenderSurface> render_surface) = 0;
+
     /**
      * The display resolutions that your app supports.
      * These resolutions are compared to the resolutions of the current
@@ -164,25 +159,17 @@ public:
     virtual std::vector<Resolution> supportedResolutions() const = 0;
 
     /**
-     * This is called with the mouth proportion provider. If you want access to
-     * the device which moves the mouth, this is the method to implement.
+     * This is called with all of the registered sensors. If you want access to
+     * sensors so that you can read from them, this is the method to implement.
      */
-    virtual void setMouthProportionProvider(std::shared_ptr<IProportionProvider> provider) {
-        (void)provider;
+    virtual void receiveSensors(std::vector<std::shared_ptr<protogen::sensor::ISensor>> sensors) {
+        (void)sensors;
     };
 
     /**
      * Return attribute store for this app.
      */
     virtual std::shared_ptr<attributes::IAttributeStore> getAttributeStore() = 0;
-
-    // Attribute helpers.
-    std::string id() { return getAttributeStore()->getAttribute(attributes::ATTRIBUTE_ID).value_or(""); }
-    std::string name() { return getAttributeStore()->getAttribute(attributes::ATTRIBUTE_NAME).value_or(""); }
-    std::string description() { return getAttributeStore()->getAttribute(attributes::ATTRIBUTE_DESCRIPTION).value_or(""); }
-    std::string thumbnail() { return getAttributeStore()->getAttribute(attributes::ATTRIBUTE_THUMBNAIL).value_or(""); }
-    std::string mainPage() { return getAttributeStore()->getAttribute(attributes::ATTRIBUTE_MAIN_PAGE).value_or(""); }
-    std::string homePage() { return getAttributeStore()->getAttribute(attributes::ATTRIBUTE_HOME_PAGE).value_or(""); }
 };
 
 using CreateAppFunction = IProtogenApp * (*)();
