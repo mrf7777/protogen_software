@@ -14,26 +14,25 @@ ProtogenAppLoader::ProtogenAppLoader(
 {
 }
 
-Apps ProtogenAppLoader::apps() const
+Apps ProtogenAppLoader::apps()
 {
     Apps apps;
     for(const auto& entry : std::filesystem::directory_iterator(m_appDirectory)) {
         if(entry.is_directory()) {
             auto app = loadAppFromDirectory(entry.path());
-            if(app.has_value()) {
-                app.value()->setMouthProportionProvider(m_mouthProportionProvider);
-                app.value()->receiveDeviceResolution(m_deviceResolution);
-                const auto app_resources_directory = entry / std::filesystem::path("resources");
-                app.value()->receiveResourcesDirectory(app_resources_directory.generic_string());
-                const auto app_user_data_directory = m_userDataLocationProvider->getUserDataLocation(app.value()->id());
-                if(app_user_data_directory.has_value()) {
-                    app.value()->receiveUserDataDirectory(app_user_data_directory.value());
-                } else {
-                    std::cerr << "Could not determine user data directory for app: " << app.value()->id() << std::endl;
-                }
-                app.value()->initialize();
-                const std::string app_id = app.value()->id();
-                apps.insert({app_id, std::move(app.value())});
+            if(!app.has_value()) {
+                continue;
+            }
+
+            const auto app_id = app.value()->getAttributeStore()->getAttribute(attributes::A_ID);
+            if(!app_id.has_value()) {
+                std::cerr << "App does not have an id attribute set." << std::endl;
+                continue;
+            }
+
+            const bool init_result = initializeApp(app.value(), entry.path() / "resources");
+            if(init_result) {
+                apps.insert({app_id.value(), app.value()});
             }
         }
     }
@@ -82,6 +81,35 @@ std::optional<std::shared_ptr<IProtogenApp>> ProtogenAppLoader::loadAppFromDirec
     }
     std::cerr << "Could not find library for protogen app in app directory: " << app_directory << std::endl;
     return {};
+}
+
+bool ProtogenAppLoader::initializeApp(std::shared_ptr<IProtogenApp> app, const std::filesystem::path& app_resources_directory)
+{
+    // TODO: pass sensors to protogen app
+    // TODO: pass render surface to protogen app.
+    const std::optional<std::string> app_id = app->getAttributeStore()->getAttribute(attributes::A_ID);
+    if(!app_id.has_value()) {
+        std::cerr << "App does not have an id attribute set." << std::endl;
+        return false;
+    }
+
+    app->getAttributeStore()->setAttribute(attributes::A_RESOURCES_DIRECTORY, app_resources_directory.generic_string());
+
+    const auto app_user_data_directory = m_userDataLocationProvider->getUserDataLocation(app_id.value());
+    if(app_user_data_directory.has_value()) {
+        app->getAttributeStore()->setAttribute(attributes::A_USER_DATA_DIRECTORY, app_user_data_directory.value());
+    } else {
+        std::cerr << "Could not determine user data directory for app: " << app_id.value() << std::endl;
+        // Non-fatal, continue to add app but it wont have a user data directory.
+    }
+
+    const IProtogenApp::Initialization init_result = app->initialize();
+    if(init_result == IProtogenApp::Initialization::Failure) {
+        std::cerr << "App initialization failed for app: " << app_id.value() << std::endl;
+        return false;
+    }
+
+    return true;
 }
 
 } // namespace

@@ -38,10 +38,11 @@ public:
         std::shared_ptr<IProportionProvider> mouth_proportion_provider,
         const Resolution& device_resolution,
         std::shared_ptr<IUserDataLocator> user_data_location_provider);
-    Apps apps() const;
+    Apps apps();
 
 private:
     static std::optional<std::shared_ptr<IProtogenApp>> loadAppFromDirectory(const std::filesystem::path& app_directory);
+    bool initializeApp(std::shared_ptr<IProtogenApp> app, const std::filesystem::path& app_resources_directory);
 
     std::filesystem::path m_appDirectory;
     std::shared_ptr<IProportionProvider> m_mouthProportionProvider;
