@@ -73,6 +73,8 @@ static const char * A_ID = "id";
 static const char * A_NAME = "name";
 // Description of the object.
 static const char * A_DESCRIPTION = "description";
+// The author of the object.
+static const char * A_AUTHOR = "author";
 // A relative URL path to the thumbnail of the object. This is only the path
 // component and not the full URL. For example, if this attribute has value
 // "thumbnail.png" and the object id is "test", then a full url to this
