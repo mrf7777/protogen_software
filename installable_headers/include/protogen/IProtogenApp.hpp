@@ -13,6 +13,7 @@
 #include <protogen/IAttributeStore.hpp>
 #include <protogen/ISensor.hpp>
 #include <protogen/IRenderSurface.hpp>
+#include <protogen/IExtention.hpp>
 
 #include <httplib.h>
 
@@ -55,21 +56,10 @@ namespace protogen {
  * These both can be implemented as simply as using C++ `new` and `delete` operators. After all,
  * your concrete class can have its own destructor to do cleanup anyway.
  */
-class IProtogenApp {
+class IProtogenApp : public IExtention {
 public:
-    enum class Initialization {
-        Success,
-        Failure,
-    };
-
     virtual ~IProtogenApp() {}
     
-    /**
-     * Initialize your app. This will be called after all methods that start
-     * with "receive" are called.
-     */
-    virtual Initialization initialize() = 0;
-
     /**
      * When called with true, this app should be ready to go.
      * This is the time to start or resume any background threads or
@@ -81,27 +71,6 @@ public:
      * By default, you should be inactive.
      */
     virtual void setActive(bool active) = 0;
-
-    /**
-     * What port your app's web server runs on. If the app does not have a web
-     * interface, return -1.
-     * 
-     * The core software uses a proxy server to forward calls to your web
-     * server. Do not prefix your URL paths with any namespacing related to your
-     * app because this handled for you. For example, If your `id` method
-     * returns "testapp" and your `webPort` method returns 12345, assuming the
-     * core software is running on port 80 on host 0.0.0.0, the following
-     * request is mapped as follows:
-     * GET http://0.0.0.0/apps/testapp/path -> GET http://0.0.0.0:12345/path
-     * 
-     * Why is it this way? Because HTTP is an interface and lets you decide on
-     * how to implement the web server without the core software imposing a C++
-     * web interface on you. I recommend cpp-httplib which is found here:
-     * https://github.com/yhirose/cpp-httplib.
-     */
-    virtual int webPort() const {
-        return -1;
-    };
 
     /**
      * Given a blank canvas, draw the current frame. What you draw will be shown
@@ -165,11 +134,6 @@ public:
     virtual void receiveSensors(std::vector<std::shared_ptr<protogen::sensor::ISensor>> sensors) {
         (void)sensors;
     };
-
-    /**
-     * Return attribute store for this app.
-     */
-    virtual std::shared_ptr<attributes::IAttributeStore> getAttributeStore() = 0;
 };
 
 using CreateAppFunction = IProtogenApp * (*)();

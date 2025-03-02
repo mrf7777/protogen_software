@@ -1,6 +1,8 @@
 #ifndef PROTOGEN_ISENSOR_HPP
 #define PROTOGEN_ISENSOR_HPP
 
+#include <protogen/IExtention.hpp>
+
 #include <string>
 #include <optional>
 #include <variant>
@@ -86,13 +88,8 @@ using ChannelValue = std::variant<
  * - `ch.mycompany.outside.weather` could name a custom channel that measures the chance of rain by device made by `mycompany`.
  * - `ch.mycompany.house.attic.temperature` could name a custom channel that measures the temperature of the attic in a house by device made by `mycompany`.
  */
-class ISensor {
+class ISensor : public IExtention {
 public:
-    enum class Initialization {
-        Success,
-        Failure,
-    };
-
     enum class ReadError {
         ChannelNotFound,
         SensorNotReady,
@@ -122,32 +119,6 @@ public:
     };
 
     virtual ~ISensor() = default;
-
-    /**
-     * Initialize the sensor. This is called once when the sensor is first
-     * attached to the protogen. This is called before any other methods
-     * of the sensor. If the sensor fails to initialize, no other methods 
-     * will be called.
-     */
-    virtual Initialization initialize() = 0;
-
-    /**
-     * The id of the sensor. This is a unique identifier for the sensor.
-     * The id should be a lowercase alphanumeric string, with underscores and with no spaces.
-     */
-    virtual std::string id() const = 0;
-
-    /**
-     * The name of the sensor. This is a human-readable name of the sensor.
-     */
-    virtual std::string name() const = 0;
-
-    /**
-     * A description of the sensor. This is a human-readable description of the sensor.
-     * This should describe what the sensor does and what it measures.
-     * Please summarize what channels this sensor provides in this description.
-     */
-    virtual std::string description() const = 0;
 
     /**
      * The channels that the sensor provides. This is a list of the channels that

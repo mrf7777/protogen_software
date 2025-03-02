@@ -8,6 +8,7 @@
 #include <chrono>
 
 #include <protogen/ISensor.hpp>
+#include <protogen/StandardAttributeStore.hpp>
 
 namespace protogen::sensor {
 
@@ -19,9 +20,9 @@ namespace protogen::sensor {
  * If more than one sensor provides the same channel, the first sensor in the
  * list that provides the channel will be used.
  */
-class UniSensor : public ISensor{
+class UniSensor : public ISensor {
 public:
-    explicit UniSensor(std::vector<std::shared_ptr<ISensor>> sensors) : m_channels() {
+    explicit UniSensor(std::vector<std::shared_ptr<ISensor>> sensors) : m_channels(), m_attributes(new StandardAttributeStore()) {
         for(const auto& sensor : sensors) {
             const auto channels = sensor->channels();
             for(const auto& channel : channels) {
@@ -31,22 +32,14 @@ public:
                 m_channels[channel.id] = std::make_pair(channel, sensor);
             }
         }
+
+        m_attributes->setAttribute(attributes::A_ID, "");
+        m_attributes->setAttribute(attributes::A_NAME, "UniSensor");
+        m_attributes->setAttribute(attributes::A_DESCRIPTION, "A sensor that combines multiple sensors into one. Does not have an ID.");
     }
 
     Initialization initialize() override {
         return Initialization::Success;
-    }
-
-    std::string id() const override {
-        return "";
-    }
-
-    std::string name() const override {
-        return "UniSensor";
-    }
-
-    std::string description() const override {
-        return "A sensor that combines multiple sensors into one. Does not have an ID.";
     }
 
     /**
@@ -80,9 +73,14 @@ public:
         };
     }
 
+    std::shared_ptr<attributes::IAttributeStore> getAttributeStore() override {
+        return nullptr;
+    }
+
 private:
     using ChannelSensorPair = std::pair<ChannelInfo, std::shared_ptr<ISensor>>;
     std::unordered_map<std::string, ChannelSensorPair> m_channels;
+    std::shared_ptr<StandardAttributeStore> m_attributes;
 };
 
 } // namespace

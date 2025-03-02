@@ -188,8 +188,10 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	// Proxy requests to their respective app web servers.
 	std::vector<std::pair<std::string, int>> app_ids_and_ports;
 	for(const auto& app : app_state->apps()) {
-		if(app.second->webPort() != -1) {
-			app_ids_and_ports.push_back(std::make_pair(app.first, app.second->webPort()));
+		const std::string app_web_port_string = app.second->getAttributeStore()->getAttribute(attributes::A_WEB_PORT).value_or("-1");
+		const int app_web_port = std::stoi(app_web_port_string);	
+		if(app_web_port != -1) {
+			app_ids_and_ports.push_back(std::make_pair(app.first, app_web_port));
 		}
 	}
 

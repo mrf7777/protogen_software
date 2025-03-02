@@ -75,6 +75,19 @@ public:
 [[maybe_unused]] static const char * A_DESCRIPTION = "description";
 // The author of the object.
 [[maybe_unused]] static const char * A_AUTHOR = "author";
+// What port your object's web server runs on.
+// The core software uses a proxy server to forward calls to your web
+// server. Do not prefix your URL paths with any namespacing related to your
+// object because this handled for you. For example, If your `id` method
+// returns "testapp" and your `webPort` method returns 12345, assuming the
+// core software is running on port 80 on host 0.0.0.0, the following
+// request is mapped as follows:
+// GET http://0.0.0.0/apps/testapp/path -> GET http://0.0.0.0:12345/path
+// Why is it this way? Because HTTP is an interface and lets you decide on
+// how to implement the web server without the core software imposing a C++
+// web interface on you. I recommend cpp-httplib which is found here:
+// https://github.com/yhirose/cpp-httplib.
+[[maybe_unused]] static const char * A_WEB_PORT = "web_port";
 // A relative URL path to the thumbnail of the object. This is only the path
 // component and not the full URL. For example, if this attribute has value
 // "thumbnail.png" and the object id is "test", then a full url to this
