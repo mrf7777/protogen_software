@@ -104,7 +104,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	srv->Get("/protogen/apps/:appid/name", [app_state](const auto& req, auto& res){
 		try {
 			const auto app = app_state->apps().at(req.path_params.at("appid"));
-			const std::string name = app->name().empty() ? "(No name)" : app->name();
+			const auto name = app->getAttributeStore()->getAttribute(attributes::A_NAME).value_or("");
 			res.set_content(name, "text/plain");
 		} catch (std::out_of_range&) {
 			res.status = httplib::StatusCode::NotFound_404;
@@ -114,7 +114,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	srv->Get("/protogen/apps/:appid/description", [app_state](const auto& req, auto& res){
 		try {
 			const auto app = app_state->apps().at(req.path_params.at("appid"));
-			const std::string description = app->description().empty() ? "(No description)" : app->description();
+			const auto description = app->getAttributeStore()->getAttribute(attributes::A_DESCRIPTION).value_or("");
 			res.set_content(description, "text/plain");
 		} catch (std::out_of_range&) {
 			res.status = httplib::StatusCode::NotFound_404;
@@ -124,12 +124,14 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	srv->Get("/protogen/apps/:appid/thumbnail", [app_state](const auto& req, auto& res){
 		try {
 			// TODO: should this path building be abstracted closer to apps somehow?
-			const auto app = app_state->apps().at(req.path_params.at("appid"));
+			const auto app_id = req.path_params.at("appid");
+			const auto app = app_state->apps().at(app_id);
 			std::string thumbnail_path;
-			if(app->thumbnail().empty()) {
+			const auto app_thumbnail_path = app->getAttributeStore()->getAttribute(attributes::A_THUMBNAIL);
+			if(!app_thumbnail_path.has_value()) {
 				thumbnail_path = "/static/images/no_thumbnail.png";
 			} else {
-				thumbnail_path = "/apps/" + app->id() + app->thumbnail();
+				thumbnail_path = "/apps/" + app_id + app_thumbnail_path.value();
 			}
 			res.set_content(thumbnail_path, "text/plain");
 		} catch (std::out_of_range&) {
@@ -140,8 +142,9 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	srv->Get("/protogen/apps/:appid/active", [app_state](const auto& req, auto& res){
 		try {
 			const auto active_app = app_state->getActiveApp();
+			const auto active_app_id = active_app->getAttributeStore()->getAttribute(attributes::A_ID).value_or("");
 			if(active_app != nullptr) {
-				if(active_app->id() == req.path_params.at("appid")) {
+				if(active_app_id == req.path_params.at("appid")) {
 					res.set_content("true", "text/plain");
 				} else {
 					res.set_content("false", "text/plain");
@@ -160,8 +163,9 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	});
 	srv->Get("/protogen/apps/active", [app_state](const auto&, auto& res){
 		const auto active_app = app_state->getActiveApp();
+		const auto active_app_id = active_app->getAttributeStore()->getAttribute(attributes::A_ID).value_or("");
 		if(active_app != nullptr) {
-			res.set_content(active_app->id(), "text/plain");
+			res.set_content(active_app_id, "text/plain");
 		} else {
 			res.status = httplib::StatusCode::NotFound_404;
 			res.set_content("", "text/plain");
@@ -169,9 +173,11 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	});
 	srv->Get("/protogen/apps/:appid/homepage", [app_state](const auto& req, auto& res){
 		try {
-			const auto app = app_state->apps().at(req.path_params.at("appid"));
+			const auto app_id = req.path_params.at("appid");
+			const auto app = app_state->apps().at(app_id);
+			const auto app_mainpage_path = app->getAttributeStore()->getAttribute(attributes::A_MAIN_PAGE).value_or("");
 			// TODO: should this path building be abstracted closer to apps somehow?
-			const std::string homepage_path = "/apps/" + app->id() + app->mainPage();
+			const std::string homepage_path = "/apps/" + app_id + app_mainpage_path;
 			res.set_content(homepage_path, "text/plain");
 		} catch (std::out_of_range&) {
 			res.status = httplib::StatusCode::NotFound_404;

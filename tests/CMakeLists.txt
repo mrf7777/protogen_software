@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROTOGEN_SOURCES
     "${PROJECT_SOURCE_DIR}/src/main.cpp"
-    "${PROJECT_SOURCE_DIR}/src/installable_headers/StandardAttributeStoreTest.cpp"
+    "${PROJECT_SOURCE_DIR}/src/installable_headers/protogen/StandardAttributeStoreTest.cpp"
 )
 add_executable(${PROJECT_NAME} ${PROTOGEN_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/include")
