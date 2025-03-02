@@ -33,6 +33,31 @@ using ChannelValue = std::variant<
  * are pre-defined for common properties such as temperature, sound, location,
  * etc.
  * 
+ * To install the sensor that you made, observe this directory structure:
+ * <install location>/
+ * └── shared/
+ *     └── protogen/
+ *         └── sensors/
+ *             └── <sensor id as returned by its id method>/
+ *                 └── *.so
+ * <install location> is the directory where the core protogen software is installed.
+ * By default, `cmake --install` on linux installs in /usr/local.
+ * When you install the core protogen software, <install location>/shared/protogen
+ * is a directory that will exist. When you install your sensor, you are
+ * responsible for the following:
+ * - Ensure <install location>/shared/protogen/sensors/<your sensor id>                 directory exists.
+ * - Ensure <install location>/shared/protogen/sensors/<your sensor id>/<some name>.so  exists.
+ * 
+ * Your .so file is a shared library that is dynamically loaded by the core
+ * protogen software. Your .so file must have the following
+ * functions implemented:
+ * extern "C" ISensor * create_sensor()
+ * extern "C" void destroy_sensor(ISensor * sensor)
+ * The `create_sensor` will return a new instance of your class, which implements ISensor and return ownership.
+ * The `destroy_sensor` will take ownership, destroy, and deallocate the class.
+ * These both can be implemented as simply as using C++ `new` and `delete` operators. After all,
+ * your concrete class can have its own destructor to do cleanup anyway.
+ * 
  * Custom channels can be specified by the sensor. The sensor is responsible
  * for documenting the properties of the custom channels it provides. Please
  * make sure there is not already a standard channel that fits your needs or
