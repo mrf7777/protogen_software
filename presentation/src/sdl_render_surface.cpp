@@ -1,5 +1,7 @@
 #include <protogen/presentation/sdl_render_surface.h>
 
+#include <protogen/StandardAttributeStore.hpp>
+
 #include <iostream>
 #include <cstdlib>
 
@@ -12,22 +14,7 @@ SdlRenderSurface::~SdlRenderSurface()
     SDL_Quit();
 }
 
-std::string SdlRenderSurface::id() const
-{
-    return "sdl_window";
-}
-
-std::string SdlRenderSurface::name() const
-{
-    return "SDL Window";
-}
-
-std::string SdlRenderSurface::description() const
-{
-    return "Implements support for showing imagery with a window using SDL. This allows for development and testing the imagery without the need for dedicated protogen hardware and uses your monitor instead.";
-}
-
-SdlRenderSurface::InitializationStatus SdlRenderSurface::initialize()
+SdlRenderSurface::Initialization SdlRenderSurface::initialize()
 {
     try
     {
@@ -69,17 +56,19 @@ SdlRenderSurface::InitializationStatus SdlRenderSurface::initialize()
             m_renderer = std::unique_ptr<SDL_Renderer, RendererDestroyer>(renderer);
         }
 
-        return InitializationStatus::Success;
+        return Initialization::Success;
     }
     catch(const std::exception& e)
     {
-        std::cerr << "Error initializing render surface \"" << name() << "\". Error: " << e.what() << std::endl;
-        return InitializationStatus::Failure;
+        const std::string name = m_attributes->getAttribute(attributes::A_NAME).value_or("<no name>");
+        std::cerr << "Error initializing render surface \"" << name << "\". Error: " << e.what() << std::endl;
+        return Initialization::Failure;
     }
     catch(...)
     {
-        std::cerr << "Error initializing render surface \"" << name() << "\". Unknown error." << std::endl;
-        return InitializationStatus::Failure;
+        const std::string name = m_attributes->getAttribute(attributes::A_NAME).value_or("<no name>");
+        std::cerr << "Error initializing render surface \"" << name << "\". Unknown error." << std::endl;
+        return Initialization::Failure;
     }
 }
 
@@ -97,7 +86,8 @@ Resolution SdlRenderSurface::resolution() const
 }
 
 SdlRenderSurface::SdlRenderSurface()
-    : m_resolution(0, 0)
+    : m_resolution(0, 0),
+    m_attributes(new StandardAttributeStore())
 {
     unsigned int width;
     unsigned int height;
@@ -123,6 +113,14 @@ SdlRenderSurface::SdlRenderSurface()
     }
 
     m_resolution = Resolution(width, height);
+
+    m_attributes->setAttribute(attributes::A_ID, "sdl_window");
+    m_attributes->setAttribute(attributes::A_NAME, "SDL Window");
+    m_attributes->setAttribute(attributes::A_DESCRIPTION, "Implements support for showing imagery with a window using SDL. This allows for development and testing the imagery without the need for dedicated protogen hardware and uses your monitor instead.");
+}
+
+std::shared_ptr<attributes::IAttributeStore> SdlRenderSurface::getAttributeStore() {
+    return m_attributes;
 }
 
 SdlRendererToICanvasAdapter::SdlRendererToICanvasAdapter(SDL_Renderer *renderer, int width, int height)

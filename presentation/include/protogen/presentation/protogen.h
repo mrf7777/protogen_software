@@ -11,6 +11,7 @@
 #include <protogen/presentation/render_surface.h>
 #include <protogen/ICanvas.hpp>
 #include <protogen/Resolution.hpp>
+#include <protogen/IAttributeStore.hpp>
 
 #include <led-matrix.h>
 
@@ -37,12 +38,10 @@ public:
 	ProtogenHeadMatrices();
 	~ProtogenHeadMatrices();
 
-	std::string id() const override;
-	std::string name() const override;
-	std::string description() const override;
-	InitializationStatus initialize() override;
+	Initialization initialize() override;
 	void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
 	Resolution resolution() const override;
+	std::shared_ptr<attributes::IAttributeStore> getAttributeStore() override;
 private:
 	class ConstructorException : public std::runtime_error {
 	public:
@@ -56,6 +55,8 @@ private:
 	rgb_matrix::FrameCanvas * m_protogenFrameBuffer1;
 	unsigned int m_whichProtogenFrameBufferIsUsed;
 	mutable std::mutex m_mutex;
+
+	std::shared_ptr<attributes::IAttributeStore> m_attributes;
 };
 
 }	// namespace

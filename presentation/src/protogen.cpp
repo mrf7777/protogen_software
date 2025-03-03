@@ -1,12 +1,18 @@
 #include <protogen/presentation/protogen.h>
 
+#include <protogen/StandardAttributeStore.hpp>
+
 #include <iostream>
 
 namespace protogen {
 
 ProtogenHeadMatrices::ProtogenHeadMatrices()
-    : m_whichProtogenFrameBufferIsUsed(0)
+    : m_whichProtogenFrameBufferIsUsed(0),
+    m_attributes(new StandardAttributeStore())
 {
+    m_attributes->setAttribute(attributes::A_ID, "hub75_display");
+    m_attributes->setAttribute(attributes::A_NAME, "HUB75 Display");
+    m_attributes->setAttribute(attributes::A_DESCRIPTION, "Implements support for HUB75 LED matrices. Many RGB LED matrices use the HUB75 interface.");
 };
 
 ProtogenHeadMatrices::~ProtogenHeadMatrices()
@@ -16,22 +22,7 @@ ProtogenHeadMatrices::~ProtogenHeadMatrices()
     }
 }
 
-std::string ProtogenHeadMatrices::id() const
-{
-    return "hub75_display";
-}
-
-std::string ProtogenHeadMatrices::name() const
-{
-    return "HUB75 Display";
-}
-
-std::string ProtogenHeadMatrices::description() const
-{
-    return "Implements support for HUB75 LED matrices. Many RGB LED matrices use the HUB75 interface.";
-}
-
-IRenderSurface::InitializationStatus ProtogenHeadMatrices::initialize()
+IRenderSurface::Initialization ProtogenHeadMatrices::initialize()
 {
     // TODO: rename this class to HUB75Display or something similar
     // TODO: parameterize these values and make them configurable
@@ -62,17 +53,19 @@ IRenderSurface::InitializationStatus ProtogenHeadMatrices::initialize()
 
         m_protogenFrameBuffer0 = m_matrix->CreateFrameCanvas();
         m_protogenFrameBuffer1 = m_matrix->CreateFrameCanvas();
-        return InitializationStatus::Success;
+        return Initialization::Success;
     }
     catch(const std::exception& e)
     {
-        std::cerr << "Error initializing render surface \"" << name() << "\". Error: " << e.what() << std::endl;
-        return InitializationStatus::Failure;
+        const std::string name = m_attributes->getAttribute(attributes::A_NAME).value_or("<no name>");
+        std::cerr << "Error initializing render surface \"" << name << "\". Error: " << e.what() << std::endl;
+        return Initialization::Failure;
     }
     catch(...)
     {
-        std::cerr << "Error initializing render surface \"" << name() << "\". Unknown error." << std::endl;
-        return InitializationStatus::Failure;
+        const std::string name = m_attributes->getAttribute(attributes::A_NAME).value_or("<no name>");
+        std::cerr << "Error initializing render surface \"" << name << "\". Unknown error." << std::endl;
+        return Initialization::Failure;
     }
 }
 
@@ -96,6 +89,10 @@ void ProtogenHeadMatrices::drawFrame(const std::function<void(ICanvas&)>& drawer
     RgbMatrixCanvasToICanvasAdapter canvas(frame);
     drawer(canvas);
     m_matrix->SwapOnVSync(frame);
+}
+
+std::shared_ptr<attributes::IAttributeStore> ProtogenHeadMatrices::getAttributeStore() {
+    return m_attributes;
 }
 
 Resolution ProtogenHeadMatrices::resolution() const

@@ -9,6 +9,7 @@
 #include <protogen/presentation/render_surface.h>
 #include <protogen/ICanvas.hpp>
 #include <protogen/Resolution.hpp>
+#include <protogen/IAttributeStore.hpp>
 
 namespace protogen {
 
@@ -42,12 +43,10 @@ class SdlRenderSurface : public IRenderSurface {
 public:
     SdlRenderSurface();
     ~SdlRenderSurface() override;
-    std::string id() const override;
-    std::string name() const override;
-    std::string description() const override;
-    InitializationStatus initialize() override;
+    Initialization initialize() override;
     void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
     Resolution resolution() const override;
+    std::shared_ptr<attributes::IAttributeStore> getAttributeStore() override;
 private:
     class ConstructorException : public std::runtime_error {
     public:
@@ -64,6 +63,8 @@ private:
     Resolution m_resolution;
     std::unique_ptr<SDL_Window, WindowDestroyer> m_window;
     std::unique_ptr<SDL_Renderer, RendererDestroyer> m_renderer;
+
+    std::shared_ptr<attributes::IAttributeStore> m_attributes;
 
     static constexpr const char * ENV_VAR_WIDTH = "PROTOGEN_SDL_RENDER_SURFACE_WIDTH";
     static constexpr const char * ENV_VAR_HEIGHT = "PROTOGEN_SDL_RENDER_SURFACE_HEIGHT";

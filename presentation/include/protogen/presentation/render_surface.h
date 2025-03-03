@@ -8,17 +8,23 @@
 #include <protogen/ICanvas.hpp>
 #include <protogen/Resolution.hpp>
 #include <protogen/IRenderSurface.hpp>
+#include <protogen/StandardAttributeStore.hpp>
 
 namespace protogen {
 
-class FakeRenderSurface : public IRenderSurface{
+class FakeRenderSurface : public IRenderSurface {
 public:
-    std::string id() const override { return "fake_render_surface"; }
-    std::string name() const override { return "Fake Render Surface"; }
-    std::string description() const override { return "A fake render surface that does nothing."; }
-    InitializationStatus initialize() override { return InitializationStatus::Success; }
+    FakeRenderSurface() : m_attributes(new StandardAttributeStore()) {
+        m_attributes->setAttribute(attributes::A_ID, "fake_render_surface");
+        m_attributes->setAttribute(attributes::A_NAME, "Fake Render Surface");
+        m_attributes->setAttribute(attributes::A_DESCRIPTION, "A fake render surface that does nothing.");
+    }
+    Initialization initialize() override { return Initialization::Success; }
     void drawFrame(const std::function<void(ICanvas&)>&) override {}
     Resolution resolution() const override { return Resolution(512, 512); }
+    std::shared_ptr<attributes::IAttributeStore> getAttributeStore() override { return m_attributes; }
+private:
+    std::shared_ptr<attributes::IAttributeStore> m_attributes;
 };
 
 }   // namespace

@@ -6,6 +6,7 @@
 
 #include <protogen/Resolution.hpp>
 #include <protogen/ICanvas.hpp>
+#include <protogen/IExtention.hpp>
 
 namespace protogen {
 
@@ -46,37 +47,10 @@ namespace protogen {
  * directory <install location>/shared/protogen/displays. If the core
  * software finds a render surface that it can use, it will use it.
  */
-class IRenderSurface {
+class IRenderSurface : public IExtention {
 public:
     virtual ~IRenderSurface() = default;
 
-    /**
-     * The unique identifier of the render surface. This is used to
-     * identify the render surface implementation.
-     */
-    virtual std::string id() const = 0;
-    /**
-     * The name of the render surface. This is displayed to the user or developer.
-     */
-    virtual std::string name() const = 0;
-    /**
-     * A description of the render surface. This is displayed to the user or developer.
-     */
-    virtual std::string description() const = 0;
-
-    enum class InitializationStatus {
-        Success,
-        Failure
-    };
-    /**
-     * Initialize render surface. This is where the render surface
-     * should be attempted to be initialized. Retuns if initialization
-     * was successful or not.
-     * 
-     * If Failure is returned, the core software will attempt to
-     * use a different render surface.
-     */
-    virtual InitializationStatus initialize() = 0;
     /**
      * Draw a frame to the render surface. This is passed a `drawer`
      * function which defines "what" is to be drawn. The job of the
@@ -85,6 +59,7 @@ public:
      * that to the `drawer` function.
      */
     virtual void drawFrame(const std::function<void(ICanvas&)>& drawer) = 0;
+    
     /**
      * Get the resolution of the render surface. Apps may need to
      * know the resolution of the render surface in order to properly
