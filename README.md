@@ -56,6 +56,13 @@ https://pcbartists.com/product-documentation/accurate-raspberry-pi-decibel-meter
 - Voice-modification with mic and speaker.
 
 ## Refactor ideas
+- An Extension is a type of super class for apps, sensors, and render surfaces.
+How can loading these extensions be architected to reduce code duplication and 
+increase cohesion?
+  - ExtensionLoader interface class with AppLoader subclass, SensorLoader subclass, etc.
+    - API?:
+    - `virtual std::map<Id, std::shared_ptr<T>> load(); [T = <either IProtogenApp, ISensor, or IRenderSurface>] `
+  - Concept of user data and resources the same for all extensions.
 - How do we run nginx and reload it if its already running in C++?
   - How about simply attempting to manage nginx, and if there are permission issues, report to user and exit.
 - Do we need to abstract away nginx and just think in terms of "reverse proxy server"?
