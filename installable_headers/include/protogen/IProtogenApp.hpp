@@ -13,7 +13,7 @@
 #include <protogen/IAttributeStore.hpp>
 #include <protogen/ISensor.hpp>
 #include <protogen/IRenderSurface.hpp>
-#include <protogen/IExtention.hpp>
+#include <protogen/IExtension.hpp>
 
 #include <httplib.h>
 
@@ -56,7 +56,7 @@ namespace protogen {
  * These both can be implemented as simply as using C++ `new` and `delete` operators. After all,
  * your concrete class can have its own destructor to do cleanup anyway.
  */
-class IProtogenApp : public IExtention {
+class IProtogenApp : public IExtension {
 public:
     virtual ~IProtogenApp() {}
     

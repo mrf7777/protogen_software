@@ -6,7 +6,7 @@
 
 #include <protogen/Resolution.hpp>
 #include <protogen/ICanvas.hpp>
-#include <protogen/IExtention.hpp>
+#include <protogen/IExtension.hpp>
 
 namespace protogen {
 
@@ -47,7 +47,7 @@ namespace protogen {
  * directory <install location>/shared/protogen/displays. If the core
  * software finds a render surface that it can use, it will use it.
  */
-class IRenderSurface : public IExtention {
+class IRenderSurface : public IExtension {
 public:
     virtual ~IRenderSurface() = default;
 

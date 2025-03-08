@@ -197,7 +197,7 @@ std::unique_ptr<IRenderSurface> getRenderSurface() {
 	// Try Hub75 type led matrices.
 	printServiceLocationSubsection("HUB75 interface LED Matrices");
 	auto protogen_head_matrices = std::unique_ptr<ProtogenHeadMatrices>(new ProtogenHeadMatrices());
-	if(protogen_head_matrices->initialize() == IExtention::Initialization::Success) {
+	if(protogen_head_matrices->initialize() == IExtension::Initialization::Success) {
 		std::cout << green("Video device found: Protogen Head Matrices.") << std::endl;
 		return protogen_head_matrices;
 	} else {
@@ -208,7 +208,7 @@ std::unique_ptr<IRenderSurface> getRenderSurface() {
 	// in a window in a desktop environment.
 	printServiceLocationSubsection("SDL Video");
 	auto sdl_device = std::unique_ptr<IRenderSurface>(new SdlRenderSurface());
-	if(sdl_device->initialize() == IExtention::Initialization::Success) {
+	if(sdl_device->initialize() == IExtension::Initialization::Success) {
 		std::cout << green("Video device found: SDL") << std::endl;
 		return sdl_device;
 	} else {

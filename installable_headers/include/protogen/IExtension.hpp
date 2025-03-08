@@ -20,14 +20,14 @@ namespace protogen {
  * - IRenderSurface
  * - IProtogenApp
  */
-class IExtention {
+class IExtension {
 public:
     enum class Initialization {
         Success,
         Failure,
     };
 
-    virtual ~IExtention() = default;
+    virtual ~IExtension() = default;
 
     /**
      * Initialize your extention. This will be called before any other methods.
@@ -40,6 +40,9 @@ public:
      */
     virtual std::shared_ptr<attributes::IAttributeStore> getAttributeStore() = 0;
 };
+
+using CreateExtensionFunction = IExtension * (*)();
+using DestroyExtensionFunction = void (*)(IExtension *);
 
 } // namespace
 

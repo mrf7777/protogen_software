@@ -1,7 +1,7 @@
 #ifndef PROTOGEN_ISENSOR_HPP
 #define PROTOGEN_ISENSOR_HPP
 
-#include <protogen/IExtention.hpp>
+#include <protogen/IExtension.hpp>
 
 #include <string>
 #include <optional>
@@ -88,7 +88,7 @@ using ChannelValue = std::variant<
  * - `ch.mycompany.outside.weather` could name a custom channel that measures the chance of rain by device made by `mycompany`.
  * - `ch.mycompany.house.attic.temperature` could name a custom channel that measures the temperature of the attic in a house by device made by `mycompany`.
  */
-class ISensor : public IExtention {
+class ISensor : public IExtension {
 public:
     enum class ReadError {
         ChannelNotFound,
