@@ -60,6 +60,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(apps)
+add_subdirectory(extensions)
 add_subdirectory(installable_headers)
 add_subdirectory(mouth)
 add_subdirectory(presentation)
