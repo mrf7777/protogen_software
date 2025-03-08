@@ -58,7 +58,7 @@ std::optional<std::shared_ptr<IExtension>> protogen::DirectoryExtensionFinder::l
 
             auto protogen_app_instance = protogen_app_create();
             if(protogen_app_instance == nullptr) {
-                std::cerr << "Could not create instance of extention from library file due to its `create_extension` function returning a null pointer: " << app_file.path() << std::endl;
+                std::cerr << "Could not create instance of extension from library file due to its `create_extension` function returning a null pointer: " << app_file.path() << std::endl;
                 dlclose(protogen_app_lib);
                 return {};
             }

@@ -57,9 +57,9 @@ ImageSpectrum::ImageSpectrum(const std::string& images_directory) {
     std::vector<std::filesystem::path> files_in_directory;
     // Get all .png files that have only a non-negative integer in the filename.
     for(auto& file : std::filesystem::directory_iterator(images_directory)) {
-        const auto file_extention = file.path().extension().string();
+        const auto file_extension = file.path().extension().string();
         const auto file_stem = file.path().stem().string();
-        if(file_extention == ".png") {
+        if(file_extension == ".png") {
             try {
                 const int file_stem_int = std::stoi(file_stem);
                 if(file_stem_int >= 0) {

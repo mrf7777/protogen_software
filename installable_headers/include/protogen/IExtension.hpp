@@ -1,5 +1,5 @@
-#ifndef PROTOGEN_IEXTENTION_HPP
-#define PROTOGEN_IEXTENTION_HPP
+#ifndef PROTOGEN_IEXTENSION_HPP
+#define PROTOGEN_IEXTENSION_HPP
 
 #include <protogen/IAttributeStore.hpp>
 
@@ -8,14 +8,14 @@
 namespace protogen {
 
 /**
- * Represents an extention to the protogen software.
+ * Represents an extension to the protogen software.
  * 
- * An extention is a piece of software that can be dynamically loaded
- * into the protogen software. An extention can be a sensor, a render
+ * An extension is a piece of software that can be dynamically loaded
+ * into the protogen software. An extension can be a sensor, a render
  * surface, an app, or something else. Extensions are loaded from shared
  * libraries that are dynamically loaded by the core protogen software.
  * 
- * See the documentation for each extention type for more information. Namely:
+ * See the documentation for each extension type for more information. Namely:
  * - ISensor
  * - IRenderSurface
  * - IProtogenApp
@@ -30,13 +30,13 @@ public:
     virtual ~IExtension() = default;
 
     /**
-     * Initialize your extention. This will be called before any other methods.
+     * Initialize your extension. This will be called before any other methods.
      */
     virtual Initialization initialize() = 0;
 
     /**
-     * Return attribute store for this extention. This is used to store
-     * metadata, configuration, and other information about the extention.
+     * Return attribute store for this extension. This is used to store
+     * metadata, configuration, and other information about the extension.
      */
     virtual std::shared_ptr<attributes::IAttributeStore> getAttributeStore() = 0;
 };
