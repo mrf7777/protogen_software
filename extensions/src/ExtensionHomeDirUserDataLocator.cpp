@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <pwd.h>
-#include "ExtensionHomeDirUserDataLocator.h"
 
 using namespace protogen;
 
@@ -12,13 +11,13 @@ ExtensionHomeDirUserDataLocator::ExtensionHomeDirUserDataLocator(const std::stri
 {
 }
 
-std::optional<std::filesystem::path> ExtensionHomeDirUserDataLocator::getUserDataDirectory(IExtension *extension) const
+std::optional<std::filesystem::path> ExtensionHomeDirUserDataLocator::getUserDataDirectory(const ExtensionOriginBundle& bundle) const
 {
-    if(extension == nullptr) {
+    if(bundle.extension.get() == nullptr) {
         return {};
     }
 
-    const auto extension_id = extension->getAttributeStore()->getAttribute(attributes::A_ID);
+    const auto extension_id = bundle.extension->getAttributeStore()->getAttribute(attributes::A_ID);
     if(!extension_id.has_value()) {
         return {};
     }

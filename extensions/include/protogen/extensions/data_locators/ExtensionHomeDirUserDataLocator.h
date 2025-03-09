@@ -10,7 +10,7 @@ namespace protogen {
 class ExtensionHomeDirUserDataLocator : public IExtensionUserDataLocator {
 public:
     ExtensionHomeDirUserDataLocator(const std::string& homeSubDirectory = ".protogen", const std::string& extensionUserDataSubdirectory = "userdata");
-    std::optional<std::filesystem::path> getUserDataDirectory(IExtension * extension) const override;
+    std::optional<std::filesystem::path> getUserDataDirectory(const ExtensionOriginBundle& bundle) const override;
 private:
     std::filesystem::path buildUserDataDirectoryPath(const std::filesystem::path& home_path, const std::string& extension_id) const;
 

@@ -2,13 +2,19 @@
 #define PROTOGEN_BASE_EXTENSION_INITIALIZER_H
 
 #include <protogen/extensions/IExtensionInitializer.h>
+#include <protogen/extensions/ExtensionOriginBundle.h>
+#include <protogen/extensions/IExtensionUserDataLocator.h>
+#include <protogen/extensions/IExtensionResourceDataLocator.h>
 
 namespace protogen {
 
 class BaseExtensionInitializer : public IExtensionInitializer {
 public:
-    BaseExtensionInitializer() = default;
-    Initialization initialize(IExtension * extension) = 0;
+    BaseExtensionInitializer(std::shared_ptr<IExtensionUserDataLocator> userDataLocator, std::shared_ptr<IExtensionResourceDataLocator> resourceDataLocator);
+    Initialization initialize(ExtensionOriginBundle extension) = 0;
+private:
+    std::shared_ptr<IExtensionUserDataLocator> m_userDataLocator;
+    std::shared_ptr<IExtensionResourceDataLocator> m_resourceDataLocator;
 };
 
 } // namespace

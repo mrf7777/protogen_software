@@ -2,6 +2,7 @@
 #define PROTOGEN_I_EXTENSION_INITIALIZER_H
 
 #include <protogen/IExtension.hpp>
+#include <protogen/extensions/ExtensionOriginBundle.h>
 
 namespace protogen {
 
@@ -13,7 +14,7 @@ public:
     };
 
     virtual ~IExtensionInitializer() = default;
-    virtual Initialization initialize(IExtension * extension) = 0;
+    virtual Initialization initialize(ExtensionOriginBundle extension) = 0;
 };
 
 } // namespace

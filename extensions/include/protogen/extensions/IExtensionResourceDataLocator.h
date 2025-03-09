@@ -5,13 +5,14 @@
 #include <filesystem>
 
 #include <protogen/IExtension.hpp>
+#include <protogen/extensions/ExtensionOriginBundle.h>
 
 namespace protogen {
 
 class IExtensionResourceDataLocator {
 public:
     virtual ~IExtensionResourceDataLocator() = default;
-    virtual std::optional<std::filesystem::path> getResourceDataDirectory(IExtension * extension) const = 0;
+    virtual std::optional<std::filesystem::path> getResourceDataDirectory(const ExtensionOriginBundle& extension) const = 0;
 };
 
 } // namespace
