@@ -1,11 +1,11 @@
-#include <protogen/apps/protogen_app_loader.h>
+#include <protogen/apps/ProtogenAppInitializer.h>
 
 #include <dlfcn.h>
 
 namespace protogen
 {
 
-ProtogenAppLoader::ProtogenAppLoader(
+ProtogenAppInitializer::ProtogenAppInitializer(
     const std::string &apps_directory,
     std::shared_ptr<IProportionProvider> mouth_proportion_provider,
     const Resolution& device_resolution,
@@ -14,7 +14,7 @@ ProtogenAppLoader::ProtogenAppLoader(
 {
 }
 
-Apps ProtogenAppLoader::apps()
+Apps ProtogenAppInitializer::apps()
 {
     Apps apps;
     for(const auto& entry : std::filesystem::directory_iterator(m_appDirectory)) {
@@ -39,7 +39,7 @@ Apps ProtogenAppLoader::apps()
     return apps;
 }
 
-std::optional<std::shared_ptr<IProtogenApp>> ProtogenAppLoader::loadAppFromDirectory(const std::filesystem::path &app_directory)
+std::optional<std::shared_ptr<IProtogenApp>> ProtogenAppInitializer::loadAppFromDirectory(const std::filesystem::path &app_directory)
 {
     // Search for a `.so` file.
     for(const auto& app_file : std::filesystem::directory_iterator(app_directory)) {
@@ -83,7 +83,7 @@ std::optional<std::shared_ptr<IProtogenApp>> ProtogenAppLoader::loadAppFromDirec
     return {};
 }
 
-bool ProtogenAppLoader::initializeApp(std::shared_ptr<IProtogenApp> app, const std::filesystem::path& app_resources_directory)
+bool ProtogenAppInitializer::initializeApp(std::shared_ptr<IProtogenApp> app, const std::filesystem::path& app_resources_directory)
 {
     // TODO: pass sensors to protogen app
     // TODO: pass render surface to protogen app.

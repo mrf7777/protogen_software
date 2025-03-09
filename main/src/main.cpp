@@ -235,7 +235,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	printServiceLocationHeader("Apps");
 	auto app_user_data_directory_locator = std::shared_ptr<IUserDataLocator>(new HomeDirLocator());
-	ProtogenAppLoader app_loader(PROTOGEN_APPS_DIR, mouth_openness_provider, data_viewer->resolution(), app_user_data_directory_locator);
+	ProtogenAppInitializer app_loader(PROTOGEN_APPS_DIR, mouth_openness_provider, data_viewer->resolution(), app_user_data_directory_locator);
 	auto apps = app_loader.apps();
 	for(const auto& [app_id, app] : apps) {
 		const std::string app_name = app->getAttributeStore()->getAttribute(attributes::A_NAME).value_or("<no name>");
