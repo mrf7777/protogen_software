@@ -6,13 +6,14 @@
 #include <vector>
 
 #include <protogen/IExtension.hpp>
+#include <protogen/extensions/ExtensionOriginBundle.h>
 
 namespace protogen {
 
 class IExtensionFinder {
 public:
     virtual ~IExtensionFinder() = default;
-    virtual std::vector<std::shared_ptr<IExtension>> find() = 0;
+    virtual std::vector<ExtensionOriginBundle> find() = 0;
 };
 
 } // namespace

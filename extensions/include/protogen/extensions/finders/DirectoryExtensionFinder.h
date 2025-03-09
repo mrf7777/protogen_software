@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include <protogen/IExtension.hpp>
+#include <protogen/extensions/ExtensionOriginBundle.h>
 #include <protogen/extensions/IExtensionFinder.h>
 
 namespace protogen {
@@ -13,7 +15,7 @@ namespace protogen {
 class DirectoryExtensionFinder : public IExtensionFinder {
 public:
     DirectoryExtensionFinder(const std::filesystem::path& directory);
-    std::vector<std::shared_ptr<IExtension>> find() override;
+    std::vector<ExtensionOriginBundle> find() override;
 private:
     std::optional<std::shared_ptr<IExtension>> loadExtensionFromDirectory(const std::filesystem::path& extension_directory);
 

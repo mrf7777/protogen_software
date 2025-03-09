@@ -12,16 +12,19 @@ DirectoryExtensionFinder::DirectoryExtensionFinder(const std::filesystem::path &
 {
 }
 
-std::vector<std::shared_ptr<IExtension>> DirectoryExtensionFinder::find()
+std::vector<ExtensionOriginBundle> DirectoryExtensionFinder::find()
 {
-    std::vector<std::shared_ptr<IExtension>> extensions;
+    std::vector<ExtensionOriginBundle> extensions;
     for(const auto& entry : std::filesystem::directory_iterator(m_directory)) {
         if(entry.is_directory()) {
             auto app = loadExtensionFromDirectory(entry.path());
             if(!app.has_value()) {
                 continue;
             }
-            extensions.push_back(app.value());
+            extensions.push_back(ExtensionOriginBundle{
+                app.value(),
+                entry.path(),
+            });
         }
     }
     return extensions;
