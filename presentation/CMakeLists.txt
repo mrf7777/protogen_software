@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(PROTOGEN_SOURCES
     "${PROJECT_SOURCE_DIR}/src/protogen.cpp"
     "${PROJECT_SOURCE_DIR}/src/sdl_render_surface.cpp"
-    "${PROJECT_SOURCE_DIR}/src/MostAreaResolutionSelector.cpp"
     "${PROJECT_SOURCE_DIR}/src/EmbeddedRenderSurface.cpp"
     "${PROJECT_SOURCE_DIR}/src/EmbeddedCanvas.cpp"
 )
