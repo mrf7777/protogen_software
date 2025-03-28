@@ -39,21 +39,13 @@
 #include <protogen/extensions/data_locators/ExtensionDirResourceDataLocator.h>
 #include <protogen/extensions/finders/DirectoryExtensionFinder.h>
 #include <protogen/extensions/checks/RequiredAttributesCheck.h>
+#include <protogen/sensors/SensorOriginBundle.h>
+#include <protogen/sensors/SensorsProvider.h>
 #include <protogen/apps/ProtogenAppInitializer.h>
+#include <protogen/apps/AppsProvider.h>
 #include <cmake_config.h>
 
 using namespace protogen;
-
-volatile bool interrupt_received = false;
-static void interrupt_handler([[maybe_unused]] int signal) {
-	interrupt_received = true;
-}
-
-void setup_signal_handlers() {
-	signal(SIGTERM, interrupt_handler);
-	signal(SIGINT, interrupt_handler);
-	signal(SIGABRT, interrupt_handler);
-}
 
 std::string red(const std::string& s) {
 	return "\033[31m" + s + "\033[0m";
@@ -108,29 +100,6 @@ std::optional<std::filesystem::path> getResourcesDir() {
 	return {};
 }
 
-std::unique_ptr<IProportionProvider> getMouthProportionProvider(std::shared_ptr<httplib::Server> srv) {
-	// Try using I2C PCB artists decibel meter.
-	printServiceLocationSubsection("PCB Artist's Decibel Meter");
-	auto potential_pcb_artists_decibel_meter = PcbArtistsDecibelMeter::make();
-	if(potential_pcb_artists_decibel_meter.has_value()) {
-		std::cout << green("Audio device found: PCB Artist's Decibel Meter.") << std::endl;
-		return std::unique_ptr<IProportionProvider>(new AudioToProportionAdapter(std::move(potential_pcb_artists_decibel_meter.value())));
-	} else {
-		printNotFound();
-	}
-
-	// try using web-based audio slider emulator.
-	printServiceLocationSubsection("Web-based Audio Slider Emulator");
-	std::cout << green("Audio device found: Web-based Audio Slider Emulator.") << std::endl;
-	auto website_audio_provider = std::unique_ptr<IAudioProvider>(new WebsiteAudioProvider(*srv, "/protogen/head/audio-loudness"));
-	auto website_proportion_provider = std::unique_ptr<IProportionProvider>(new AudioToProportionAdapter(std::move(website_audio_provider)));
-	return website_proportion_provider;
-
-	// As a fallback, use a static mouth proportion provider.
-	std::cout << red("Audio device not found. Mouth will be closed at all times.") << std::endl;
-	return std::unique_ptr<IProportionProvider>(new ConstantProportionProvider());
-}
-
 std::unique_ptr<IRenderSurface> getRenderSurface() {
 	// Try Hub75 type led matrices.
 	printServiceLocationSubsection("HUB75 interface LED Matrices");
@@ -177,45 +146,25 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	auto data_viewer = std::shared_ptr(getRenderSurface());
 	printServiceLocationFooter();
 
-	printServiceLocationHeader("Mouth Movement Device");
-	std::shared_ptr<IProportionProvider> mouth_openness_provider = getMouthProportionProvider(srv);
+	printServiceLocationHeader("Sensor Devices");
+	auto sensor_finder = std::shared_ptr<IExtensionFinder>(new DirectoryExtensionFinder(PROTOGEN_SENSORS_DIR));
+	auto sensor_check = extension_check;
+	auto sensor_initializer = extension_base_initializer;
+	auto found_sensors = sensor_finder->find();
+	auto sensors_provider = std::shared_ptr<SensorsProvider>(new SensorsProvider(sensor_finder, sensor_initializer, sensor_check));
+	auto sensors = sensors_provider->loadSensors();
 	printServiceLocationFooter();
 
 	printServiceLocationHeader("Apps");
-	// auto app_user_data_directory_locator = std::shared_ptr<IUserDataLocator>(new HomeDirLocator());
-	// ProtogenAppInitializer app_loader(PROTOGEN_APPS_DIR, mouth_openness_provider, data_viewer->resolution(), app_user_data_directory_locator);
-	// auto apps = app_loader.apps();
-	// for(const auto& [app_id, app] : apps) {
-	// 	const std::string app_name = app->getAttributeStore()->getAttribute(attributes::A_NAME).value_or("<no name>");
-	// 	std::cout << "Found app: \"" << app_name << "\" (id: " << app_id << ")" << std::endl;
-	// }
 	auto app_finder = std::shared_ptr<IExtensionFinder>(new DirectoryExtensionFinder(PROTOGEN_APPS_DIR));
-	auto app_checker = std::shared_ptr<IExtensionCheck>(new RequiredAttributesCheck());
-	// TODO: initialize and pass in sensors.
-	auto app_initializer = std::shared_ptr<IExtensionInitializer>(new ProtogenAppInitializer(extension_base_initializer, {}, data_viewer));
-	auto found_apps = app_finder->find();
-	std::vector<ExtensionOriginBundle> apps;
-	for(auto& app : found_apps) {
-		const auto initialization = app_initializer->initialize(app);
-		switch(initialization) {
-			case IExtensionInitializer::Initialization::Success:
-				break;
-			case IExtensionInitializer::Initialization::Failure:
-				std::cerr << red("Failed to initialize app of id `") << app.extension->getAttributeStore()->getAttribute(attributes::A_ID).value_or("<no id>") << "`." << std::endl;
-				continue;
-				break;
-		}
-		if(!app_checker->check(app)) {
-			std::cerr
-				<< red("App of id `")
-				<< app.extension->getAttributeStore()->getAttribute(attributes::A_ID).value_or("<no id>")
-				<< "` failed to pass checks. Here is the issue: "
-				<< red(app_checker->error())
-				<< std::endl;
-			continue;
-		}
-		apps.push_back(app);
+	auto app_checker = extension_check;
+	std::vector<std::shared_ptr<sensor::ISensor>> sensors_vector;
+	for(auto& sensor : sensors) {
+		sensors_vector.push_back(sensor.second.sensor);
 	}
+	auto app_initializer = std::shared_ptr<IExtensionInitializer>(new ProtogenAppInitializer(extension_base_initializer, sensors_vector, data_viewer));
+	auto apps_provider = std::shared_ptr<AppsProvider>(new AppsProvider(app_finder, app_initializer, app_checker));
+	auto apps = apps_provider->loadApps();
 	printServiceLocationFooter();
 
 	printServiceLocationHeader("Resources");
@@ -233,12 +182,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	auto app_state = std::shared_ptr<AppState>(new AppState());
 	for(auto app : apps)
 	{
-		app_state->addApp(std::dynamic_pointer_cast<IProtogenApp>(app.extension));
+		app_state->addApp(std::dynamic_pointer_cast<IProtogenApp>(app.second.app));
 	}
 
 	setup_web_server(srv, app_state, html_files_dir, static_web_resources_dir);
-
-	setup_signal_handlers();
 
 	srv->listen("0.0.0.0", 8080);
 }

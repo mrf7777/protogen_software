@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROTOGEN_RESOURCES_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/protogen/resources")
 set(PROTOGEN_APPS_DIR "${CMAKE_INSTALL_PREFIX}/share/protogen/apps")
+set(PROTOGEN_SENSORS_DIR "${CMAKE_INSTALL_PREFIX}/share/protogen/sensors")
 
 # Create targets for external libraries.
 ## GraphicsMagick
@@ -69,6 +70,7 @@ add_subdirectory(state)
 add_subdirectory(utils)
 add_subdirectory(main)
 add_subdirectory(tests)
+add_subdirectory(sensors)
 
 # Copy resources to build so one can run current build
 # with resources without installing resources to system.

@@ -22,6 +22,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     server
     state
     installable_headers
+    sensors
+    apps
+    extensions
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE graphics_magick)

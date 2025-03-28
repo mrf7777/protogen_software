@@ -1,13 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
-project(apps)
+project(sensors)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROTOGEN_SOURCES
-    "${PROJECT_SOURCE_DIR}/src/ProtogenAppInitializer.cpp"
-    "${PROJECT_SOURCE_DIR}/src/AppSafetyWrapper.cpp"
-    "${PROJECT_SOURCE_DIR}/src/AppsProvider.cpp"
+    "${PROJECT_SOURCE_DIR}/src/SensorsProvider.cpp"
 )
 add_library(${PROJECT_NAME} ${PROTOGEN_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/include")
