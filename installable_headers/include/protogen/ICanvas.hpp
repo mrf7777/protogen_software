@@ -9,6 +9,10 @@ namespace protogen {
 
 /**
  * Represents a surface to draw imagery.
+ * 
+ * Many methods are provided to draw common shapes and provide an opportunity
+ * to provide accelerated drawing methods for specific hardware. Otherwise,
+ * the default implementations will be used.
  */
 class ICanvas {
 public:

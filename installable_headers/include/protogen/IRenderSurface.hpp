@@ -23,8 +23,10 @@ namespace protogen {
  * └── shared/
  *     └── protogen/
  *         └── displays/
- *             └── <render surface id as returned by its id method>/
+ *             └── <render surface id as returned by its id attribute>/
  *                 └── *.so
+ *                 └── resources/
+ *                     └── <render surface's files>
  * <install location> is the directory where the core protogen software is installed.
  * By default, `cmake --install` on linux installs in /usr/local.
  * When you install the core protogen software, <install location>/shared/protogen

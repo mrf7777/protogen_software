@@ -33,7 +33,7 @@ namespace protogen {
  * └── shared/
  *     └── protogen/
  *         └── apps/
- *             └── <app id as returned by its id method>/
+ *             └── <app id as returned by its id attribute>/
  *                 ├── *.so
  *                 └── resources/
  *                     └── <app's files>

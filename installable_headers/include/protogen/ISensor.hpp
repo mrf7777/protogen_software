@@ -40,8 +40,10 @@ using ChannelValue = std::variant<
  * └── shared/
  *     └── protogen/
  *         └── sensors/
- *             └── <sensor id as returned by its id method>/
+ *             └── <sensor id as returned by its id attribute>/
  *                 └── *.so
+ *                 └── resources/
+ *                     └── <sensor's files>
  * <install location> is the directory where the core protogen software is installed.
  * By default, `cmake --install` on linux installs in /usr/local.
  * When you install the core protogen software, <install location>/shared/protogen
@@ -71,22 +73,26 @@ using ChannelValue = std::variant<
  * required to be unique across all sensors, but two different sensors can have
  * channels with the same id. This is because two sensors may be installed that
  * measure the same property in different ways. For example, one sensor may
- * measure have a channel of id `ch.std.in.temperature` and another sensor may
+ * measure have a channel of id `std:in.temperature` and another sensor may
  * have the same channel, but measure the temperature in a different way.
- * This is a feature, because some sensors which measure common channels may
- * provide additional channels or provide a "different opinion."
+ * This is a feature, because the core software may choose a sensor's
+ * implementation of a channel over another based on a priority configuration.
  * 
- * Each channel id is formatted: `ch.<origin>.<property>`.
- * - `ch`: Indicates that this is a channel id.
- * - `<origin>`: A string which identifies an authority which provides a standard for the rest of the channel id. This is either `std` for standard channels, or a unique identifier for custom channels. The fewer values of this in circulation, the more reusable the channel becomes.
- * - `<target>`: The object or area that the channel measures. If `<origin>` is `std`, this typically is either `in` for inside the protogen, `out` for outside the protogen, or `misc` for miscellaneous targets. Otherwise, this can be any string that the sensor author chooses.
- * - `<property>`: The specific property that the channel measures. This should be a short, descriptive string that indicates what the channel measures.
+ * Each channel id is formatted as: `<origin>:<property>`.
+ * - `<origin>`:
+ *   - A string which identifies an authority or namespace.
+ *   - Can be separated by periods (.)
+ *   - This is either `std` for standard channels, or a unique value for groups of custom channels, preferably a domain name or community name.
+ * - `<property>`:
+ *   - The specific property that the channel measures.
+ *   - This should be a short, descriptive string that indicates what the channel measures.
+ *   - The property may have periods (.)
  * Some examples:
- * - `ch.std.in.temperature` names the standard channel for the internal temperature of the protogen. `in.temperature` is the property that is measured.
- * - `ch.std.out.temperature` names the standard channel for the external temperature of the protogen. `out.temperature` is the property that is measured.
- * - `ch.ai.digit` could name a custom channel that uses AI to detect digits and returns a string for the digit.
- * - `ch.mycompany.outside.weather` could name a custom channel that measures the chance of rain by device made by `mycompany`.
- * - `ch.mycompany.house.attic.temperature` could name a custom channel that measures the temperature of the attic in a house by device made by `mycompany`.
+ * - `std:in.temperature` names the standard channel for the internal temperature of the protogen. `in.temperature` is the property that is measured.
+ * - `std:out.temperature` names the standard channel for the external temperature of the protogen. `out.temperature` is the property that is measured.
+ * - `ai:digit` could name a custom channel that uses AI to detect digits and returns a string for the digit.
+ * - `mycompany:outside.weather` could name a custom channel that measures the chance of rain by device made by `mycompany`.
+ * - `mycompany:house.attic.temperature` could name a custom channel that measures the temperature of the attic in a house by device made by `mycompany`.
  */
 class ISensor : public IExtension {
 public:
@@ -160,47 +166,47 @@ public:
  */
 const std::array<ISensor::ChannelInfo, 11> STANDARD_CHANNELS = {{
     { 
-        "ch.std.in.temperature", 
+        "std:in.temperature", 
         "Internal temperature measured in Celsius." 
     },
     { 
-        "ch.std.out.temperature", 
+        "std:out.temperature", 
         "External temperature measured in Celsius." 
     },
     { 
-        "ch.std.out.ambient_light", 
+        "std:out.ambient_light", 
         "Ambient light intensity measured in lux." 
     },
     { 
-        "ch.std.out.sound_level", 
+        "std:out.sound_level", 
         "External sound intensity level measured in decibels (dB)." 
     },
     { 
-        "ch.std.in.sound_level", 
+        "std:in.sound_level", 
         "Internal sound intensity level measured in decibels (dB)." 
     },
     { 
-        "ch.std.out.proximity", 
+        "std:out.proximity", 
         "Proximity measurement in meters." 
     },
     { 
-        "ch.std.in.battery_level", 
+        "std:in.battery_level", 
         "Battery level as a percentage (0-100%)." 
     },
     { 
-        "ch.std.self.gcs_location", 
+        "std:self.gcs_location", 
         "Geographic Coordinate system (GCS) location data including latitude, longitude, and altitude, in that order, as a real array." 
     },
     {
-        "ch.std.self.azimuth",
+        "std:self.azimuth",
         "Azimuth angle, from north, measured in degrees between 0 degrees (inclusive) and 360 degrees (exclusive)."
     },
     {
-        "ch.std.out.humidity_relative",
+        "std:out.humidity_relative",
         "Outside relative humidity measured in percentage."
     },
     {
-        "ch.std.in.humidity_relative",
+        "std:in.humidity_relative",
         "Inside relative humidity measured in percentage."
     }
 }};
