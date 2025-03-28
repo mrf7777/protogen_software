@@ -13,10 +13,7 @@ public:
     Initialization initialize() override;
     std::shared_ptr<attributes::IAttributeStore> getAttributeStore() override;
     void setActive(bool active) override;
-    void render(ICanvas& canvas) const override;
-    float framerate() const override;
     void receiveRenderSurface(std::shared_ptr<IRenderSurface> render_surface) override;
-    std::vector<Resolution> supportedResolutions() const override;
     void receiveSensors(std::vector<std::shared_ptr<sensor::ISensor>> sensors) override;
 
 private:

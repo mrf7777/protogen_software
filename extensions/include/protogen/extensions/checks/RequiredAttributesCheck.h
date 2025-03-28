@@ -11,7 +11,7 @@ namespace protogen {
 class RequiredAttributesCheck : public IExtensionCheck {
 public:
     RequiredAttributesCheck();
-    bool check(IExtension * extension) override;
+    bool check(ExtensionOriginBundle extension) override;
     std::string error() const override;
 
 private:

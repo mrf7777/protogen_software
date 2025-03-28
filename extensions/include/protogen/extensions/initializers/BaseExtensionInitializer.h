@@ -10,8 +10,10 @@ namespace protogen {
 
 class BaseExtensionInitializer : public IExtensionInitializer {
 public:
-    BaseExtensionInitializer(std::shared_ptr<IExtensionUserDataLocator> userDataLocator, std::shared_ptr<IExtensionResourceDataLocator> resourceDataLocator);
-    Initialization initialize(ExtensionOriginBundle extension) = 0;
+    BaseExtensionInitializer(
+        std::shared_ptr<IExtensionUserDataLocator> userDataLocator,
+        std::shared_ptr<IExtensionResourceDataLocator> resourceDataLocator);
+    Initialization initialize(ExtensionOriginBundle extension) override;
 private:
     std::shared_ptr<IExtensionUserDataLocator> m_userDataLocator;
     std::shared_ptr<IExtensionResourceDataLocator> m_resourceDataLocator;

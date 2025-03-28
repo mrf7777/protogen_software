@@ -23,16 +23,23 @@
 #include <protogen/Proportion.hpp>
 #include <protogen/IProtogenApp.hpp>
 #include <protogen/IProportionProvider.hpp>
-#include <protogen/rendering/images.h>
-#include <protogen/rendering/renderer.h>
 #include <protogen/mouth/audio.h>
 #include <protogen/utils/utils.h>
 #include <protogen/presentation/protogen.h>
 #include <protogen/presentation/render_surface.h>
 #include <protogen/presentation/sdl_render_surface.h>
 #include <protogen/server/web_server.h>
-#include <protogen/apps/protogen_app_loader.h>
-#include <protogen/apps/HomeDirLocator.h>
+#include <protogen/extensions/IExtensionFinder.h>
+#include <protogen/extensions/IExtensionCheck.h>
+#include <protogen/extensions/IExtensionInitializer.h>
+#include <protogen/extensions/IExtensionUserDataLocator.h>
+#include <protogen/extensions/IExtensionResourceDataLocator.h>
+#include <protogen/extensions/initializers/BaseExtensionInitializer.h>
+#include <protogen/extensions/data_locators/ExtensionHomeDirUserDataLocator.h>
+#include <protogen/extensions/data_locators/ExtensionDirResourceDataLocator.h>
+#include <protogen/extensions/finders/DirectoryExtensionFinder.h>
+#include <protogen/extensions/checks/RequiredAttributesCheck.h>
+#include <protogen/apps/ProtogenAppInitializer.h>
 #include <cmake_config.h>
 
 using namespace protogen;
@@ -40,75 +47,6 @@ using namespace protogen;
 volatile bool interrupt_received = false;
 static void interrupt_handler([[maybe_unused]] int signal) {
 	interrupt_received = true;
-}
-
-void web_server_thread_function(std::shared_ptr<httplib::Server> server) {
-	server->listen("0.0.0.0", 8080);
-}
-
-double normalize(double value, double min, double max) {
-    if (value < min || value > max) {
-        std::cerr << "Value is outside the specified interval." << std::endl;
-        return -1; // Or throw an exception
-    }
-
-    return (value - min) / (max - min);
-}
-
-void protogen_blinking_thread_function(std::shared_ptr<AppState> app_state) {
-	// TODO: only run loop when the protogen is the active mode.
-	
-	// Proportion animation over time
-	//
-	//     ^
-	//     |
-	//     (proportion)
-	// 1.0 |**********       *********
-	//     |          *     *
-	//     |           *   *
-	//     |            * *
-	//     |             *
-	// 0.0 |----------------------------(time)->
-	//
-
-	static constexpr double animation_action_start_time = 4.3;
-	static constexpr double animation_action_end_time = 5.0;
-	static constexpr double animation_action_mid_time = (animation_action_start_time + animation_action_end_time) / 2;
-	static_assert(animation_action_start_time < animation_action_end_time);
-	
-	
-	while(!interrupt_received) {
-		double delay_seconds = 1.0 / app_state->frameRate();
-
-		const auto system_time = std::chrono::system_clock::now();
-		const auto time_epoch = system_time.time_since_epoch();
-		const double time_epoch_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(time_epoch).count() / 1000.0;
-		const double animation_time = std::fmod(time_epoch_seconds, animation_action_end_time);
-
-		Proportion eye_openness = Proportion::make(1.0).value();
-		if(animation_time < animation_action_start_time) {
-			eye_openness = Proportion::make(1.0).value();
-		} else if(animation_action_start_time <= animation_time && animation_time <= animation_action_mid_time) {
-			eye_openness = Proportion::make(std::lerp(1.0, 0.0, normalize(animation_time, animation_action_start_time, animation_action_mid_time))).value();
-		} else if(animation_action_mid_time <= animation_time && animation_time <= animation_action_end_time) {
-			eye_openness = Proportion::make(std::lerp(0.0, 1.0, normalize(animation_time, animation_action_mid_time, animation_action_end_time))).value();
-		} else {
-			eye_openness = Proportion::make(1.0).value();
-		}
-		app_state->protogenHeadState().setEyeOpenness(eye_openness);
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int64_t>(delay_seconds * 1000)));
-	}
-}
-
-void protogen_mouth_sync_thread_function(std::shared_ptr<AppState> app_state, std::shared_ptr<IProportionProvider> mouth_openness_provider) {
-	// TODO: only run loop when the protogen is the active mode.
-	float framerate = app_state->frameRate();
-	while(!interrupt_received) {
-		app_state->protogenHeadState().setMouthOpenness(mouth_openness_provider->proportion());
-		framerate = app_state->frameRate();
-		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(1000/framerate)));
-	}
 }
 
 void setup_signal_handlers() {
@@ -225,8 +163,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
 
+	auto extension_user_data_locator = std::shared_ptr<IExtensionUserDataLocator>();
+	auto extension_resource_data_locator = std::shared_ptr<IExtensionResourceDataLocator>();
+	auto extension_base_initializer = std::shared_ptr<IExtensionInitializer>(
+		new BaseExtensionInitializer(
+			extension_user_data_locator,
+			extension_resource_data_locator
+		)
+	);
+	auto extension_check = std::shared_ptr<IExtensionCheck>(new RequiredAttributesCheck());
+	
 	printServiceLocationHeader("Display Device");
-	auto data_viewer = getRenderSurface();
+	auto data_viewer = std::shared_ptr(getRenderSurface());
 	printServiceLocationFooter();
 
 	printServiceLocationHeader("Mouth Movement Device");
@@ -234,12 +182,39 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	printServiceLocationFooter();
 
 	printServiceLocationHeader("Apps");
-	auto app_user_data_directory_locator = std::shared_ptr<IUserDataLocator>(new HomeDirLocator());
-	ProtogenAppInitializer app_loader(PROTOGEN_APPS_DIR, mouth_openness_provider, data_viewer->resolution(), app_user_data_directory_locator);
-	auto apps = app_loader.apps();
-	for(const auto& [app_id, app] : apps) {
-		const std::string app_name = app->getAttributeStore()->getAttribute(attributes::A_NAME).value_or("<no name>");
-		std::cout << "Found app: \"" << app_name << "\" (id: " << app_id << ")" << std::endl;
+	// auto app_user_data_directory_locator = std::shared_ptr<IUserDataLocator>(new HomeDirLocator());
+	// ProtogenAppInitializer app_loader(PROTOGEN_APPS_DIR, mouth_openness_provider, data_viewer->resolution(), app_user_data_directory_locator);
+	// auto apps = app_loader.apps();
+	// for(const auto& [app_id, app] : apps) {
+	// 	const std::string app_name = app->getAttributeStore()->getAttribute(attributes::A_NAME).value_or("<no name>");
+	// 	std::cout << "Found app: \"" << app_name << "\" (id: " << app_id << ")" << std::endl;
+	// }
+	auto app_finder = std::shared_ptr<IExtensionFinder>(new DirectoryExtensionFinder(PROTOGEN_APPS_DIR));
+	auto app_checker = std::shared_ptr<IExtensionCheck>(new RequiredAttributesCheck());
+	// TODO: initialize and pass in sensors.
+	auto app_initializer = std::shared_ptr<IExtensionInitializer>(new ProtogenAppInitializer(extension_base_initializer, {}, data_viewer));
+	auto found_apps = app_finder->find();
+	std::vector<ExtensionOriginBundle> apps;
+	for(auto& app : found_apps) {
+		const auto initialization = app_initializer->initialize(app);
+		switch(initialization) {
+			case IExtensionInitializer::Initialization::Success:
+				break;
+			case IExtensionInitializer::Initialization::Failure:
+				std::cerr << red("Failed to initialize app of id `") << app.extension->getAttributeStore()->getAttribute(attributes::A_ID).value_or("<no id>") << "`." << std::endl;
+				continue;
+				break;
+		}
+		if(!app_checker->check(app)) {
+			std::cerr
+				<< red("App of id `")
+				<< app.extension->getAttributeStore()->getAttribute(attributes::A_ID).value_or("<no id>")
+				<< "` failed to pass checks. Here is the issue: "
+				<< red(app_checker->error())
+				<< std::endl;
+			continue;
+		}
+		apps.push_back(app);
 	}
 	printServiceLocationFooter();
 
@@ -254,36 +229,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 	const std::string resources_dir = potential_resources_dir.value();
 	const std::string static_web_resources_dir = (std::filesystem::path(resources_dir) / std::filesystem::path("static")).generic_string();
 	const std::string html_files_dir = std::filesystem::path(resources_dir).generic_string();
-	const std::string protogen_emotions_dir = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/eyes")).generic_string();
-	const std::string static_protogen_image_path = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/static/nose.png")).generic_string();
-	const std::string protogen_mouth_dir = (std::filesystem::path(resources_dir) / std::filesystem::path("protogen_images/mouth")).generic_string();
 
-	auto emotion_drawer = EmotionDrawer(protogen_emotions_dir);
-	emotion_drawer.configWebServerToHostEmotionImages(*srv, "/protogen/head/emotion/images");
+	auto app_state = std::shared_ptr<AppState>(new AppState());
+	for(auto app : apps)
+	{
+		app_state->addApp(std::dynamic_pointer_cast<IProtogenApp>(app.extension));
+	}
 
-	auto app_state = std::shared_ptr<AppState>(new AppState(std::move(apps)));
-
-	setup_web_server(srv, app_state, html_files_dir, static_web_resources_dir, emotion_drawer);
-
-	auto renderer = Renderer(emotion_drawer, protogen_mouth_dir, static_protogen_image_path);
+	setup_web_server(srv, app_state, html_files_dir, static_web_resources_dir);
 
 	setup_signal_handlers();
 
-	std::thread web_server_thread(web_server_thread_function, srv);
-	std::thread protogen_blinking_thread(protogen_blinking_thread_function, app_state);
-	std::thread protogen_mouth_sync_thread(protogen_mouth_sync_thread_function, app_state, mouth_openness_provider);
-
-	float FPS;
-	while(!interrupt_received) {
-		FPS = app_state->frameRate();
-		
-		data_viewer->drawFrame([&](ICanvas& canvas) {
-			renderer.render(*app_state, canvas);
-		});
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(1000/FPS)));
-	}
-
-	// clean up
-	srv->stop();
+	srv->listen("0.0.0.0", 8080);
 }

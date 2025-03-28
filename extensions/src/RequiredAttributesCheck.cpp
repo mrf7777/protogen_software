@@ -17,11 +17,11 @@ RequiredAttributesCheck::RequiredAttributesCheck()
 {
 }
 
-bool RequiredAttributesCheck::check(IExtension *extension)
+bool RequiredAttributesCheck::check(ExtensionOriginBundle extension)
 {
     m_error.clear();
 
-    const auto attributes = extension->getAttributeStore();
+    const auto attributes = extension.extension->getAttributeStore();
     if(attributes.get() == nullptr) {
         m_error = "Extension does not have an attribute store.";
         return false;

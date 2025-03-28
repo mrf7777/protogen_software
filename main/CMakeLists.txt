@@ -19,7 +19,6 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
     mouth
     presentation
-    rendering
     server
     state
     installable_headers

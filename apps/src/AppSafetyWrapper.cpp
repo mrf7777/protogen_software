@@ -25,6 +25,7 @@ std::shared_ptr<attributes::IAttributeStore> protogen::AppSafetyWrapper::getAttr
         return m_app->getAttributeStore();
     } catch(...) {
         std::cerr << "An exception occurred while getting the attribute store of an app." << std::endl;
+        return nullptr;
     }
 }
 
@@ -37,41 +38,12 @@ void protogen::AppSafetyWrapper::setActive(bool active)
     }
 }
 
-void protogen::AppSafetyWrapper::render(ICanvas &canvas) const
-{
-    try {
-        m_app->render(canvas);
-    } catch(...) {
-        std::cerr << "An exception occurred while rendering an app." << std::endl;
-    }
-}
-
-float protogen::AppSafetyWrapper::framerate() const
-{
-    try {
-        return m_app->framerate();
-    } catch(...) {
-        std::cerr << "An exception occurred while getting the framerate of an app." << std::endl;
-        return 0.0f;
-    }
-}
-
 void protogen::AppSafetyWrapper::receiveRenderSurface(std::shared_ptr<IRenderSurface> render_surface)
 {
     try {
         m_app->receiveRenderSurface(render_surface);
     } catch(...) {
         std::cerr << "An exception occurred while receiving the render surface of an app." << std::endl;
-    }
-}
-
-std::vector<Resolution> protogen::AppSafetyWrapper::supportedResolutions() const
-{
-    try {
-        return m_app->supportedResolutions();
-    } catch(...) {
-        std::cerr << "An exception occurred while getting the supported resolutions of an app." << std::endl;
-        return {};
     }
 }
 

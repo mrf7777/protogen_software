@@ -18,20 +18,20 @@
 namespace protogen
 {
 
-using Apps = std::map<std::string, std::shared_ptr<IProtogenApp>>;
-
 class ProtogenAppInitializer : public IExtensionInitializer
 {
 public:
     explicit ProtogenAppInitializer(
+        std::shared_ptr<IExtensionInitializer> initialExtensionInitializer,
         std::vector<std::shared_ptr<sensor::ISensor>> sensors,
         std::shared_ptr<IRenderSurface> renderSurface
     );
-    Initialization initialize(IExtension * extension) override;
+    Initialization initialize(ExtensionOriginBundle extension) override;
 
 private:
-    std::shared_ptr<IProportionProvider> m_mouthProportionProvider;
-    Resolution m_deviceResolution;
+    std::shared_ptr<IExtensionInitializer> m_initialExtensionInitializer;
+    std::vector<std::shared_ptr<sensor::ISensor>> m_sensors;
+    std::shared_ptr<IRenderSurface> m_renderSurface;
 };
 
 }   // namespace
