@@ -163,8 +163,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[]) {
 
 	auto srv = std::shared_ptr<httplib::Server>(new httplib::Server());
 
-	auto extension_user_data_locator = std::shared_ptr<IExtensionUserDataLocator>();
-	auto extension_resource_data_locator = std::shared_ptr<IExtensionResourceDataLocator>();
+	auto extension_user_data_locator = std::shared_ptr<IExtensionUserDataLocator>(new ExtensionHomeDirUserDataLocator(".protogen", "userdata"));
+	auto extension_resource_data_locator = std::shared_ptr<IExtensionResourceDataLocator>(new ExtensionDirResourceDataLocator("resources"));
 	auto extension_base_initializer = std::shared_ptr<IExtensionInitializer>(
 		new BaseExtensionInitializer(
 			extension_user_data_locator,
