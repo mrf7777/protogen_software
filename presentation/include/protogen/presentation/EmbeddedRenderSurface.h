@@ -4,24 +4,35 @@
 #include <memory>
 #include <stdexcept>
 
-#include <protogen/presentation/render_surface.h>
+#include <protogen/ICanvas.hpp>
 #include <protogen/Resolution.hpp>
+#include <protogen/IRenderSurface.hpp>
+#include <protogen/StandardAttributeStore.hpp>
+#include <protogen/presentation/Window.h>
 
 namespace protogen {
 
 class EmbeddedRenderSurface : public IRenderSurface {
 public:
-    EmbeddedRenderSurface(std::unique_ptr<IRenderSurface>&& source_surface, const Resolution& embedded_resolution);
-    void drawFrame(const std::function<void(ICanvas&)>& drawer);
-    Resolution resolution() const;
+    static std::optional<std::unique_ptr<EmbeddedRenderSurface>> make(std::shared_ptr<IRenderSurface> source_surface, Window window);
 
-    class EmbeddedResolutionDoesNotFit : std::invalid_argument {
-    public:
-        EmbeddedResolutionDoesNotFit(const std::string& message) : std::invalid_argument(message) {};
-    };
+    Initialization initialize() override;
+    std::shared_ptr<attributes::IAttributeStore> getAttributeStore() override;
+    void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
+    Resolution resolution() const override;
+
 private:
-    std::unique_ptr<IRenderSurface> m_sourceSurface;
-    Resolution m_embeddedResolution;
+    class EmbeddedResolutionDoesNotFit : public std::invalid_argument {
+    public:
+        explicit EmbeddedResolutionDoesNotFit(const std::string& message)
+            : std::invalid_argument(message) {}
+    };
+
+    EmbeddedRenderSurface(std::shared_ptr<IRenderSurface> source_surface, Window window);
+
+    std::shared_ptr<attributes::IAttributeStore> m_attributes;
+    std::shared_ptr<IRenderSurface> m_sourceSurface;
+    Window m_window;
 };
 
 } // namespace

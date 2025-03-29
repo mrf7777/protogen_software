@@ -1,36 +1,62 @@
 #include <protogen/presentation/EmbeddedCanvas.h>
 
-protogen::EmbeddedCanvas::EmbeddedCanvas(ICanvas &target_canvas, const Resolution &embedded_resolution)
-    : m_targetCanvas(target_canvas), m_embeddedResolution(embedded_resolution)
+using namespace protogen;
+
+EmbeddedCanvas::EmbeddedCanvas(ICanvas &target_canvas, const Window &window, bool clip_to_window)
+    : m_targetCanvas(target_canvas), m_window(window), m_clipToWindow(clip_to_window)
 {
 }
 
-int protogen::EmbeddedCanvas::width() const
+bool EmbeddedCanvas::clipToWindow() const
 {
-    return m_embeddedResolution.width();
+    return m_clipToWindow;
 }
 
-int protogen::EmbeddedCanvas::height() const
+void EmbeddedCanvas::setClipToWindow(bool clip_to_window)
 {
-    return m_embeddedResolution.height();
+    m_clipToWindow = clip_to_window;
 }
 
-void protogen::EmbeddedCanvas::setPixel(int x, int y, uint8_t red, uint8_t green, uint8_t blue)
+int EmbeddedCanvas::width() const
 {
-    // Translate embedded canvas to the middle of the target canvas.
-    const int x_offset = (m_targetCanvas.width() - m_embeddedResolution.width()) / 2;
-    const int y_offset = (m_targetCanvas.height() - m_embeddedResolution.height()) / 2;
-    const int new_x =  x + x_offset;
-    const int new_y = y + y_offset;
-    m_targetCanvas.setPixel(new_x, new_y, red, green, blue);
+    return m_window.size.width();
 }
 
-void protogen::EmbeddedCanvas::clear()
+int EmbeddedCanvas::height() const
+{
+    return m_window.size.height();
+}
+
+void EmbeddedCanvas::setPixel(int x, int y, uint8_t red, uint8_t green, uint8_t blue)
+{
+    const Point new_point = translate(x, y);
+    if(m_clipToWindow) {
+        if(inBounds(new_point.x, new_point.y)) {
+            m_targetCanvas.setPixel(new_point.x, new_point.y, red, green, blue);
+        }
+    } else {
+        m_targetCanvas.setPixel(new_point.x, new_point.y, red, green, blue);
+    }
+    
+}
+
+void EmbeddedCanvas::clear()
 {
     m_targetCanvas.clear();
 }
 
-void protogen::EmbeddedCanvas::fill(uint8_t red, uint8_t green, uint8_t blue)
+void EmbeddedCanvas::fill(uint8_t red, uint8_t green, uint8_t blue)
 {
     m_targetCanvas.fill(red, green, blue);
+}
+
+EmbeddedCanvas::Point EmbeddedCanvas::translate(int x, int y) const
+{
+    // Translate embedded canvas coordinates to the target canvas coordinates.
+    return {x + m_window.top_left_x, y + m_window.top_left_y};
+}
+
+bool EmbeddedCanvas::inBounds(int x, int y) const
+{
+    return (x >= 0 && x < width() && y >= 0 && y < height());
 }
