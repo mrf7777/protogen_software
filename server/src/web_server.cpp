@@ -58,7 +58,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 			res.set_content("", "text/plain");
 			return;
 		}
-		const auto name = app.value()->getAttributeStore()->getAttribute(attributes::A_NAME).value_or("");
+		const auto name = app.value()->getAttribute(attributes::A_NAME).value_or("");
 		res.set_content(name, "text/plain");
 	});
 	srv->Get("/protogen/apps/:appid/description", [app_state](const auto& req, auto& res){
@@ -68,7 +68,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 			res.set_content("", "text/plain");
 			return;
 		}
-		const auto description = app.value()->getAttributeStore()->getAttribute(attributes::A_DESCRIPTION).value_or("");
+		const auto description = app.value()->getAttribute(attributes::A_DESCRIPTION).value_or("");
 		res.set_content(description, "text/plain");
 	});
 	srv->Get("/protogen/apps/:appid/thumbnail", [app_state](const auto& req, auto& res){
@@ -81,7 +81,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 			return;
 		}
 		std::string thumbnail_path;
-		const auto app_thumbnail_path = app.value()->getAttributeStore()->getAttribute(attributes::A_THUMBNAIL);
+		const auto app_thumbnail_path = app.value()->getAttribute(attributes::A_THUMBNAIL);
 		if(!app_thumbnail_path.has_value()) {
 			thumbnail_path = "/static/images/no_thumbnail.png";
 		} else {
@@ -124,7 +124,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 			res.set_content("", "text/plain");
 			return;
 		}
-		const auto app_mainpage_path = app.value()->getAttributeStore()->getAttribute(attributes::A_MAIN_PAGE).value_or("");
+		const auto app_mainpage_path = app.value()->getAttribute(attributes::A_MAIN_PAGE).value_or("");
 		// TODO: should this path building be abstracted closer to apps somehow?
 		const std::string homepage_path = "/apps/" + app_id + app_mainpage_path;
 		res.set_content(homepage_path, "text/plain");
@@ -135,7 +135,7 @@ void setup_web_server_for_apps(std::shared_ptr<httplib::Server> srv, std::shared
 	for(const auto& app_id : app_state->appIds()) {
 		std::string app_web_port_string;
 		try {
-			app_web_port_string = app_state->getApp(app_id).value()->getAttributeStore()->getAttribute(attributes::A_WEB_PORT).value_or("-1");
+			app_web_port_string = app_state->getApp(app_id).value()->getAttribute(attributes::A_WEB_PORT).value_or("-1");
 			const int app_web_port = std::stoi(app_web_port_string);
 			if(app_web_port != -1) {
 				app_ids_and_ports.push_back(std::make_pair(app_id, app_web_port));

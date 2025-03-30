@@ -23,16 +23,10 @@ bool RequiredAttributesCheck::check(ExtensionOriginBundle extension)
 {
     m_error.clear();
 
-    const auto attributes = extension.extension->getAttributeStore();
-    if(attributes.get() == nullptr) {
-        m_error = "Extension does not have an attribute store.";
-        return false;
-    }
-
     std::vector<std::string> attributes_missing;
 
     for(const auto& attribute : REQUIRED_ATTRIBUTES) {
-        const auto attribute_value = attributes->getAttribute(attribute);
+        const auto attribute_value = extension.extension->getAttribute(attribute);
         if(attribute_value.has_value()) {
             if(attribute_value.value().empty()) {
                 attributes_missing.push_back(attribute);
@@ -43,7 +37,7 @@ bool RequiredAttributesCheck::check(ExtensionOriginBundle extension)
     }
 
     if(attributes_missing.size() > 0) {
-        m_error = makeErrorStringFromMissingAttributes(attributes_missing, attributes->getAttribute(attributes::A_ID));
+        m_error = makeErrorStringFromMissingAttributes(attributes_missing, extension.extension->getAttribute(attributes::A_ID));
         return false;
     }
 

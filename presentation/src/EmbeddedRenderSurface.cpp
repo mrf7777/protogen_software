@@ -22,11 +22,6 @@ IExtension::Initialization EmbeddedRenderSurface::initialize()
     return Initialization::Success;
 }
 
-std::shared_ptr<attributes::IAttributeStore> EmbeddedRenderSurface::getAttributeStore()
-{
-    return m_attributes;
-}
-
 EmbeddedRenderSurface::EmbeddedRenderSurface(std::shared_ptr<IRenderSurface> source_surface, Window window)
     : m_attributes(std::shared_ptr<attributes::IAttributeStore>(new StandardAttributeStore())), m_sourceSurface(source_surface), m_window(window)
 {
@@ -51,6 +46,31 @@ void EmbeddedRenderSurface::drawFrame(const std::function<void(ICanvas &)> &draw
 Resolution EmbeddedRenderSurface::resolution() const
 {
     return m_window.size;
+}
+
+std::optional<std::string> EmbeddedRenderSurface::getAttribute(const std::string &key) const
+{
+    return m_attributes->getAttribute(key);
+}
+
+std::vector<std::string> EmbeddedRenderSurface::listAttributes() const
+{
+    return m_attributes->listAttributes();
+}
+
+attributes::IWritableAttributeStore::SetAttributeResult EmbeddedRenderSurface::setAttribute(const std::string &key, const std::string &value)
+{
+    return m_attributes->setAttribute(key, value);
+}
+
+attributes::IWritableAttributeStore::RemoveAttributeResult EmbeddedRenderSurface::removeAttribute(const std::string &key)
+{
+    return m_attributes->removeAttribute(key);
+}
+
+bool EmbeddedRenderSurface::hasAttribute(const std::string &key) const
+{
+    return m_attributes->hasAttribute(key);
 }
 
 } // namespace

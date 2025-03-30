@@ -14,7 +14,7 @@ std::optional<std::filesystem::path> ExtensionDirResourceDataLocator::getResourc
         return {};
     }
 
-    const auto extension_id = bundle.extension->getAttributeStore()->getAttribute(attributes::A_ID);
+    const auto extension_id = bundle.extension->getAttribute(attributes::A_ID);
     if(!extension_id.has_value()) {
         return {};
     }

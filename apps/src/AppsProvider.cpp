@@ -18,21 +18,21 @@ std::map<std::string, AppOriginBundle> AppsProvider::loadApps()
 			case IExtensionInitializer::Initialization::Success:
 				break;
 			case IExtensionInitializer::Initialization::Failure:
-				std::cerr << "Failed to initialize app of id `" << app.extension->getAttributeStore()->getAttribute(attributes::A_ID).value_or("<no id>") << "`." << std::endl;
+				std::cerr << "Failed to initialize app of id `" << app.extension->getAttribute(attributes::A_ID).value_or("<no id>") << "`." << std::endl;
 				continue;
 				break;
 		}
 		if(!m_app_check->check(app)) {
 			std::cerr
 				<< "App of id `"
-				<< app.extension->getAttributeStore()->getAttribute(attributes::A_ID).value_or("<no id>")
+				<< app.extension->getAttribute(attributes::A_ID).value_or("<no id>")
 				<< "` failed to pass checks. Here is the issue: "
 				<< m_app_check->error()
 				<< std::endl;
 			continue;
 		}
 		apps.insert({
-            app.extension->getAttributeStore()->getAttribute(attributes::A_ID).value_or(""),
+            app.extension->getAttribute(attributes::A_ID).value_or(""),
             AppOriginBundle{
                 std::dynamic_pointer_cast<IProtogenApp>(app.extension),
                 app.extension_directory

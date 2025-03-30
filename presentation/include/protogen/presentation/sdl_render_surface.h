@@ -46,7 +46,12 @@ public:
     Initialization initialize() override;
     void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
     Resolution resolution() const override;
-    std::shared_ptr<attributes::IAttributeStore> getAttributeStore() override;
+    std::optional<std::string> getAttribute(const std::string& key) const override;
+    std::vector<std::string> listAttributes() const override;
+    SetAttributeResult setAttribute(const std::string& key, const std::string& value) override;
+    RemoveAttributeResult removeAttribute(const std::string& key) override;
+    bool hasAttribute(const std::string& key) const override;
+    
 private:
     class ConstructorException : public std::runtime_error {
     public:

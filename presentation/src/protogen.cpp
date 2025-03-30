@@ -92,13 +92,34 @@ void ProtogenHeadMatrices::drawFrame(const std::function<void(ICanvas&)>& drawer
     m_matrix->SwapOnVSync(frame);
 }
 
-std::shared_ptr<attributes::IAttributeStore> ProtogenHeadMatrices::getAttributeStore() {
-    return m_attributes;
-}
-
 Resolution ProtogenHeadMatrices::resolution() const
 {
     return Resolution(128, 32);
+}
+
+std::optional<std::string> ProtogenHeadMatrices::getAttribute(const std::string &key) const
+{
+    return m_attributes->getAttribute(key);
+}
+
+std::vector<std::string> ProtogenHeadMatrices::listAttributes() const
+{
+    return m_attributes->listAttributes();
+}
+
+attributes::IWritableAttributeStore::SetAttributeResult ProtogenHeadMatrices::setAttribute(const std::string &key, const std::string &value)
+{
+    return m_attributes->setAttribute(key, value);
+}
+
+attributes::IWritableAttributeStore::RemoveAttributeResult ProtogenHeadMatrices::removeAttribute(const std::string &key)
+{
+    return m_attributes->removeAttribute(key);
+}
+
+bool ProtogenHeadMatrices::hasAttribute(const std::string &key) const
+{
+    return m_attributes->hasAttribute(key);
 }
 
 RgbMatrixCanvasToICanvasAdapter::RgbMatrixCanvasToICanvasAdapter(rgb_matrix::Canvas *canvas)

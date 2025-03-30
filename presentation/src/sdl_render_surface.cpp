@@ -85,9 +85,34 @@ Resolution SdlRenderSurface::resolution() const
     return m_resolution;
 }
 
+std::optional<std::string> SdlRenderSurface::getAttribute(const std::string &key) const
+{
+    return m_attributes->getAttribute(key);
+}
+
+std::vector<std::string> SdlRenderSurface::listAttributes() const
+{
+    return m_attributes->listAttributes();
+}
+
+attributes::IWritableAttributeStore::SetAttributeResult SdlRenderSurface::setAttribute(const std::string &key, const std::string &value)
+{
+    return m_attributes->setAttribute(key, value);
+}
+
+attributes::IWritableAttributeStore::RemoveAttributeResult SdlRenderSurface::removeAttribute(const std::string &key)
+{
+    return m_attributes->removeAttribute(key);
+}
+
+bool SdlRenderSurface::hasAttribute(const std::string &key) const
+{
+    return m_attributes->hasAttribute(key);
+}
+
 SdlRenderSurface::SdlRenderSurface()
     : m_resolution(0, 0),
-    m_attributes(new StandardAttributeStore())
+      m_attributes(new StandardAttributeStore())
 {
     unsigned int width;
     unsigned int height;
@@ -117,10 +142,6 @@ SdlRenderSurface::SdlRenderSurface()
     m_attributes->setAttribute(attributes::A_ID, "sdl_window");
     m_attributes->setAttribute(attributes::A_NAME, "SDL Window");
     m_attributes->setAttribute(attributes::A_DESCRIPTION, "Implements support for showing imagery with a window using SDL. This allows for development and testing the imagery without the need for dedicated protogen hardware and uses your monitor instead.");
-}
-
-std::shared_ptr<attributes::IAttributeStore> SdlRenderSurface::getAttributeStore() {
-    return m_attributes;
 }
 
 SdlRendererToICanvasAdapter::SdlRendererToICanvasAdapter(SDL_Renderer *renderer, int width, int height)

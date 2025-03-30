@@ -20,21 +20,21 @@ std::map<std::string, SensorOriginBundle> protogen::SensorsProvider::loadSensors
 			case IExtensionInitializer::Initialization::Success:
 				break;
 			case IExtensionInitializer::Initialization::Failure:
-				std::cerr << "Failed to initialize sensor of id `" << sensor.extension->getAttributeStore()->getAttribute(attributes::A_ID).value_or("<no id>") << "`." << std::endl;
+				std::cerr << "Failed to initialize sensor of id `" << sensor.extension->getAttribute(attributes::A_ID).value_or("<no id>") << "`." << std::endl;
 				continue;
 				break;
 		}
 		if(!m_sensor_check->check(sensor)) {
 			std::cerr
 				<< "Sensor of id `"
-				<< sensor.extension->getAttributeStore()->getAttribute(attributes::A_ID).value_or("<no id>")
+				<< sensor.extension->getAttribute(attributes::A_ID).value_or("<no id>")
 				<< "` failed to pass checks. Here is the issue: "
 				<< m_sensor_check->error()
 				<< std::endl;
 			continue;
 		}
 		sensors.insert({
-            sensor.extension->getAttributeStore()->getAttribute(attributes::A_ID).value_or(""),
+            sensor.extension->getAttribute(attributes::A_ID).value_or(""),
             SensorOriginBundle{
                 std::dynamic_pointer_cast<sensor::ISensor>(sensor.extension),
                 sensor.extension_directory

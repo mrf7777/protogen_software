@@ -19,16 +19,6 @@ IExtension::Initialization protogen::AppSafetyWrapper::initialize()
     }
 }
 
-std::shared_ptr<attributes::IAttributeStore> protogen::AppSafetyWrapper::getAttributeStore()
-{
-    try{
-        return m_app->getAttributeStore();
-    } catch(...) {
-        std::cerr << "An exception occurred while getting the attribute store of an app." << std::endl;
-        return nullptr;
-    }
-}
-
 void protogen::AppSafetyWrapper::setActive(bool active)
 {
     try {

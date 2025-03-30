@@ -2,6 +2,7 @@
 #define PROTOGEN_IEXTENSION_HPP
 
 #include <protogen/IAttributeStore.hpp>
+#include <protogen/IInitializable.hpp>
 
 #include <memory>
 
@@ -20,25 +21,9 @@ namespace protogen {
  * - IRenderSurface
  * - IProtogenApp
  */
-class IExtension {
+class IExtension : public attributes::IAttributeStore, public IInitializable {
 public:
-    enum class Initialization {
-        Success,
-        Failure,
-    };
-
     virtual ~IExtension() = default;
-
-    /**
-     * Initialize your extension. This will be called before any other methods.
-     */
-    virtual Initialization initialize() = 0;
-
-    /**
-     * Return attribute store for this extension. This is used to store
-     * metadata, configuration, and other information about the extension.
-     */
-    virtual std::shared_ptr<attributes::IAttributeStore> getAttributeStore() = 0;
 };
 
 using CreateExtensionFunction = IExtension * (*)();

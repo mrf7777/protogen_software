@@ -12,15 +12,21 @@
 
 namespace protogen {
 
+// TODO: this should not depend on any attribute store interfaces.
 class EmbeddedRenderSurface : public IRenderSurface {
 public:
     static std::optional<std::unique_ptr<EmbeddedRenderSurface>> make(std::shared_ptr<IRenderSurface> source_surface, Window window);
 
     Initialization initialize() override;
-    std::shared_ptr<attributes::IAttributeStore> getAttributeStore() override;
     void drawFrame(const std::function<void(ICanvas&)>& drawer) override;
     Resolution resolution() const override;
 
+    std::optional<std::string> getAttribute(const std::string& key) const override;
+    std::vector<std::string> listAttributes() const override;
+    SetAttributeResult setAttribute(const std::string& key, const std::string& value) override;
+    RemoveAttributeResult removeAttribute(const std::string& key) override;
+    bool hasAttribute(const std::string& key) const override;
+    
 private:
     class EmbeddedResolutionDoesNotFit : public std::invalid_argument {
     public:

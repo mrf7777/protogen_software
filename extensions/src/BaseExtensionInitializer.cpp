@@ -12,13 +12,13 @@ IExtensionInitializer::Initialization BaseExtensionInitializer::initialize(Exten
 {
     const auto user_data_directory = m_userDataLocator->getUserDataDirectory(bundle);
     if(user_data_directory.has_value()) {
-        bundle.extension->getAttributeStore()->setAttribute(attributes::A_USER_DATA_DIRECTORY, user_data_directory.value().generic_string());
+        bundle.extension->setAttribute(attributes::A_USER_DATA_DIRECTORY, user_data_directory.value().generic_string());
     }
 
     const auto resource_data_directory = m_resourceDataLocator->getResourceDataDirectory(bundle);
     if(resource_data_directory.has_value())
     {
-        bundle.extension->getAttributeStore()->setAttribute(attributes::A_RESOURCES_DIRECTORY, resource_data_directory.value().generic_string());
+        bundle.extension->setAttribute(attributes::A_RESOURCES_DIRECTORY, resource_data_directory.value().generic_string());
     }
 
     if(bundle.extension->initialize() == IExtension::Initialization::Failure) {

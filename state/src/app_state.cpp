@@ -9,7 +9,7 @@ AppState::AppState()
 {}
 
 bool AppState::addApp(std::shared_ptr<IProtogenApp> app) {
-    const auto app_id = app->getAttributeStore()->getAttribute(attributes::A_ID).value_or("");
+    const auto app_id = app->getAttribute(attributes::A_ID).value_or("");
     if(app_id.empty()) {
         return false;
     }
