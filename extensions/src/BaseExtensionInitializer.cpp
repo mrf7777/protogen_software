@@ -1,4 +1,5 @@
 #include <protogen/extensions/initializers/BaseExtensionInitializer.h>
+#include <protogen/StandardAttributes.hpp>
 
 using namespace protogen;
 

@@ -1,4 +1,5 @@
 #include <protogen/extensions/data_locators/ExtensionDirResourceDataLocator.h>
+#include <protogen/StandardAttributes.hpp>
 
 using namespace protogen;
 

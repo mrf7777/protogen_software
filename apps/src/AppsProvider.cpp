@@ -1,4 +1,5 @@
 #include <protogen/apps/AppsProvider.h>
+#include <protogen/StandardAttributes.hpp>
 
 using namespace protogen;
 

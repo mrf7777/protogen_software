@@ -9,6 +9,7 @@
 #include <protogen/Resolution.hpp>
 #include <protogen/IRenderSurface.hpp>
 #include <protogen/StandardAttributeStore.hpp>
+#include <protogen/StandardAttributes.hpp>
 
 namespace protogen {
 

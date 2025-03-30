@@ -1,4 +1,5 @@
 #include <protogen/extensions/data_locators/ExtensionHomeDirUserDataLocator.h>
+#include <protogen/StandardAttributes.hpp>
 
 #include <cstdlib>
 #include <unistd.h>

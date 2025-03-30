@@ -1,4 +1,5 @@
 #include <protogen/sensors/SensorsProvider.h>
+#include <protogen/StandardAttributes.hpp>
 
 #include <iostream>
 

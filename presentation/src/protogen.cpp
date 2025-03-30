@@ -1,6 +1,7 @@
 #include <protogen/presentation/protogen.h>
 
 #include <protogen/StandardAttributeStore.hpp>
+#include <protogen/StandardAttributes.hpp>
 
 #include <iostream>
 

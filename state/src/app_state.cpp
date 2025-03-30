@@ -1,4 +1,5 @@
 #include <protogen/state/app_state.h>
+#include <protogen/StandardAttributes.hpp>
 
 namespace protogen {
 

@@ -1,4 +1,6 @@
 #include <protogen/extensions/checks/RequiredAttributesCheck.h>
+#include <protogen/StandardAttributes.hpp>
+#include <protogen/StandardAttributes.hpp>
 
 #include <string>
 #include <vector>

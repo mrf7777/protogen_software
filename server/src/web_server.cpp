@@ -1,4 +1,5 @@
 #include <protogen/server/web_server.h>
+#include <protogen/StandardAttributes.hpp>
 
 #include <fstream>
 #include <sstream>
