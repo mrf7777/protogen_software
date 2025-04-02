@@ -1,4 +1,5 @@
 #include <protogen/mouth/audio.h>
+#include <protogen/StandardAttributes.hpp>
 
 #include <iomanip>
 #include <fcntl.h>
@@ -9,76 +10,85 @@
 namespace protogen
 {
 
-WebsiteAudioProvider::WebsiteAudioProvider(httplib::Server& srv, const std::string& url_path) : m_currentLevel(0.0) {
-    srv.Put(url_path, [this](const auto& req, auto&){
-        std::lock_guard<std::mutex> lock(this->m_mutex);
-        this->m_currentLevel = std::stod(req.body);
-    });
-}
-
-double WebsiteAudioProvider::audioLevel() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    return m_currentLevel;
-}
-
-double WebsiteAudioProvider::min() const {
-    return 0.0;
-}
-
-double WebsiteAudioProvider::max() const {
-    return 255.0;
-}
-
-std::optional<std::unique_ptr<PcbArtistsDecibelMeter>> PcbArtistsDecibelMeter::make()
-{
-    try {
-        return {std::unique_ptr<PcbArtistsDecibelMeter>(new PcbArtistsDecibelMeter())};
-    } catch(const ConstructionException&) {
-        return {};
-    }
-}
-
 PcbArtistsDecibelMeter::PcbArtistsDecibelMeter()
+    : m_i2cFile(nullptr),
+    m_attributes()
 {
+    m_attributes.setAttribute(attributes::A_ID, "pcb_artists_decibel_meter");
+    m_attributes.setAttribute(attributes::A_NAME, "PCB Artist's Decibel Meter");
+    m_attributes.setAttribute(attributes::A_DESCRIPTION, "A decibel meter that uses I2C to communicate to PCB Artist's hardware.");
+    m_attributes.setAttribute(attributes::A_AUTHOR, "mrf7777");
+}
+
+IInitializable::Initialization PcbArtistsDecibelMeter::initialize() {
     int open_result = open(I2C_FILE_PATH, O_RDWR);
     if(open_result < 0) {
         std::cerr << "Could not open I2C: " << I2C_FILE_PATH << std::endl;
-        throw ConstructionException();
+        return Initialization::Failure;
     }
     m_i2cFile = std::unique_ptr<int, FileDeleter>(new int(open_result));
 
     int i2c_connect_result = ioctl(*m_i2cFile, I2C_SLAVE, I2C_ADDRESS);
     if(i2c_connect_result < 0) {
         std::cerr << "Could not connect to I2C device: " << std::hex << static_cast<int>(I2C_ADDRESS) << ". Is it connected?" << std::endl;
-        throw ConstructionException();
+        return Initialization::Failure;
     }
 
     // Do a test read to see if the I2C device is usable.
     const auto read_attempt = readI2cByte(*m_i2cFile, I2C_DECIBEL_REGISTER);
     if(!read_attempt.has_value()) {
         std::cerr << "It seems that the I2C device found is not a PCB Artist's Decibel Meter." << std::endl;
-        throw ConstructionException();
+        return Initialization::Failure;
     }
 
     setTimeAverageMilliseconds(17);
+    return Initialization::Success;
 }
 
-double PcbArtistsDecibelMeter::audioLevel() const {
-    const auto potential_audio_level = readI2cByte(*m_i2cFile, I2C_DECIBEL_REGISTER);
-    if(!potential_audio_level.has_value()) {
-        return -1.0;
+std::optional<std::string> PcbArtistsDecibelMeter::getAttribute(const std::string& key) const {
+    return m_attributes.getAttribute(key);
+}
+std::vector<std::string> PcbArtistsDecibelMeter::listAttributes() const {
+    return m_attributes.listAttributes();
+}
+bool PcbArtistsDecibelMeter::hasAttribute(const std::string& key) const {
+    return m_attributes.hasAttribute(key);
+}
+attributes::IWritableAttributeStore::SetAttributeResult PcbArtistsDecibelMeter::setAttribute(const std::string& key, const std::string& value) {
+    return m_attributes.setAttribute(key, value);
+}
+attributes::IWritableAttributeStore::RemoveAttributeResult PcbArtistsDecibelMeter::removeAttribute(const std::string& key) {
+    return m_attributes.removeAttribute(key);
+}
+std::vector<sensor::ISensor::ChannelInfo> PcbArtistsDecibelMeter::channels() const {
+    return {
+        {"std:in.sound_level", "Internal sound intensity level measured in decibels (dB)."},
+    };
+}
+sensor::ISensor::ReadResult PcbArtistsDecibelMeter::read(const std::string& channel_id) {
+    if (channel_id == "std:in.sound_level") {
+        const auto potential_audio_level = readI2cByte(*m_i2cFile, I2C_DECIBEL_REGISTER);
+        if(!potential_audio_level.has_value()) {
+            return ReadResult{
+                std::chrono::system_clock::now(),
+                {},
+                ReadError::HardwareFailure
+            };
+        }
+    
+        const double audio_level = static_cast<double>(potential_audio_level.value());
+
+        return ReadResult{
+            std::chrono::system_clock::now(),
+            {audio_level},
+            {}
+        };
     }
-
-    const double audio_level = static_cast<double>(potential_audio_level.value());
-    return audio_level;
-}
-
-double PcbArtistsDecibelMeter::min() const {
-    return 72;
-}
-
-double PcbArtistsDecibelMeter::max() const  {
-    return 103;
+    return ReadResult{
+        std::chrono::system_clock::now(),
+        {},
+        ReadError::ChannelNotFound
+    };
 }
 
 bool PcbArtistsDecibelMeter::setTimeAverageMilliseconds(uint16_t miliseconds) {
@@ -98,7 +108,7 @@ std::optional<uint8_t> PcbArtistsDecibelMeter::readI2cByte(int i2c_file, uint8_t
         return {};
     }
 
-    if(read(i2c_file, &data, 1) != 1) {
+    if(::read(i2c_file, &data, 1) != 1) {
         std::cerr << "Failed to read register: " << std::hex << static_cast<int>(i2c_register) << std::endl;
         return {};
     }
@@ -118,39 +128,6 @@ void PcbArtistsDecibelMeter::FileDeleter::operator()(int * file) const {
     if(file) {
         close(*file);
     }
-}
-
-PcbArtistsDecibelMeter::ConstructionException::ConstructionException()
-    : std::exception()
-{}
-
-AudioToProportionAdapter::AudioToProportionAdapter(std::unique_ptr<IAudioProvider> audio_provider)
-    : m_audioProvider(std::move(audio_provider))
-{}
-
-Proportion AudioToProportionAdapter::proportion() const
-{
-    const double audio_min = m_audioProvider->min();
-    const double audio_max = m_audioProvider->max();
-    const double audio_level_clamped = std::clamp(m_audioProvider->audioLevel(), audio_min, audio_max);
-
-    // We need to do reverse linear interpolation. Here is the lerp formula:
-    //   l = a + t(b - a)
-    // Where t is in [0, 1], a is audio min, b is audio max, and l is audio level clamped.
-    //
-    // We want t, since this is between 0 and 1.
-    //   (l - a) / (b - a) = t
-    const double proportion = (audio_level_clamped - audio_min) / (audio_max - audio_min);
-    return Proportion::make(proportion).value();
-}
-
-ConstantProportionProvider::ConstantProportionProvider()
-{
-}
-
-Proportion ConstantProportionProvider::proportion() const
-{
-    return Proportion::make(0.0).value();
 }
 
 }   // namespace
