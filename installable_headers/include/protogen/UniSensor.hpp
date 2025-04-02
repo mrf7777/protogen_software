@@ -9,6 +9,7 @@
 
 #include <protogen/ISensor.hpp>
 #include <protogen/StandardAttributeStore.hpp>
+#include <protogen/StandardAttributes.hpp>
 
 namespace protogen::sensor {
 
@@ -22,7 +23,7 @@ namespace protogen::sensor {
  */
 class UniSensor : public ISensor {
 public:
-    explicit UniSensor(std::vector<std::shared_ptr<ISensor>> sensors) : m_channels(), m_attributes(new StandardAttributeStore()) {
+    explicit UniSensor(const std::vector<std::shared_ptr<ISensor>>& sensors) : m_channels(), m_attributes(new StandardAttributeStore()) {
         for(const auto& sensor : sensors) {
             const auto channels = sensor->channels();
             for(const auto& channel : channels) {
@@ -73,8 +74,24 @@ public:
         };
     }
 
-    std::shared_ptr<attributes::IAttributeStore> getAttributeStore() override {
-        return nullptr;
+    std::optional<std::string> getAttribute(const std::string& key) const override {
+        return m_attributes->getAttribute(key);
+    }
+
+    std::vector<std::string> listAttributes() const override {
+        return m_attributes->listAttributes();
+    }
+
+    bool hasAttribute(const std::string& key) const override {
+        return m_attributes->hasAttribute(key);
+    }
+
+    SetAttributeResult setAttribute(const std::string& key, const std::string& value) override {
+        return m_attributes->setAttribute(key, value);
+    }
+    
+    RemoveAttributeResult removeAttribute(const std::string& key) override {
+        return m_attributes->removeAttribute(key);
     }
 
 private:
