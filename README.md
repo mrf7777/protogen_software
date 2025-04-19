@@ -55,6 +55,11 @@ https://pcbartists.com/product-documentation/accurate-raspberry-pi-decibel-meter
   - If protogen has some kind of NFC or bluetooth-like connectivity, maybe that could work.
 - Voice-modification with mic and speaker.
 
+## Tasks:
+- [ ] document interface for creating and destroying extensions.
+- [ ] implement initializer for ISensor.
+- [ ] implement initializer for IRenderSurface.
+
 ## Refactor ideas
 - How do we run nginx and reload it if its already running in C++?
   - How about simply attempting to manage nginx, and if there are permission issues, report to user and exit.
