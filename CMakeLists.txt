@@ -72,6 +72,7 @@ add_subdirectory(utils)
 add_subdirectory(main)
 add_subdirectory(tests)
 add_subdirectory(sensors)
+add_subdirectory(render_surfaces)
 
 # Copy resources to build so one can run current build
 # with resources without installing resources to system.
