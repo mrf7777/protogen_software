@@ -57,8 +57,8 @@ https://pcbartists.com/product-documentation/accurate-raspberry-pi-decibel-meter
 
 ## Tasks:
 - [ ] document interface for creating and destroying extensions.
-- [ ] implement initializer for ISensor.
-- [ ] implement initializer for IRenderSurface.
+- [x] implement initializer for ISensor.
+- [x] implement initializer for IRenderSurface.
 
 ## Refactor ideas
 - How do we run nginx and reload it if its already running in C++?
