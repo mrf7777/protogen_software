@@ -11,55 +11,11 @@ set(PROTOGEN_RESOURCES_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share/protogen/resou
 set(PROTOGEN_APPS_DIR "${CMAKE_INSTALL_PREFIX}/share/protogen/apps")
 set(PROTOGEN_SENSORS_DIR "${CMAKE_INSTALL_PREFIX}/share/protogen/sensors")
 
-# Create targets for external libraries.
-## GraphicsMagick
-add_library(graphics_magick INTERFACE)
-execute_process(
-    COMMAND GraphicsMagick++-config --cppflags
-    OUTPUT_VARIABLE GraphicsMagick_CPP_FLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(
-    COMMAND GraphicsMagick++-config --ldflags --libs
-    OUTPUT_VARIABLE GraphicsMagick_LIBS_RAW
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-string(REPLACE "\n" " " GraphicsMagick_LIBS "${GraphicsMagick_LIBS_RAW}")
-separate_arguments(GraphicsMagick_LIBS)
-target_compile_options(graphics_magick INTERFACE ${GraphicsMagick_CPP_FLAGS})
-target_link_libraries(graphics_magick INTERFACE ${GraphicsMagick_LIBS})
-
-## cpp-httplib
-FetchContent_Declare(
-    httplib
-    GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
-    GIT_TAG 924f214303b860b78350e1e2dfb0521a8724464f
-)
-FetchContent_Populate(httplib)
-add_library(httplib INTERFACE IMPORTED)
-set_target_properties(httplib PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${httplib_SOURCE_DIR}"
-)
-
-## rpi rgb led matrix library
-add_library(rpi_rgb_led_matrix INTERFACE)
-target_include_directories(rpi_rgb_led_matrix SYSTEM INTERFACE "$ENV{HOME}/rpi-rgb-led-matrix/include")
-target_link_libraries(rpi_rgb_led_matrix INTERFACE "$ENV{HOME}/rpi-rgb-led-matrix/lib/librgbmatrix.a")
-
-## SDL
-add_library(SDL INTERFACE)
-find_package(SDL2 REQUIRED)
-target_include_directories(SDL INTERFACE ${SDL2_INCLUDE_DIRS})
-target_link_libraries(SDL INTERFACE ${SDL2_LIBRARIES})
-
-## GoogleTest
-set(INSTALL_GTEST OFF)
-FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
-)
-set(BUILD_GMOCK TRUE CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
+include(${PROJECT_SOURCE_DIR}/cmake/GraphicsMagick.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/CppHttplib.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/RpiRgbLedMatrixLibrary.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/Sdl.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/GoogleTest.cmake)
 
 add_subdirectory(apps)
 add_subdirectory(extensions)
